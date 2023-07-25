@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zylog/Makefile
+Package: zylog
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libuam +zykit +kmod-zyklog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylog package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylog package
+https://www.zyxel.com/
+
+@@
+
+

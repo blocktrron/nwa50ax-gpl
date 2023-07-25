@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libfirmware/Makefile
+Package: libfirmware
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libbmm
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Firmware Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Firmware Library
+https://www.zyxel.com/
+
+@@
+
+

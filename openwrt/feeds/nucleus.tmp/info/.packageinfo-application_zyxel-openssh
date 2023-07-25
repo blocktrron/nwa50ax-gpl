@@ -1,0 +1,23 @@
+Source-Makefile: feeds/nucleus/application/zyxel-openssh/Makefile
+Package: zyxel-openssh
+Submenu: application
+Version: 8.6p1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +zlib +libpthread +libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Depends: libopenssl
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel OpenSSH Package
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel OpenSSH Package
+http://www.openssh.com/
+
+@@
+
+

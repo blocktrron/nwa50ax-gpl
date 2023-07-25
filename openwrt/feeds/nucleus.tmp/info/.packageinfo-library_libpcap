@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libpcap/Makefile
+Package: libpcap
+Submenu: library
+Version: 1.9.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Low-level packet capture library
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Low-level packet capture library
+http://www.tcpdump.org/
+
+@@
+
+

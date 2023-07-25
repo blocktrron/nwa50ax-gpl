@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/wireless-hal/Makefile
+Package: wireless-hal
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zylog +zykit +libiface_generic +libuam +zyUMAC +zld-files +wifimgr +zylog_wrapper +proWireless_snmptrap +libwifi_common +libstats +TARGET_ipq:qca-wifi +wtp_module +wpa3lib +link_updown +libubus +libubox
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wireless-hal package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wireless-hal package
+https://www.zyxel.com/
+
+@@
+
+

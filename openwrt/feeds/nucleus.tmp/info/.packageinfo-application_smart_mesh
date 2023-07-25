@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/smart_mesh/Makefile
+Package: smart_mesh
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +wtp_module +zlib +zykit +libiface_generic +uam +zld-files +wireless-hal +libubus +libubox
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Smart Mesh Utility
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel Smart Mesh Utility
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+

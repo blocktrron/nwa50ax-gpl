@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libol/Makefile
+Package: libol
+Submenu: library
+Version: 0.3.18-2
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Support library for syslog-ng
+Maintainer: 
+Source: libol-0.3.18.tar.gz
+License: GPL-2.0
+Type: ipkg
+Description: Support library for syslog-ng
+http://www.balabit.com/products/syslog_ng/
+
+@@
+
+

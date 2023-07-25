@@ -1,0 +1,19 @@
+#!/bin/sh
+
+link_dir="${1}"
+link_name="$(cat "${2}")"
+
+[ ! -d "${link_dir}" ] && install -d "${link_dir}"
+case "${ACTION}" in
+	add|"")
+		ln -sfn "/dev/${DEVNAME}" "${link_dir}/${link_name}"
+		;;
+	remove)
+		for i in "${link_dir}"/*; do
+			if [ "$(readlink "${i}")" = "/dev/${DEVNAME}" ] ;then
+				rm -f "${i}"
+				break
+			fi
+		done
+		;;
+esac

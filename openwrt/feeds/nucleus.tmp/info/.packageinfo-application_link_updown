@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/link_updown/Makefile
+Package: link_updown
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +zylog +libuam +libiface_generic +kmod-link_updown-module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Ethernet link up down notify daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   Handle Ethernet link up down event and notify related daemon to launch service
+https://www.zyxel.com/
+
+@@
+
+

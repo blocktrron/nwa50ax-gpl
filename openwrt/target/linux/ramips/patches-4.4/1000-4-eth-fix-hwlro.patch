@@ -1,0 +1,129 @@
+From 11a37b2341427061569578744f2d9bca650f5bf6 Mon Sep 17 00:00:00 2001
+From: Henry Yen <henry.yen@mediatek.com>
+Date: Wed, 16 Dec 2020 14:57:12 +0800
+Subject: [PATCH] net: mediatek: update Ethernet HW LRO feature
+
+In the case PPE is enabled, there are some additional LRO settings
+that should be configured. With the patch, the MYIP packets are
+supposed to be redirected to LRO rings (ring 1~3).
+
+The changes include:
+1. Enable cpu reason black list.
+2. Retrieve PLEN1 (packet length) in RXD2.
+
+Test: build pass
+
+Change-Id: I8ad3bf308f86a87aeebfe57b0ce947c63f535c47
+Signed-off-by: Henry Yen <henry.yen@mediatek.com>
+CR-Id: WCNCR00185554
+---
+
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index c60d49f..cae0ade 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1096,7 +1096,11 @@
+ 
+ 		dma_unmap_single(eth->dev, trxd.rxd1,
+ 				 ring->buf_size, DMA_FROM_DEVICE);
++
+ 		pktlen = RX_DMA_GET_PLEN0(trxd.rxd2);
++		if (IS_HW_LRO_RING(ring->ring_no) && eth->hwlro)
++			pktlen |= (RX_DMA_GET_PLEN1(trxd.rxd2) << 14);
++
+ 		skb->dev = netdev;
+ 		skb_put(skb, pktlen);
+ 		if (trxd.rxd4 & RX_DMA_L4_VALID)
+@@ -1142,7 +1146,10 @@
+ 		rxd->rxd1 = (unsigned int)dma_addr;
+ 
+ release_desc:
+-		rxd->rxd2 = RX_DMA_PLEN0(ring->buf_size);
++		rxd->rxd2 = (IS_HW_LRO_RING(ring->ring_no) && eth->hwlro) ?
++			     RX_DMA_PLEN0(ring->buf_size) |
++			     RX_DMA_PLEN1(ring->buf_size >> 14) :
++			     RX_DMA_PLEN0(ring->buf_size);
+ 
+ 		ring->calc_idx = idx;
+ 
+@@ -1427,12 +1434,17 @@
+ 			return -ENOMEM;
+ 		ring->dma[i].rxd1 = (unsigned int)dma_addr;
+ 
+-		ring->dma[i].rxd2 = RX_DMA_PLEN0(ring->buf_size);
++		ring->dma[i].rxd2 =
++			(IS_HW_LRO_RING(ring->ring_no) && eth->hwlro) ?
++			 RX_DMA_PLEN0(ring->buf_size) |
++			 RX_DMA_PLEN1(ring->buf_size >> 14) :
++			 RX_DMA_PLEN0(ring->buf_size);
+ 	}
+ 	ring->dma_size = rx_dma_size;
+ 	ring->calc_idx_update = false;
+ 	ring->calc_idx = rx_dma_size - 1;
+ 	ring->crx_idx_reg = MTK_PRX_CRX_IDX_CFG(ring_no);
++	ring->ring_no = ring_no;
+ 	/* make sure that all changes to the dma ring are flushed before we
+ 	 * continue
+ 	 */
+@@ -1529,9 +1541,15 @@
+ 	/* enable HW LRO */
+ 	lro_ctrl_dw0 |= MTK_LRO_EN;
+ 
++	/* enable cpu reason black list */
++	lro_ctrl_dw0 |= MTK_LRO_CRSN_BNW;
++
+ 	mtk_w32(eth, lro_ctrl_dw3, MTK_PDMA_LRO_CTRL_DW3);
+ 	mtk_w32(eth, lro_ctrl_dw0, MTK_PDMA_LRO_CTRL_DW0);
+ 
++	/* no use PPE cpu reason */
++	mtk_w32(eth, 0xffffffff, MTK_PDMA_LRO_CTRL_DW1);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index a52b185..2a1158d 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -45,6 +45,7 @@
+ 				 NETIF_F_TSO6 | \
+ 				 NETIF_F_IPV6_CSUM)
+ #define NEXT_RX_DESP_IDX(X, Y)	(((X) + 1) & ((Y) - 1))
++#define IS_HW_LRO_RING(ring_no)	((ring_no > 0) && (ring_no < 4))
+ 
+ #define MTK_MAX_RX_RING_NUM	4
+ #define MTK_HW_LRO_DMA_SIZE	8
+@@ -116,6 +117,7 @@
+ /* PDMA HW LRO Control Registers */
+ #define MTK_PDMA_LRO_CTRL_DW0	0x980
+ #define MTK_LRO_EN			BIT(0)
++#define MTK_LRO_CRSN_BNW		BIT(6)
+ #define MTK_L3_CKS_UPD_EN		BIT(7)
+ #define MTK_LRO_ALT_PKT_CNT_MODE	BIT(21)
+ #define MTK_LRO_RING_RELINQUISH_REQ	(0x7 << 26)
+@@ -300,7 +302,9 @@
+ 
+ /* QDMA descriptor rxd2 */
+ #define RX_DMA_DONE		BIT(31)
++#define RX_DMA_PLEN1(_x)	(((_x) & 0x3) << 0)
+ #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
++#define RX_DMA_GET_PLEN1(_x)	(((_x) >> 0) & 0x3)
+ #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
+ #define RX_DMA_VTAG             BIT(15)
+ 
+@@ -618,6 +622,7 @@
+  * @frag_size:		How big can each fragment be
+  * @buf_size:		The size of each packet buffer
+  * @calc_idx:		The current head of ring
++ * @ring_no:		The index of ring
+  */
+ struct mtk_rx_ring {
+ 	struct mtk_rx_dma *dma;
+@@ -629,6 +634,7 @@
+ 	bool calc_idx_update;
+ 	u16 calc_idx;
+ 	u32 crx_idx_reg;
++	u32 ring_no;
+ };
+ 
+ enum mtk_eth_mux {

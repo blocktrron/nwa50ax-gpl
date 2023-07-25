@@ -1,0 +1,27 @@
+From 5ece806881f6c583c2ca588abf0da4f3f1b62a25 Mon Sep 17 00:00:00 2001
+From: Henry Yen <henry.yen@mediatek.com>
+Date: Tue, 24 Nov 2020 14:12:33 +0800
+Subject: [PATCH] net: mediatek: Fix DS-Lite UDP LAN->WAN UN-BIND issue
+
+Fix DS-Lite UDP LAN->WAN UN-BIND issue.
+
+Test: build pass
+
+Change-Id: I6bc2009e7dd94b47cecff346e2f08cc7245cfffd
+Signed-off-by: Henry Yen <henry.yen@mediatek.com>
+CR-Id: WCNCR00185554
+---
+
+diff --git a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
+index 1491c3c..1a1cd736 100644
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
+@@ -1205,6 +1205,8 @@
+ 			if (!mape_toggle &&
+ 			    entry.bfib1.pkt_type == IPV4_DSLITE) {
+ 				/* DS-Lite LAN->WAN */
++				entry.ipv4_dslite.bfib1.udp =
++					foe->ipv4_dslite.bfib1.udp;
+ 				entry.ipv4_dslite.sip = foe->ipv4_dslite.sip;
+ 				entry.ipv4_dslite.dip = foe->ipv4_dslite.dip;
+ 				entry.ipv4_dslite.sport =

@@ -1,0 +1,59 @@
+Index: procd-2018-01-22-9a4036fb/service/service.c
+===================================================================
+--- procd-2018-01-22-9a4036fb.orig/service/service.c
++++ procd-2018-01-22-9a4036fb/service/service.c
+@@ -552,6 +552,46 @@ service_get_data(struct ubus_context *ct
+ 	return 0;
+ }
+ 
++static int
++service_get_process_info(struct ubus_context *ctx, struct ubus_object *obj,
++		struct ubus_request_data *req, const char *method,
++		struct blob_attr *msg)
++{
++	struct service_instance *in;
++	struct service *s;
++	struct timespec tp;
++	char runtime[128];
++	long runtime_second;
++	unsigned updays, uphours, upminutes, upsecond;
++	void *c;
++	 
++	blob_buf_init(&b, 0);
++	avl_for_each_element(&services, s, avl) { 
++		vlist_for_each_element(&s->instances, in, node) {
++			if (in->name && !strcmp("instance1", in->name))
++				continue;
++			clock_gettime(CLOCK_MONOTONIC, &tp);
++			runtime_second = tp.tv_sec - in->start.tv_sec;
++			updays = (unsigned) runtime_second / (unsigned)(60*60*24);			
++        		upminutes = (unsigned) runtime_second / (unsigned)60;
++        		uphours = (upminutes / (unsigned)60) % (unsigned)24;
++        		upminutes %= 60;
++			upsecond = runtime_second % 60;
++			sprintf(runtime, "%u day%s, %2u:%02u:%02u", updays, (updays > 1) ? "s" : "", uphours, upminutes, upsecond);
++	
++			c = blobmsg_open_table(&b, in->name);
++			blobmsg_add_u8(&b, "valid", in->valid);
++			blobmsg_add_u32(&b, "respawn_retry", in->respawn_retry);
++			blobmsg_add_u32(&b, "respawn_count", in->respawn_count);
++			blobmsg_add_string(&b, "runtime", runtime);
++			blobmsg_close_table(&b, c);
++		}
++	}
++		 
++	ubus_send_reply(ctx, req, b.head);
++	return UBUS_STATUS_OK;
++}
++
+ static struct ubus_method main_object_methods[] = {
+ 	UBUS_METHOD("set", service_handle_set, service_set_attrs),
+ 	UBUS_METHOD("add", service_handle_set, service_set_attrs),
+@@ -563,6 +603,7 @@ static struct ubus_method main_object_me
+ 	UBUS_METHOD("event", service_handle_event, event_policy),
+ 	UBUS_METHOD("validate", service_handle_validate, validate_policy),
+ 	UBUS_METHOD("get_data", service_get_data, get_data_policy),
++	UBUS_METHOD_NOARG("get_process_info",  service_get_process_info),
+ };
+ 
+ static struct ubus_object_type main_object_type =

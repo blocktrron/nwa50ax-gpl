@@ -1,0 +1,11 @@
+--- a/iwpriv.c
++++ b/iwpriv.c
+@@ -279,7 +279,7 @@
+ 
+   /* Search the correct ioctl */
+   k = -1;
+-  while((++k < priv_num) && strcmp(priv[k].name, cmdname));
++  while((++k < priv_num) && strncmp(priv[k].name, cmdname, IFNAMSIZ));
+ 
+   /* If not found... */
+   if(k == priv_num)

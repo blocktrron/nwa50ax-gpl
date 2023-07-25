@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-lighttpd/Makefile
+Package: zyxel-lighttpd
+Submenu: application
+Version: 1.4.45
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libuser_profile +libopenssl +libpcre +zlib +libpthread +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: A flexible and lightweight web server
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: A flexible and lightweight web server
+https://www.lighttpd.net/
+
+@@
+
+

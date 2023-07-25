@@ -1,0 +1,1352 @@
+<?xml version="1.0"?>
+<zyxel product="NGN firewall" model="trial" version="0.0.0.1">
+	<env>
+		<binary_env name="stop_on_error"><value>1</value></binary_env>
+	</env>
+	<system>
+		<schedule_run>
+			<list name="schedule_run_list" type="schedule_run_t"></list>
+		</schedule_run>
+		<vrpt_system_status_t name="vrpt_system_status"></vrpt_system_status_t>
+		<vrpt_device_info_t name="vrpt_device_info"></vrpt_device_info_t>
+		<mode_t name="mode"><var>bridge</var></mode_t><!-- mode -->
+		<hostname_t name="hostname"><var/></hostname_t><!-- hostname -->
+		<domainname_t name="domainname"><var/></domainname_t><!-- domain name -->
+		<description_t name="description"><var/></description_t>
+		<speed_test_t name="speed_test_config"><var/></speed_test_t>
+                <suppress_t name="suppress_mode_status"><var/></suppress_t>
+                <locator_t name="locator_status"><var/></locator_t>
+		<gui_automation_t name="automation"><activate>no</activate></gui_automation_t>
+
+		<console>
+			<list name="console_list" type="console_t"><entity>console</entity></list>
+			<console_t name="console"><name>console</name><speed>115200</speed></console_t>
+		</console>
+		<clock>
+			<list name="clock_list" type="clock_t"><entity>clock</entity></list>
+			<clock_t name="clock"><name>clock</name><active>no</active>
+			<server/><update_time></update_time><timezone>0</timezone>
+
+			<enable_daylight>no</enable_daylight>
+			<daylight_offset>1</daylight_offset>
+			<daylight_from>0</daylight_from>
+			<daylight_start_str>jan 1 mon 12:00</daylight_start_str>
+			<daylight_to>0</daylight_to>
+			<daylight_end_str>jan 1 mon 12:00</daylight_end_str>
+			</clock_t>
+		</clock>
+		<ddns>
+			<list name="service_ddns_list" type="service_ddns_t"></list>
+			<list name="ddns_list" type="ddns_t" profile_name="0"></list>
+		</ddns>
+		<fqdn>
+			<list name="fqdn_list" type="fqdn_t"><entity>fqdn</entity></list>
+			<fqdn_t name="fqdn"><name>fqdn</name><active>yes</active><hostname>usg50h</hostname><domain></domain></fqdn_t>
+			<list name="fqdn_ddns" type="fqdn_ddns_name_t"></list>
+		</fqdn>
+		<in_user>
+			<list name="global_setting_list" type="in_user_setting" users="0"><entity>def_set_admin</entity><entity>def_set_user</entity><entity>def_set_guest</entity><entity>def_set_ladmin</entity><entity>def_set_ext_user</entity></list>
+			<in_user_setting name="def_set_admin"><type>admin</type><access>120</access><visibility>120</visibility><lease_time>1440</lease_time><re_auth>1440</re_auth><remote_admin>1</remote_admin><remote_access>0</remote_access></in_user_setting>
+			<in_user_setting name="def_set_user"><type>user</type><access>80</access><visibility>80</visibility><lease_time>1440</lease_time><re_auth>1440</re_auth><remote_admin>1</remote_admin><remote_access>1</remote_access></in_user_setting>
+			<in_user_setting name="def_set_guest"><type>guest</type><access>50</access><visibility>50</visibility><lease_time>1440</lease_time><re_auth>1440</re_auth><remote_admin>0</remote_admin><remote_access>1</remote_access></in_user_setting>
+			<in_user_setting name="def_set_ladmin"><type>limited-admin</type><access>100</access><visibility>100</visibility><lease_time>1440</lease_time><re_auth>1440</re_auth><remote_admin>1</remote_admin><remote_access>0</remote_access></in_user_setting>
+			<in_user_setting name="def_set_ext_user"><type>ext-user</type><access>80</access><visibility>80</visibility><lease_time>1440</lease_time><re_auth>1440</re_auth><remote_admin>1</remote_admin><remote_access>1</remote_access></in_user_setting>
+			<in_user_setting name="def_set_ext_group_user"><type>ext-group-user</type><access>80</access><visibility>80</visibility><lease_time>1440</lease_time><re_auth>1440</re_auth><remote_admin>1</remote_admin><remote_access>1</remote_access></in_user_setting>
+			<table name="fauth" type="force_auth_t"/>
+
+			<list name="in_user_list" type="in_user_t" admin_users="0" local_users="0"><entity>admin</entity>
+			</list>
+			<in_user_t name="admin"><username>admin</username><password>$4$WliGKvFQ$yMEH/WCnH1+NXuIUp0lzpUinIyEnrHFoRgesi6NdOFytmQg8lRfsVzUUjBGY+FiS4Up6KIgoP8OMEP0L3hRYSN2kpFTDIet31GoNwlM+S7U$</password><group>admin</group><access>120</access><visibility>120</visibility><lease_time>30</lease_time><re_auth>0</re_auth><desc>Administration account</desc><remote_admin>1</remote_admin><remote_access>0</remote_access><orig_type>admin</orig_type><type>admin</type><default>0</default><associated_aaa></associated_aaa><group_id></group_id></in_user_t>
+		</in_user>
+		<app_wd>
+			<list name="app_wd_list" type="app_wd_config_t">
+				<entity>global_setting</entity>
+			</list>
+			<app_wd_config_t name="global_setting">
+				<activate>no</activate>
+				<alert>yes</alert>
+				<console-print>always</console-print>
+				<retry-count>3</retry-count>
+				<interval>60</interval>
+				<cpu-threshold-min>80</cpu-threshold-min>
+				<cpu-threshold-max>90</cpu-threshold-max>
+				<cpu-sirq-threshold-min>60</cpu-sirq-threshold-min>
+				<cpu-sirq-threshold-max>70</cpu-sirq-threshold-max>
+				<mem-threshold-min>80</mem-threshold-min>
+				<mem-threshold-max>90</mem-threshold-max>
+				<disk-threshold-min>80</disk-threshold-min>
+				<disk-threshold-max>90</disk-threshold-max>
+			</app_wd_config_t>
+		</app_wd>
+		<conn_session>
+			<list name="conn_session_list" type="conn_session_config_t">
+				<entity>conn_session_timeout</entity>
+			</list>
+			<conn_session_config_t name="conn_session_timeout">
+				<icmp>15</icmp>
+				<tcp-timewait>5</tcp-timewait>
+				<tcp-close>10</tcp-close>
+				<tcp-closewait>60</tcp-closewait>
+				<tcp-established>9000</tcp-established>
+				<tcp-finwait>120</tcp-finwait>
+				<tcp-lastack>30</tcp-lastack>
+				<tcp-synrecv>60</tcp-synrecv>
+				<tcp-synsent>120</tcp-synsent>
+				<udp-connect>9</udp-connect>
+				<udp-deliver>300</udp-deliver>
+			</conn_session_config_t>
+		</conn_session>
+		<service>
+			<http>
+				<list name="service_http_list" type="service_http_t"><entity>http</entity></list>
+				<list name="http_allow_user" type="in_user_t"><entity>all</entity></list>
+				<list name="http_deny_user" type="in_user_t"/>
+				<list name="http_trust_addr" type="address_profile_t"></list>
+				<service_http_t name="http"><name>http</name><port>80</port><orig_port>80</orig_port><active>no</active><auth>default</auth></service_http_t>
+			</http>
+			<https>
+				<list name="service_https_list" type="service_https_t"><entity>https</entity></list>
+				<list name="https_allow_user" type="in_user_t"><entity>all</entity></list>
+				<list name="https_deny_user" type="in_user_t"/>
+				<list name="https_trust_addr" type="address_profile_t"></list>
+				<service_https_t name="https"><name>https</name><port>443</port><orig_port>443</orig_port><active>no</active><cert>default</cert><orig_cert></orig_cert><auth_client>no</auth_client><redirect>no</redirect><auth>default</auth><cipher_suite>rc4 aes des 3des</cipher_suite></service_https_t>
+			</https>
+			<ftp>
+				<list name="service_ftp_list" type="service_ftp_t"><entity>ftp</entity></list>
+				<list name="ftp_allow_user" type="in_user_t"><entity>all</entity></list>
+				<list name="ftp_deny_user" type="in_user_t"/>
+				<list name="ftp_trust_addr" type="address_profile_t"></list>
+				<service_ftp_t name="ftp"><name>ftp</name><port>21</port><active>no</active><ZldFtpFileManage>yes</ZldFtpFileManage><cert>default</cert><orig_cert></orig_cert><tls>no</tls><auth>default</auth></service_ftp_t>
+			</ftp>
+			<snmp>
+				<list name="service_snmp_list" type="service_snmp_t"><entity>snmp</entity></list>
+				<service_snmp_t name="snmp"><name>snmp</name><port>161</port><active>no</active><get_community>public</get_community><set_community>private</set_community><location> </location><contact>support@zyxel.com.tw</contact><get_com_addr/><set_com_addr/><enable_trap>no</enable_trap><enable_informs>no</enable_informs><trap_host></trap_host><host_comm>public</host_comm>
+				<v2c_activate></v2c_activate><v3_activate></v3_activate>
+				<enable_wireless_trap>no</enable_wireless_trap>
+				</service_snmp_t>
+				<list name="v3user_profile" type="snmp_v3user_t"></list>
+				<list name="snmp_trust_addr" type="address_profile_t"></list>
+				<list name="trap_host_list" type="trap_host_t"></list>
+			</snmp>
+			<ssh>
+				<list name="service_ssh_list" type="service_ssh_t"><entity>ssh</entity></list>
+				<list name="ssh_allow_user" type="in_user_t"><entity>all</entity></list>
+				<list name="ssh_deny_user" type="in_user_t"/>
+				<list name="ssh_trust_addr" type="address_profile_t"></list>
+				<service_ssh_t name="ssh"><name>ssh</name><port>22</port><orig_port>22</orig_port><active>no</active><hostkey>default</hostkey><orig_hostkey></orig_hostkey><sftp>no</sftp><auth>default</auth><v1>no</v1></service_ssh_t>
+			</ssh>
+			<telnet>
+				<list name="service_telnet_list" type="service_telnet_t"><entity>telnet</entity></list>
+				<list name="telnet_allow_user" type="in_user_t"><entity>all</entity></list>
+				<list name="telnet_deny_user" type="in_user_t"/>
+				<list name="telnet_trust_addr" type="address_profile_t"></list>
+				<service_telnet_t name="telnet"><name>telnet</name><port>23</port><active>no</active><auth>default</auth></service_telnet_t>
+			</telnet>
+			<dhcp>
+				<list name="service_dhcp_server_list" type="service_dhcp_server_t" static_host="0" dynamic_pool="0"><entity>dhcp</entity></list>
+				<list name="service_dhcp_list" type="service_dhcp_t"></list>
+				<list name="dhcp_pool_list" type="dhcp_pool_t"></list>
+
+				<service_dhcp_server_t name="dhcp"><name>dhcp</name><active>no</active></service_dhcp_server_t>
+
+				<list name="reserve_ip" type="reserve_ip_t"></list>
+				<list name="static_host_ip_list" type="static_host_ip_t"></list>
+				<list name="static_host_mac_list" type="static_host_mac_t"></list>
+				<list name="network_pool_list" type="network_pool_t"></list>
+
+
+			</dhcp>
+			<dns>
+				<list name="service_dns_list" type="service_dns_t"><entity>dns</entity></list>
+				<list name="dns_domain_list" type="domain_list_t"></list>
+				<service_dns_t name="dns"><name>dns</name><active>yes</active><trust/></service_dns_t>
+			</dns>
+			<dnsdb>
+				<list name="service_dnsdb_list" type="service_dnsdb_t" a_record="0" ns_record="0" mx_record="0"><entity>eth0</entity></list>
+				<service_dnsdb_t name="eth0"><active>yes</active><iface>eth0</iface></service_dnsdb_t>
+				<list name="eth0_a" type="eth0_a"/>
+				<list name="eth0_ns" type="eth0_ns"/>
+				<list name="eth0_ptr" type="eth0_ptr"/>
+
+				<list name="eth0_mx" type="eth0_mx"/>
+				<list name="eth0_def" type="eth0_def"><entity>primary</entity><entity>secondary</entity><entity>third</entity></list>
+
+				<eth0_def name="primary"><name>primary</name><addr/><priority/></eth0_def>
+				<eth0_def name="secondary"><name>secondary</name><addr/><priority/></eth0_def>
+				<eth0_def name="third"><name>third</name><addr/><priority/></eth0_def>
+			</dnsdb>
+			<nameserver>
+				<list name="all" type="nameserver_t"/>
+			</nameserver>
+		</service>
+		<language>
+			<list name="support_languages" type="language_t"/>
+		</language>
+		<extension_slot>
+		</extension_slot>
+
+
+		<country_code>
+			<country_code_t name="global_country_code">
+				<default_country_code></default_country_code>
+				<debug_activate>no</debug_activate>
+				<country_match>1</country_match>
+			</country_code_t>
+		</country_code>
+		<tx_power_debug>
+			<tx_power_debug_t name="global_tx_power_debug">
+				<activate>no</activate>
+			</tx_power_debug_t>
+		</tx_power_debug>
+		<diag_setting>
+			<diag_setting_t name="wtp">
+				<categories>65535</categories>
+				<hidden>0</hidden>
+				<script></script>
+			</diag_setting_t>
+		</diag_setting>
+	</system>
+	<wsys_env>
+		<string_t name="hybrid-mode">
+			<var>standalone</var>
+		</string_t>
+	</wsys_env>
+	<ap_manager>
+		<if_t name="Mana_IF">
+			<vlan_id>1</vlan_id>
+			<vlan_tag>untag</vlan_tag>
+			<ip_status>dhcp</ip_status>
+			<ipv4>0.0.0.0</ipv4>
+			<netmask>0.0.0.0</netmask>
+			<gateway>0.0.0.0</gateway>
+			<ip_status_help>static</ip_status_help>
+			<ip_changed>no</ip_changed>
+			<ipv4_help>0.0.0.0</ipv4_help>
+			<netmask_help>0.0.0.0</netmask_help>
+			<br_fd>15</br_fd>
+			<br_stp>off</br_stp>
+			<ipv6_enable>yes</ipv6_enable>
+		<AC-DSICOVERY>auto</AC-DSICOVERY>
+			<login_ipv4></login_ipv4>
+		</if_t>
+	</ap_manager>
+	<network>
+		<!-- IPv4 static route -->
+		<route>
+			<list name="_routes" type="route_t"/>
+		</route>
+		<!-- IPv6 static route -->
+		<route6>
+			<list name="_routes6" type="route6_t"/>
+		</route6>
+
+		<!-- freeRADIUS -->
+		<freeradius>
+			<list name="_freeradius" type="raddb_config_t">
+				<entity>freeradius</entity>
+			</list>
+			<raddb_config_t name="freeradius">
+				<cert>default</cert>
+				<activate>no</activate>
+				<authentication>default</authentication>
+			</raddb_config_t>
+			<trusted_client>
+				<table name="trusted_client" type="trusted_client_table_t"/>
+			</trusted_client>
+		</freeradius>
+
+		<daily_report>
+    	    <list name="basic_setting" type="basic_setting_t"/>
+             <basic_setting_t name="basic_setting">
+                    <activate>no</activate>
+             </basic_setting_t>
+		</daily_report>
+
+		<port_status>
+			<group name="_port_status" type="port_status_t">
+				<container>PORT1</container>
+			</group>
+			<port_status_t name="PORT1" reference="1" config_changed="0">
+                                 <user_define_name>UPLINK</user_define_name>
+                                 <pvid>0</pvid>
+                                 <status>Active</status>
+                                <speed>1000</speed>
+				<duplex>full</duplex>
+				<negotiation>auto</negotiation>
+				<link/>
+			</port_status_t>
+		</port_status>
+		<port_grouping>
+			<group name="_port_grouping" type="port_grouping_t">
+				<container>eth0</container>
+			</group>
+			<group name="eth0" type="port_grouping_t" reference="1" config_changed="0" delete_flag="0">
+				<entity>eth0</entity>
+			</group>
+		</port_grouping>
+		<load_balancing>
+			<load_balancing_t name="load_balancing">
+				<slot1_activate>no</slot1_activate>
+				<slot1_kickout>no</slot1_kickout>
+				<slot1_mode>station</slot1_mode>
+				<slot1_max_sta>127</slot1_max_sta>
+				<slot1_traffic_level>high</slot1_traffic_level>
+				<slot1_alpha>5</slot1_alpha>
+				<slot1_beta>10</slot1_beta>
+				<slot1_sigma>60</slot1_sigma>
+				<slot1_timeout>20</slot1_timeout>
+				<slot1_liInterval>10</slot1_liInterval>
+				<slot1_kickoutInterval>20</slot1_kickoutInterval>
+				<slot2_activate>no</slot2_activate>
+				<slot2_kickout>no</slot2_kickout>
+				<slot2_mode>station</slot2_mode>
+				<slot2_max_sta>127</slot2_max_sta>
+				<slot2_traffic_level>high</slot2_traffic_level>
+				<slot2_alpha>5</slot2_alpha>
+				<slot2_beta>10</slot2_beta>
+				<slot2_sigma>60</slot2_sigma>
+				<slot2_timeout>20</slot2_timeout>
+				<slot2_liInterval>10</slot2_liInterval>
+				<slot2_kickoutInterval>20</slot2_kickoutInterval>
+			</load_balancing_t>
+		</load_balancing>
+		<interface_name>
+			<list name="_interface_name_eth" type="_interface_name_eth_t">
+				<entity>ge1</entity>
+			</list>
+			<_interface_name_eth_t name="ge1">	
+				<user_define_name>lan1</user_define_name>
+			</_interface_name_eth_t>
+			<list name="_interface_name_ppp" type="_interface_name_ppp_t"/>
+			<list name="_interface_name_vlan" type="_interface_name_vlan_t"/>
+			<list name="_interface_name_bridge" type="_interface_name_bridge_t"/>
+			<list name="_interface_name_wlan" type="_interface_name_wlan_t"/>
+		</interface_name>
+		<interface>
+			<group name="_interface" type="interface_t">
+				<container>eth0</container>
+			</group>
+			<group name="eth0" type="interface_t" reference="1">
+				<entity>eth0</entity>
+			</group>
+			<interface_t name="eth0" reference="1" config_changed="0">
+				<interface_type>ethernet</interface_type>
+				<type>ethernet</type>
+				<running>yes</running>
+				<speed>1000</speed>
+				<duplex>full</duplex>
+				<negotiation>auto</negotiation>
+				<new_add>0</new_add>
+				<link/>
+			</interface_t>
+			<group name="eth0_property" type="ethernet_interface_t">
+				<entity>eth0_eth0</entity>
+			</group>
+			<ethernet_interface_t name="eth0_eth0">
+				<type>static</type>
+				<address>0.0.0.0/0</address>
+				<gateway></gateway>
+				<metric>0</metric>
+				<preference/>
+				<server/>
+				<user/>
+				<mtu>1500</mtu>
+				<mss>0</mss>
+				<property></property>
+				<mac>00:0C:76:09:4F:7E</mac>
+				<default_mac>00:0C:76:09:4F:7E</default_mac>
+				<custom_mac>00:00:00:00:00:00</custom_mac>
+				<virtual_mac>00:00:00:00:00:00</virtual_mac>
+				<use_defined_mac>no</use_defined_mac>
+				<upstream>1048576</upstream>
+				<downstream>1048576</downstream>
+				<forward_delay>15</forward_delay>
+				<stp>off</stp>
+				<comments/>
+			</ethernet_interface_t>
+
+			<interface_t name="interface_statistics">
+			</interface_t>
+			<dot11>
+			</dot11>
+		</interface>
+
+                <vlan_member>
+			<group name="_vlan_member" type="vlan_member_t">
+			</group>
+		</vlan_member>
+		<wireless_bridge_vlan>
+                        <group name="_wireless_bridge_vlan" type="wireless_bridge_vlan_t">
+                        </group>
+		</wireless_bridge_vlan>
+		<address_profile>
+			<group name="_address_profile" type="address_profile_t"/>
+		</address_profile>
+
+		<!-- vpn connection -->
+		<vpn>
+			<list name="_profiles" type="vpn_connection"/>
+		</vpn>
+
+		<!-- vpn authentication (for phase I) -->
+		<vpn-auth>
+			<list name="_profiles" type="auth_profile"/>
+		</vpn-auth>
+
+		<!-- IKE phase I -->
+		<vpn-ikep1>
+			<list name="_profiles" type="phase1_profile"/>
+		</vpn-ikep1>
+
+		<!-- IKE phase II -->
+		<vpn-ikep2>
+			<list name="_profiles" type="phase2_profile"/>
+		</vpn-ikep2>
+
+		<!-- isakmp  -->
+		<isakmp>
+			<list name="_profiles" type="isakmp_list"/>
+		</isakmp>
+
+		<!-- crypto  -->
+		<crypto>
+			<list name="_profiles" type="crypto_list"/>
+		</crypto>
+
+		<!-- pki  -->
+		<pki>
+			<list name="_profiles" type="pki_list"/>
+		</pki>
+
+		<!-- http redirect  -->
+		<http_redirect>
+			<list name="_profiles" type="http_redirect_list"/>
+		</http_redirect>
+
+		<!-- dcs -->
+		<dcs>
+		</dcs>
+		<!-- ekahau -->
+		<ekahau>
+			<ekahau_config_t name="global_setting">
+				<activate>no</activate>
+				<address></address>
+				<port>8569</port>
+			</ekahau_config_t>>
+		</ekahau>
+  		<!-- rapd -->
+		<rogueap_detection>
+			<rogueap_detection_config_t name="global_setting">
+				<activate>no</activate>
+				<apmode_detection_activate>no</apmode_detection_activate>
+				<apmode_detection_interval>30</apmode_detection_interval>
+				<rogue_rule_weak_security_activate>no</rogue_rule_weak_security_activate>
+				<rogue_rule_hidden_ssid_activate>no</rogue_rule_hidden_ssid_activate>
+				<rogue_rule_ssid_keyword_activate>no</rogue_rule_ssid_keyword_activate>
+			</rogueap_detection_config_t>
+            		<group name="_rogueap" type="rogue_group_t"><entity/></group>
+            		<rogue_group_t><mac/><description/><contain/></rogue_group_t>
+            		<group name="_friendlyap" type="friendly_group_t"><entity/></group>
+            		<friendly_group_t><mac/><description/></friendly_group_t>
+            		<group name="_ssid_keyword" type="ssid_keyword_group_t"><entity/></group>
+            		<ssid_keyword_group_t><keyword/></ssid_keyword_group_t>
+		</rogueap_detection>
+  		<!-- rapc -->
+		<rogueap_containment>
+			<rogueap_containment_config_t name="global_setting">
+				<activate>no</activate>
+			</rogueap_containment_config_t>
+            		<group name="_contain" type="contain_group_t"><entity/></group>
+            		<contain_group_t><mac/></contain_group_t>
+		</rogueap_containment>		
+		<dhcp6_lease><list name="lease_object_root" type="lease_object_t"></list></dhcp6_lease>
+		<dhcp6_request><list name="request_object_root" type="request_object_t"></list></dhcp6_request>
+	</network>
+
+	<!-- Objects -->
+	<object>
+		<address><list name="address_object_root" type="address_object_t" groups="0"></list></address>
+		<address6><list name="address6_object_root" type="address6_object_t" groups="0"></list></address6>
+		<dhcp6_lease><list name="lease_object_root" type="lease_object_t"></list></dhcp6_lease>
+		<dhcp6_request><list name="request_object_root" type="request_object_t"></list></dhcp6_request>
+		<service><list name="service_object_root" type="service_object_t" groups="0"></list></service>
+		<schedule><list name="schedule_object_root" type="schedule_object_t" groups="0"></list></schedule>
+		<ldap>
+			<list name="_ldap_group" type="ldap_group_t"><entity>ldap</entity></list>
+			<ldap_group_t name="ldap" refcount="0"><description/><ssl>off</ssl><port>389</port><password/><basedn/><binddn/><search-time-limit>5</search-time-limit><cn-identifier>uid</cn-identifier><alternative-cn-identifier/><group-attribute>uniquemember</group-attribute></ldap_group_t>
+			<table name="_ldap_host_" type="ldap_host_t"/>
+		</ldap>
+		<radius>
+			<list name="_radius_group" type="radius_group_t"><entity>radius</entity></list>
+			<radius_group_t name="radius" refcount="0"><description/><key/><timeout>5</timeout><group-attribute>11</group-attribute></radius_group_t>
+			<table name="_radius_host_" type="radius_host_t"/>
+		</radius>
+		<ad>
+			<list name="_ad_group" type="ad_group_t"><entity>ad</entity></list>
+			<ad_group_t name="ad" refcount="0"><description/><ssl>off</ssl><port>389</port><password/><basedn/><binddn/><search-time-limit>5</search-time-limit><cn-identifier>sAMAccountName</cn-identifier><alternative-cn-identifier/><group-attribute>memberOf</group-attribute>
+			</ad_group_t>
+			<table name="_ad_host_" type="ad_host_t"/>
+		</ad>
+		<aaa>
+			<list name="_authentication" type="authentication_t"><entity>default</entity></list>
+			<authentication_t name="default" refcount="1" authset="1">
+				<auth_group0>local</auth_group0><auth_type0>local</auth_type0>
+			</authentication_t>
+			<list name="_authorization" type="authorization_t"><entity>default</entity></list>
+			<authorization_t name="default" refcount="0" authset="1">
+				<auth_group0>local</auth_group0><auth_type0>local</auth_type0>
+			</authorization_t>
+		</aaa>
+		<user_group>
+			<list name="user_group_object_list" type="user_group_object_t"/>
+		</user_group>
+		<macfilter_global>
+			<list name="_profiles" type="macfilter_maptable" Bitmap="0"/>
+		</macfilter_global>
+		<!-- The Maximum macfilter scope is 64, if we need to increase the total scope to > 64, wee need to change C code's bitmap to > 64 -->
+		<macfilterprofile_1>
+		</macfilterprofile_1>
+		<macfilterprofile_2>
+		</macfilterprofile_2>
+		<macfilterprofile_3>
+		</macfilterprofile_3>
+		<macfilterprofile_4>
+		</macfilterprofile_4>
+		<macfilterprofile_5>
+		</macfilterprofile_5>
+		<macfilterprofile_6>
+		</macfilterprofile_6>
+		<macfilterprofile_7>
+		</macfilterprofile_7>
+		<macfilterprofile_8>
+		</macfilterprofile_8>
+		<macfilterprofile_9>
+		</macfilterprofile_9>
+		<macfilterprofile_10>
+		</macfilterprofile_10>
+		
+		<macfilterprofile_11>
+		</macfilterprofile_11>
+		<macfilterprofile_12>
+		</macfilterprofile_12>
+		<macfilterprofile_13>
+		</macfilterprofile_13>
+		<macfilterprofile_14>
+		</macfilterprofile_14>
+		<macfilterprofile_15>
+		</macfilterprofile_15>
+		<macfilterprofile_16>
+		</macfilterprofile_16>
+		<macfilterprofile_17>
+		</macfilterprofile_17>
+		<macfilterprofile_18>
+		</macfilterprofile_18>
+		<macfilterprofile_19>
+		</macfilterprofile_19>
+		<macfilterprofile_20>
+		</macfilterprofile_20>
+
+		<macfilterprofile_21>
+		</macfilterprofile_21>
+		<macfilterprofile_22>
+		</macfilterprofile_22>
+		<macfilterprofile_23>
+		</macfilterprofile_23>
+		<macfilterprofile_24>
+		</macfilterprofile_24>
+		<macfilterprofile_25>
+		</macfilterprofile_25>
+		<macfilterprofile_26>
+		</macfilterprofile_26>
+		<macfilterprofile_27>
+		</macfilterprofile_27>
+		<macfilterprofile_28>
+		</macfilterprofile_28>
+		<macfilterprofile_29>
+		</macfilterprofile_29>
+		<macfilterprofile_30>
+		</macfilterprofile_30>
+
+		<macfilterprofile_31>
+		</macfilterprofile_31>
+		<macfilterprofile_32>
+		</macfilterprofile_32>
+		<macfilterprofile_33>
+		</macfilterprofile_33>
+		<macfilterprofile_34>
+		</macfilterprofile_34>
+		<macfilterprofile_35>
+		</macfilterprofile_35>
+		<macfilterprofile_36>
+		</macfilterprofile_36>
+		<macfilterprofile_37>
+		</macfilterprofile_37>
+		<macfilterprofile_38>
+		</macfilterprofile_38>
+		<macfilterprofile_39>
+		</macfilterprofile_39>
+		<macfilterprofile_40>
+		</macfilterprofile_40>
+
+		<macfilterprofile_41>
+		</macfilterprofile_41>
+		<macfilterprofile_42>
+		</macfilterprofile_42>
+		<macfilterprofile_43>
+		</macfilterprofile_43>
+		<macfilterprofile_44>
+		</macfilterprofile_44>
+		<macfilterprofile_45>
+		</macfilterprofile_45>
+		<macfilterprofile_46>
+		</macfilterprofile_46>
+		<macfilterprofile_47>
+		</macfilterprofile_47>
+		<macfilterprofile_48>
+		</macfilterprofile_48>
+		<macfilterprofile_49>
+		</macfilterprofile_49>
+		<macfilterprofile_50>
+		</macfilterprofile_50>
+
+		<macfilterprofile_51>
+		</macfilterprofile_51>
+		<macfilterprofile_52>
+		</macfilterprofile_52>
+		<macfilterprofile_53>
+		</macfilterprofile_53>
+		<macfilterprofile_54>
+		</macfilterprofile_54>
+		<macfilterprofile_55>
+		</macfilterprofile_55>
+		<macfilterprofile_56>
+		</macfilterprofile_56>
+		<macfilterprofile_57>
+		</macfilterprofile_57>
+		<macfilterprofile_58>
+		</macfilterprofile_58>
+		<macfilterprofile_59>
+		</macfilterprofile_59>
+		<macfilterprofile_60>
+		</macfilterprofile_60>
+
+		<macfilterprofile_61>
+		</macfilterprofile_61>
+		<macfilterprofile_62>
+		</macfilterprofile_62>
+		<macfilterprofile_63>
+		</macfilterprofile_63>
+		<macfilterprofile_64>
+		</macfilterprofile_64>
+		<l2isolation_global>
+			<list name="_profiles" type="l2isolation_maptable" Bitmap="0"/>
+		</l2isolation_global>
+		
+		<l2isolationprofile_1>
+		</l2isolationprofile_1>
+		<l2isolationprofile_2>
+		</l2isolationprofile_2>
+		<l2isolationprofile_3>
+		</l2isolationprofile_3>
+		<l2isolationprofile_4>
+		</l2isolationprofile_4>
+		<l2isolationprofile_5>
+		</l2isolationprofile_5>
+		<l2isolationprofile_6>
+		</l2isolationprofile_6>
+		<l2isolationprofile_7>
+		</l2isolationprofile_7>
+		<l2isolationprofile_8>
+		</l2isolationprofile_8>
+		<l2isolationprofile_9>
+		</l2isolationprofile_9>
+		<l2isolationprofile_10>
+		</l2isolationprofile_10>
+		
+		<l2isolationprofile_11>
+		</l2isolationprofile_11>
+		<l2isolationprofile_12>
+		</l2isolationprofile_12>
+		<l2isolationprofile_13>
+		</l2isolationprofile_13>
+		<l2isolationprofile_14>
+		</l2isolationprofile_14>
+		<l2isolationprofile_15>
+		</l2isolationprofile_15>
+		<l2isolationprofile_16>
+		</l2isolationprofile_16>		
+                <predefined_domain_name_global>
+                        <list name="_profiles" type="predefined_domain_name_maptable" Bitmap="0"/>
+                </predefined_domain_name_global>
+
+                <predefineddomainname_1>
+                </predefineddomainname_1>
+
+                <walled_garden_global>
+                        <list name="_profiles" type="walled_garden_maptable" Bitmap="0"/>
+                </walled_garden_global>
+
+                <walledgardenprofile_1>
+                </walledgardenprofile_1>
+                <walledgardenprofile_2>
+                </walledgardenprofile_2>
+                <walledgardenprofile_3>
+                </walledgardenprofile_3>
+                <walledgardenprofile_4>
+                </walledgardenprofile_4>
+                <walledgardenprofile_5>
+                </walledgardenprofile_5>
+                <walledgardenprofile_6>
+                </walledgardenprofile_6>
+                <walledgardenprofile_7>
+                </walledgardenprofile_7>
+                <walledgardenprofile_8>
+                </walledgardenprofile_8>
+                <walledgardenprofile_9>
+                </walledgardenprofile_9>
+                <walledgardenprofile_10>
+                </walledgardenprofile_10>
+
+                <walledgardenprofile_11>
+                </walledgardenprofile_11>
+                <walledgardenprofile_12>
+                </walledgardenprofile_12>
+                <walledgardenprofile_13>
+                </walledgardenprofile_13>
+                <walledgardenprofile_14>
+                </walledgardenprofile_14>
+                <walledgardenprofile_15>
+                </walledgardenprofile_15>
+                <walledgardenprofile_16>
+                </walledgardenprofile_16>
+                <guest_ssid_global>
+                        <list name="_profiles" type="guest_ssid_maptable" Bitmap="0"/>
+                </guest_ssid_global>
+
+                <guestssidprofile_1>
+                </guestssidprofile_1>
+                <guestssidprofile_2>
+                </guestssidprofile_2>
+                <guestssidprofile_3>
+                </guestssidprofile_3>
+                <guestssidprofile_4>
+                </guestssidprofile_4>
+                <guestssidprofile_5>
+                </guestssidprofile_5>
+                <guestssidprofile_6>
+                </guestssidprofile_6>
+                <guestssidprofile_7>
+                </guestssidprofile_7>
+                <guestssidprofile_8>
+                </guestssidprofile_8>
+                <guestssidprofile_9>
+                </guestssidprofile_9>
+                <guestssidprofile_10>
+                </guestssidprofile_10>
+
+                <guestssidprofile_11>
+                </guestssidprofile_11>
+                <guestssidprofile_12>
+                </guestssidprofile_12>
+                <guestssidprofile_13>
+                </guestssidprofile_13>
+                <guestssidprofile_14>
+                </guestssidprofile_14>
+                <guestssidprofile_15>
+                </guestssidprofile_15>
+                <guestssidprofile_16>
+                </guestssidprofile_16>
+        <securityprofile>
+           <list name="_profiles" type="security_profile_list">
+           		<entity>default</entity>
+           </list>
+           <security_profile_list name="default" Description="" reference="1" Changed="no">
+	           		<Security>none</Security>
+	           		<WEP_Enc>64</WEP_Enc>
+	           		<Def_Key>1</Def_Key>
+	           		<Open_Share>open</Open_Share>
+	           		<Key1></Key1>
+	           		<Key2></Key2>
+	           		<Key3></Key3>
+	           		<Key4></Key4>
+	           		<ReAuth_timer>0</ReAuth_timer>
+	           		<Idle_timeout>300</Idle_timeout>
+	           		<Group_key_update_timer>30000</Group_key_update_timer>
+	           		<EAP_auth>no</EAP_auth>
+	           		<WPA_enc>aes</WPA_enc>
+	           		<Preshared_key></Preshared_key>
+	           		<WPA2_PreAuth>no</WPA2_PreAuth>
+				<EAP_internal_external>external</EAP_internal_external>
+	           		<EAP_internal_method>default</EAP_internal_method>
+	           		<Inner_Radius_IP_addr>127.0.0.1</Inner_Radius_IP_addr>
+	           		<Inner_Radius_port>1812</Inner_Radius_port>
+	           		<Inner_Radius_secret>12345678</Inner_Radius_secret>
+	           		<Inner_Radius_acct_port>1813</Inner_Radius_acct_port>
+	           		<Radius_acct_activate>no</Radius_acct_activate>
+	           		<Radius_acct_interim_interval>10</Radius_acct_interim_interval>
+				<Internal_eap_proxy>no</Internal_eap_proxy>
+					<MAC_auth>no</MAC_auth>
+					<MAC_auth_account_delimiter>dash</MAC_auth_account_delimiter>
+					<MAC_auth_account_case>upper</MAC_auth_account_case>
+					<MAC_auth_calling_station_id_delimiter>dash</MAC_auth_calling_station_id_delimiter>
+					<MAC_auth_calling_station_id_case>upper</MAC_auth_calling_station_id_case>
+					<MAC_auth_method>default</MAC_auth_method>
+					<MAC_auth_cloud_disconnect_behavior>open</MAC_auth_cloud_disconnect_behavior>
+					<Radius_switch_1>no</Radius_switch_1>
+	           		<Radius_IP_addr_1></Radius_IP_addr_1>
+	           		<Radius_port_1></Radius_port_1>
+	           		<Radius_secret_1></Radius_secret_1>
+	           		<Radius_switch_2>no</Radius_switch_2>
+	           		<Radius_IP_addr_2></Radius_IP_addr_2>
+	           		<Radius_port_2></Radius_port_2>
+	           		<Radius_secret_2></Radius_secret_2>
+	           		<Account_switch_1>no</Account_switch_1>
+	           		<Account_IP_addr_1></Account_IP_addr_1>
+	           		<Account_port_1></Account_port_1>
+	           		<Account_secret_1></Account_secret_1>
+	           		<Account_switch_2>no</Account_switch_2>
+	           		<Account_IP_addr_2></Account_IP_addr_2>
+	           		<Account_port_2></Account_port_2>
+	           		<Account_secret_2></Account_secret_2>
+					<Dot11w>no</Dot11w>
+					<Dot11w_op>1</Dot11w_op>
+				<Dot11r></Dot11r>
+				<Dot11r_over_the_ds></Dot11r_over_the_ds>	
+				<Dot11r_mobility_domain_id></Dot11r_mobility_domain_id>
+				<Dot11r_KEK></Dot11r_KEK>			
+				<Radius_attr_nas_ip></Radius_attr_nas_ip>
+				<Radius_attr_nas_id></Radius_attr_nas_id>
+				<Transition_mode>no</Transition_mode>
+           </security_profile_list>
+        </securityprofile>
+          <captiveparameterprofile>
+              <list name="_profiles" type="captive_parameter_profile_list">
+                      <entity>default</entity>
+              </list>
+
+              <captive_parameter_profile_list name="default" Description="" reference="0" Changed="no">
+                               <Gw_addr></Gw_addr>
+                               <AP_mac></AP_mac>
+                               <User_mac></User_mac>
+                               <AP_ip></AP_ip>
+                               <User_ip></User_ip>
+                               <Ssid_name></Ssid_name>
+                               <Auth_path></Auth_path>
+                               <AP_url></AP_url>
+                               <Mac_delimiter></Mac_delimiter>
+              </captive_parameter_profile_list>
+          </captiveparameterprofile>
+                <captiveprofile>
+           <list name="_profiles" type="captive_profile_list">
+                        <entity>default</entity>
+           </list>
+           <captive_profile_list name="default" Description="" reference="0" Changed="no">
+                                <Captive_portal>open</Captive_portal>
+                                        <Sign_on></Sign_on>
+                                        <MyRadius_IP_addr_1></MyRadius_IP_addr_1>
+                                <MyRadius_port_1></MyRadius_port_1>
+                                <MyRadius_secret_1></MyRadius_secret_1>
+                                <MyRadius_IP_addr_2></MyRadius_IP_addr_2>
+                                <MyRadius_port_2></MyRadius_port_2>
+                                <MyRadius_secret_2></MyRadius_secret_2>
+                                        <time_limit></time_limit>
+                                        <Max_retry_time_period></Max_retry_time_period>
+                                        <Max_retry_count></Max_retry_count>
+                                        <Lock_time></Lock_time>
+                                        <Self_registration></Self_registration>
+                                        <Self_registration_url></Self_registration_url>
+                                        <Simultaneous_login></Simultaneous_login>
+					<Keep_previous_user_activate></Keep_previous_user_activate>
+					<Max_login_count>1</Max_login_count>
+                                        <Cloud_disconnect_behavior></Cloud_disconnect_behavior>
+                                <Captive_portal_type></Captive_portal_type>
+                                        <Ext_page_url></Ext_page_url>
+                                        <Success_page></Success_page>
+								<block_https_traffic></block_https_traffic>
+								<logout_ip></logout_ip>
+								<AccountingServer_IP_addr_1></AccountingServer_IP_addr_1>
+								<AccountingServer_port_1></AccountingServer_port_1>
+								<AccountingServer_secret_1></AccountingServer_secret_1>
+								<AccountingServer_interim_1></AccountingServer_interim_1>
+								<AccountingServer_IP_addr_2></AccountingServer_IP_addr_2>
+								<AccountingServer_port_2></AccountingServer_port_2>
+								<AccountingServer_secret_2></AccountingServer_secret_2>
+								<AccountingServer_interim_2></AccountingServer_interim_2>
+								<nas_id></nas_id>
+								<nas_ip></nas_ip>
+                                <Promotion_url></Promotion_url>
+				                <Parameter_profile></Parameter_profile>
+           </captive_profile_list>
+        </captiveprofile>
+                <whitelist_global>
+                        <list name="_profiles" type="whitelist_maptable" Bitmap="0"/>
+                </whitelist_global>
+                <!-- The Maximum whitelist scope is 64, if we need to increase the total scope to > 64, wee need to change C code's bitmap to > 64 -->
+                <whitelistprofile_1>
+                </whitelistprofile_1>
+                <whitelistprofile_2>
+                </whitelistprofile_2>
+                <whitelistprofile_3>
+                </whitelistprofile_3>
+                <whitelistprofile_4>
+                </whitelistprofile_4>
+                <whitelistprofile_5>
+                </whitelistprofile_5>
+                <whitelistprofile_6>
+                </whitelistprofile_6>
+                <whitelistprofile_7>
+                </whitelistprofile_7>
+                <whitelistprofile_8>
+                </whitelistprofile_8>
+                <whitelistprofile_9>
+                </whitelistprofile_9>
+                <whitelistprofile_10>
+                </whitelistprofile_10>
+                <whitelistprofile_11>
+                </whitelistprofile_11>
+                <whitelistprofile_12>
+                </whitelistprofile_12>
+                <whitelistprofile_13>
+                </whitelistprofile_13>
+                <whitelistprofile_14>
+                </whitelistprofile_14>
+                <whitelistprofile_15>
+                </whitelistprofile_15>
+                <whitelistprofile_16>
+                </whitelistprofile_16>
+                <whitelistprofile_17>
+                </whitelistprofile_17>
+                <whitelistprofile_18>
+                </whitelistprofile_18>
+                <whitelistprofile_19>
+                </whitelistprofile_19>
+                <whitelistprofile_20>
+                </whitelistprofile_20>
+
+                <whitelistprofile_21>
+                </whitelistprofile_21>
+                <whitelistprofile_22>
+                </whitelistprofile_22>
+                <whitelistprofile_23>
+                </whitelistprofile_23>
+                <whitelistprofile_24>
+                </whitelistprofile_24>
+                <whitelistprofile_25>
+                </whitelistprofile_25>
+                <whitelistprofile_26>
+                </whitelistprofile_26>
+                <whitelistprofile_27>
+                </whitelistprofile_27>
+                <whitelistprofile_28>
+                </whitelistprofile_28>
+                <whitelistprofile_29>
+                </whitelistprofile_29>
+                <whitelistprofile_30>
+                </whitelistprofile_30>
+
+                <whitelistprofile_31>
+                </whitelistprofile_31>
+                <whitelistprofile_32>
+                </whitelistprofile_32>
+                <whitelistprofile_33>
+                </whitelistprofile_33>
+                <whitelistprofile_34>
+                </whitelistprofile_34>
+                <whitelistprofile_35>
+                </whitelistprofile_35>
+                <whitelistprofile_36>
+                </whitelistprofile_36>
+                <whitelistprofile_37>
+                </whitelistprofile_37>
+                <whitelistprofile_38>
+                </whitelistprofile_38>
+                <whitelistprofile_39>
+                </whitelistprofile_39>
+                <whitelistprofile_40>
+                </whitelistprofile_40>
+
+                <whitelistprofile_41>
+                </whitelistprofile_41>
+                <whitelistprofile_42>
+                </whitelistprofile_42>
+                <whitelistprofile_43>
+                </whitelistprofile_43>
+                <whitelistprofile_44>
+                </whitelistprofile_44>
+                <whitelistprofile_45>
+                </whitelistprofile_45>
+                <whitelistprofile_46>
+                </whitelistprofile_46>
+                <whitelistprofile_47>
+                </whitelistprofile_47>
+                <whitelistprofile_48>
+                </whitelistprofile_48>
+                <whitelistprofile_49>
+                </whitelistprofile_49>
+                <whitelistprofile_50>
+                </whitelistprofile_50>
+
+                <whitelistprofile_51>
+                </whitelistprofile_51>
+                <whitelistprofile_52>
+                </whitelistprofile_52>
+                <whitelistprofile_53>
+                </whitelistprofile_53>
+                <whitelistprofile_54>
+                </whitelistprofile_54>
+                <whitelistprofile_55>
+                </whitelistprofile_55>
+                <whitelistprofile_56>
+                </whitelistprofile_56>
+                <whitelistprofile_57>
+                </whitelistprofile_57>
+                <whitelistprofile_58>
+                </whitelistprofile_58>
+                <whitelistprofile_59>
+                </whitelistprofile_59>
+                <whitelistprofile_60>
+                </whitelistprofile_60>
+
+                <whitelistprofile_61>
+                </whitelistprofile_61>
+                <whitelistprofile_62>
+                </whitelistprofile_62>
+                <whitelistprofile_63>
+                </whitelistprofile_63>
+                <whitelistprofile_64>
+                </whitelistprofile_64>
+        <ssidprofile>
+		         <list name="_profiles" type="ssid_profile_list">
+		         	  <entity>default</entity>
+		         </list>
+		         <ssid_profile_list name="default" Id="1" Description="" reference="4" Changed="no">
+			          <Block_Intra_BSS>no</Block_Intra_BSS>
+			          <Hide_ssid>no</Hide_ssid>
+			          <SSID>Zyxel</SSID>
+			          <QoS_mode>wmm</QoS_mode>
+				  <Downlink_rate_limit>0 mbps</Downlink_rate_limit>
+				  <Uplink_rate_limit>0 mbps</Uplink_rate_limit>
+			          <Forward_mode>localbridge</Forward_mode>
+			          <SSID_VLAN_id>1</SSID_VLAN_id>
+			          <Tunnel_VLANIF></Tunnel_VLANIF>
+			          <MACFilter_profile></MACFilter_profile>
+			          <Security_profile>default</Security_profile>
+                      <Captive_profile></Captive_profile>
+                      <Whitelist_profile></Whitelist_profile>
+					  <Band_Select_mode>disable</Band_Select_mode>
+					  <Band_Select_balance_ratio>0</Band_Select_balance_ratio>
+					  <Band_Select_stop_threshold>0</Band_Select_stop_threshold>
+			          <L2Isolation_profile></L2Isolation_profile>
+			          <SSID_schedule_mode>no</SSID_schedule_mode>
+			          <SSID_schedule_days_mon>enable 00:00 24:00</SSID_schedule_days_mon>
+			          <SSID_schedule_days_tue>enable 00:00 24:00</SSID_schedule_days_tue>
+			          <SSID_schedule_days_wed>enable 00:00 24:00</SSID_schedule_days_wed>
+			          <SSID_schedule_days_thu>enable 00:00 24:00</SSID_schedule_days_thu>
+			          <SSID_schedule_days_fri>enable 00:00 24:00</SSID_schedule_days_fri>
+			          <SSID_schedule_days_sat>enable 00:00 24:00</SSID_schedule_days_sat>
+			          <SSID_schedule_days_sun>enable 00:00 24:00</SSID_schedule_days_sun>
+				  <UAPSD>no</UAPSD>
+                  <WalledGarden_profile></WalledGarden_profile>
+				  <AP_Proxy_ARP>no</AP_Proxy_ARP>
+					<Dot11k_v>no</Dot11k_v>
+		         </ssid_profile_list>
+        </ssidprofile>
+        <radioprofile>
+	            <list name="_profiles" type="radio_profile_list">
+                    <entity>default</entity>
+                    <entity>default2</entity>
+	            </list>
+			        <radio_profile_list name="default" Description="" reference="1" Changed="no">
+			          <active>no</active>
+		        	  <Role>ap</Role>
+		        	  <Country_code></Country_code>
+		        	  <Band>2.4G</Band>
+		        	  <Band_Mode>bgnax</Band_Mode>
+		        	  <Channel>6</Channel>
+		        	  <Channel_5G></Channel_5G>
+		        	  <CTS_RTS>2347</CTS_RTS>
+		        	  <RSSI_thres>no</RSSI_thres>
+		        	  <RSSI_dbm>-82</RSSI_dbm>
+		        	  <RSSI_kickout>-88</RSSI_kickout>
+		        	  <RSSI_interval>2</RSSI_interval>
+		        	  <RSSI_optype>3</RSSI_optype>
+		        	  <RSSI_retry>no</RSSI_retry>
+		        	  <RSSI_retrycount>1</RSSI_retrycount>
+		        	  <RSSI_verifytime>10</RSSI_verifytime>
+		        	  <RSSI_privilegetime>1800</RSSI_privilegetime>
+                                 <RSSI_idle_check_interval>1</RSSI_idle_check_interval>
+                                 <RSSI_idle_check_pkt_num>0</RSSI_idle_check_pkt_num>
+                                 <RSSI_idle_check_lvl>standard</RSSI_idle_check_lvl>
+		        	  <Disable_DFS_Switch>no</Disable_DFS_Switch>
+		        	  <Fragment>2346</Fragment>
+		        	  <DTIM_period>1</DTIM_period>
+		        	  <Beacon_interval>100</Beacon_interval>
+		        	  <AMPDU>no</AMPDU>
+		        	  <AMPDU_limit>50000</AMPDU_limit>
+		        	  <AMPDU_subframe>32</AMPDU_subframe>
+		        	  <AMSDU>no</AMSDU>
+		        	  <AMSDU_limit>4096</AMSDU_limit>
+		        	  <Block_ack>yes</Block_ack>
+		        	  <Channel_width>20</Channel_width>
+		        	  <Guard_interval>short</Guard_interval>
+		        	  <Dot11N_DisableCoexistence>no</Dot11N_DisableCoexistence>
+					  <Dot11_Preamble>short</Dot11_Preamble>
+					  <Disable_AutoChain>no</Disable_AutoChain>
+					  <Multicast_To_Unicast>no</Multicast_To_Unicast>
+					  <Multicast_Speed_2G>11.0</Multicast_Speed_2G>
+					  <Multicast_Speed_5G>6.0</Multicast_Speed_5G>
+		        	  <TX_Mask>7</TX_Mask>
+		        	  <RX_Mask>7</RX_Mask>
+		        	  <Max_SW_Retries>10</Max_SW_Retries>
+		        	  <Suppress_Retry_RTS>no</Suppress_Retry_RTS>
+		        	  <HT_Protect>no</HT_Protect>
+			          <DCS_activate>no</DCS_activate>
+					  <DCS_time_interval_switch>enable</DCS_time_interval_switch>
+			          <DCS_time_interval>720</DCS_time_interval>
+			          <DCS_sensitivity_level>high</DCS_sensitivity_level>
+			          <DCS_client_aware>enable</DCS_client_aware>
+			          <DCS_2g_method>auto</DCS_2g_method>
+			          <DCS_channel_deployment>3-channel</DCS_channel_deployment>
+			          <DCS_5g_method>auto</DCS_5g_method>
+			          <DCS_dfs_aware>enable</DCS_dfs_aware>
+			          <DCS_2g_selected_channel></DCS_2g_selected_channel>
+			          <DCS_5g_selected_channel></DCS_5g_selected_channel>
+		        	  <WDS_SSID_profile_1>default</WDS_SSID_profile_1>
+		        	  <WDS_Security>none</WDS_Security>
+		        	  <WDS_SET_NON11N>no</WDS_SET_NON11N>
+		        	  <WDS_LinkActive_1>no</WDS_LinkActive_1>
+		        	  <WDS_PeerMAC_1></WDS_PeerMAC_1>
+		        	  <WDS_PSK_1></WDS_PSK_1>
+		        	  <WDS_LinkActive_2>no</WDS_LinkActive_2>
+		        	  <WDS_PeerMAC_2></WDS_PeerMAC_2>
+		        	  <WDS_PSK_2></WDS_PSK_2>
+		        	  <WDS_LinkActive_3>no</WDS_LinkActive_3>
+		        	  <WDS_PeerMAC_3></WDS_PeerMAC_3>
+		        	  <WDS_PSK_3></WDS_PSK_3>
+		        	  <WDS_LinkActive_4>no</WDS_LinkActive_4>
+		        	  <WDS_PeerMAC_4></WDS_PeerMAC_4>
+		        	  <WDS_PSK_4></WDS_PSK_4>
+		        	  <WDS_LinkActive_5>no</WDS_LinkActive_5>
+		        	  <WDS_PeerMAC_5></WDS_PeerMAC_5>
+		        	  <WDS_PSK_5></WDS_PSK_5>
+		        	  <Legacy_station_rejection>no</Legacy_station_rejection>
+                                  <PN_Check_Thres>50</PN_Check_Thres>
+		        	  <DFS_channel_switch_manual_quiet>no</DFS_channel_switch_manual_quiet>
+		        	  <Bss_color>0</Bss_color>
+		        	  <Disable_bss_color>no</Disable_bss_color>
+				<Wireless_Health_activate>no</Wireless_Health_activate>
+				<Wireless_Health_weight_index>80</Wireless_Health_weight_index>
+				<Wireless_Health_radio_tx_offset>1000</Wireless_Health_radio_tx_offset>
+				<Wireless_Health_radio_data_collect_interval>10</Wireless_Health_radio_data_collect_interval>
+				<Wireless_Health_radio_action_threshold>200</Wireless_Health_radio_action_threshold>
+				<Wireless_Health_radio_recovery_threshold>120</Wireless_Health_radio_recovery_threshold>
+				<Wireless_Health_radio_action>none</Wireless_Health_radio_action>
+				<Wireless_Health_radio_action_lock_time>240</Wireless_Health_radio_action_lock_time>
+				<Wireless_Health_sta_tx_offset>500</Wireless_Health_sta_tx_offset>
+				<Wireless_Health_sta_data_collect_interval>3</Wireless_Health_sta_data_collect_interval>
+				<Wireless_Health_sta_action_threshold>200</Wireless_Health_sta_action_threshold>
+				<Wireless_Health_sta_recovery_threshold>120</Wireless_Health_sta_recovery_threshold>
+				<Wireless_Health_sta_action>none</Wireless_Health_sta_action>
+				<Wireless_Health_sta_action_lock_time>30</Wireless_Health_sta_action_lock_time>
+				<Wireless_Health_monitor_activate>yes</Wireless_Health_monitor_activate>
+                                <Wireless_Health_monitor_interval>1</Wireless_Health_monitor_interval>
+                                <Wireless_Health_monitor_phytxerror>500</Wireless_Health_monitor_phytxerror>
+                                <Wireless_Health_monitor_reinit>5</Wireless_Health_monitor_reinit>
+                                <Wireless_Health_monitor_txstuck>50</Wireless_Health_monitor_txstuck>
+								<Wireless_Health_monitor_bcnstuck>10</Wireless_Health_monitor_bcnstuck>
+                                <Wireless_Health_monitor_action_lock_time>30</Wireless_Health_monitor_action_lock_time>
+                                <Ignore_country_ie>no</Ignore_country_ie>
+                                <Wlan_rate_control_2G>1</Wlan_rate_control_2G>
+                                <Wlan_rate_control_5G>6</Wlan_rate_control_5G>
+			  </radio_profile_list>
+			        <radio_profile_list name="default2" Description="" reference="1" Changed="no">
+			          <active>no</active>
+		        	  <Role>ap</Role>
+		        	  <Country_code></Country_code>
+		        	  <Band>5G</Band>
+		        	  <Band_Mode>anacax</Band_Mode>
+		        	  <Channel>6</Channel>
+		        	  <Channel_5G>36</Channel_5G>
+		        	  <CTS_RTS>2347</CTS_RTS>
+		        	  <RSSI_thres>no</RSSI_thres>
+		        	  <RSSI_dbm>-82</RSSI_dbm>
+		        	  <RSSI_kickout>-88</RSSI_kickout>
+		        	  <RSSI_interval>2</RSSI_interval>
+		        	  <RSSI_optype>3</RSSI_optype>
+		        	  <RSSI_retry>no</RSSI_retry>
+		        	  <RSSI_retrycount>1</RSSI_retrycount>
+		        	  <RSSI_verifytime>10</RSSI_verifytime>
+		        	  <RSSI_privilegetime>1800</RSSI_privilegetime>
+                                 <RSSI_idle_check_interval>1</RSSI_idle_check_interval>
+                                 <RSSI_idle_check_pkt_num>0</RSSI_idle_check_pkt_num>
+                                 <RSSI_idle_check_lvl>standard</RSSI_idle_check_lvl>
+		        	  <Disable_DFS_Switch>no</Disable_DFS_Switch>
+		        	  <Fragment>2346</Fragment>
+		        	  <DTIM_period>1</DTIM_period>
+		        	  <Beacon_interval>100</Beacon_interval>
+		        	  <AMPDU>no</AMPDU>
+		        	  <AMPDU_limit>50000</AMPDU_limit>
+		        	  <AMPDU_subframe>32</AMPDU_subframe>
+		        	  <AMSDU>no</AMSDU>
+		        	  <AMSDU_limit>4096</AMSDU_limit>
+		        	  <Block_ack>yes</Block_ack>
+					  <Channel_width>20/40/80</Channel_width>
+		        	  <Guard_interval>short</Guard_interval>
+		        	  <Dot11N_DisableCoexistence>no</Dot11N_DisableCoexistence>
+					  <Dot11_Preamble>short</Dot11_Preamble>
+					  <Disable_AutoChain>no</Disable_AutoChain>					  
+					  <Multicast_To_Unicast>no</Multicast_To_Unicast>
+					  <Multicast_Speed_2G>11.0</Multicast_Speed_2G>
+					  <Multicast_Speed_5G>6.0</Multicast_Speed_5G>
+		        	  <TX_Mask>7</TX_Mask>
+		        	  <RX_Mask>7</RX_Mask>
+		        	  <Max_SW_Retries>10</Max_SW_Retries>
+		        	  <Suppress_Retry_RTS>no</Suppress_Retry_RTS>
+		        	  <HT_Protect>no</HT_Protect>
+			          <DCS_activate>no</DCS_activate>
+					  <DCS_time_interval_switch>enable</DCS_time_interval_switch>
+			          <DCS_time_interval>720</DCS_time_interval>
+			          <DCS_sensitivity_level>high</DCS_sensitivity_level>
+			          <DCS_client_aware>enable</DCS_client_aware>
+			          <DCS_2g_method>auto</DCS_2g_method>
+			          <DCS_channel_deployment>3-channel</DCS_channel_deployment>
+			          <DCS_5g_method>auto</DCS_5g_method>
+			          <DCS_dfs_aware>enable</DCS_dfs_aware>
+			          <DCS_2g_selected_channel></DCS_2g_selected_channel>
+			          <DCS_5g_selected_channel></DCS_5g_selected_channel>
+		        	  <WDS_SSID_profile_1>default</WDS_SSID_profile_1>
+		        	  <WDS_Security>none</WDS_Security>
+		        	  <WDS_SET_NON11N>no</WDS_SET_NON11N>
+		        	  <WDS_LinkActive_1>no</WDS_LinkActive_1>
+		        	  <WDS_PeerMAC_1></WDS_PeerMAC_1>
+		        	  <WDS_PSK_1></WDS_PSK_1>
+		        	  <WDS_LinkActive_2>no</WDS_LinkActive_2>
+		        	  <WDS_PeerMAC_2></WDS_PeerMAC_2>
+		        	  <WDS_PSK_2></WDS_PSK_2>
+		        	  <WDS_LinkActive_3>no</WDS_LinkActive_3>
+		        	  <WDS_PeerMAC_3></WDS_PeerMAC_3>
+		        	  <WDS_PSK_3></WDS_PSK_3>
+		        	  <WDS_LinkActive_4>no</WDS_LinkActive_4>
+		        	  <WDS_PeerMAC_4></WDS_PeerMAC_4>
+		        	  <WDS_PSK_4></WDS_PSK_4>
+		        	  <WDS_LinkActive_5>no</WDS_LinkActive_5>
+		        	  <WDS_PeerMAC_5></WDS_PeerMAC_5>
+		        	  <WDS_PSK_5></WDS_PSK_5>
+		        	  <Legacy_station_rejection>no</Legacy_station_rejection>
+                                  <PN_Check_Thres>50</PN_Check_Thres>
+		        	  <DFS_channel_switch_manual_quiet>no</DFS_channel_switch_manual_quiet>
+		        	  <NOL_channel_block>no</NOL_channel_block>
+		        	  <Bss_color>0</Bss_color>
+		        	  <Disable_bss_color>no</Disable_bss_color>
+				<Wireless_Health_activate>no</Wireless_Health_activate>
+				<Wireless_Health_weight_index>80</Wireless_Health_weight_index>
+				<Wireless_Health_radio_tx_offset>1000</Wireless_Health_radio_tx_offset>
+				<Wireless_Health_radio_data_collect_interval>10</Wireless_Health_radio_data_collect_interval>
+				<Wireless_Health_radio_action_threshold>200</Wireless_Health_radio_action_threshold>
+				<Wireless_Health_radio_recovery_threshold>120</Wireless_Health_radio_recovery_threshold>
+				<Wireless_Health_radio_action>none</Wireless_Health_radio_action>
+				<Wireless_Health_radio_action_lock_time>240</Wireless_Health_radio_action_lock_time>
+				<Wireless_Health_sta_tx_offset>500</Wireless_Health_sta_tx_offset>
+				<Wireless_Health_sta_data_collect_interval>3</Wireless_Health_sta_data_collect_interval>
+				<Wireless_Health_sta_action_threshold>200</Wireless_Health_sta_action_threshold>
+				<Wireless_Health_sta_recovery_threshold>120</Wireless_Health_sta_recovery_threshold>
+				<Wireless_Health_sta_action>none</Wireless_Health_sta_action>
+				<Wireless_Health_sta_action_lock_time>30</Wireless_Health_sta_action_lock_time>
+				<Wireless_Health_monitor_activate>yes</Wireless_Health_monitor_activate>
+                                <Wireless_Health_monitor_interval>1</Wireless_Health_monitor_interval>
+                                <Wireless_Health_monitor_phytxerror>500</Wireless_Health_monitor_phytxerror>
+                                <Wireless_Health_monitor_reinit>5</Wireless_Health_monitor_reinit>
+                                <Wireless_Health_monitor_txstuck>50</Wireless_Health_monitor_txstuck>
+								<Wireless_Health_monitor_bcnstuck>10</Wireless_Health_monitor_bcnstuck>
+                                <Wireless_Health_monitor_action_lock_time>30</Wireless_Health_monitor_action_lock_time>
+                                <Ignore_country_ie>no</Ignore_country_ie>
+                                <Wlan_rate_control_2G>1</Wlan_rate_control_2G>
+                                <Wlan_rate_control_5G>6</Wlan_rate_control_5G>
+			  </radio_profile_list>
+      	</radioprofile>
+		<wdsprofile>
+				<list name="_profiles" type="wds_profile_list">
+                    <entity>default</entity>
+	            </list>
+					<wds_profile_list name="default" Description="" reference="0" Changed="no">
+						<WDS_SSID>Zyxel_WDS</WDS_SSID>
+						<WDS_PSK>87654321</WDS_PSK>
+						<WDS_AP_BRIDGE>yes</WDS_AP_BRIDGE>
+					</wds_profile_list>
+		</wdsprofile>
+		<dppsk_global>
+			<list name="_profiles" type="dppsk_maptable" Bitmap="0"/>
+		</dppsk_global>
+		<dppskprofile_1>
+		</dppskprofile_1>
+	</object>
+
+	<default-page>
+		<mode_settings_t name="setting">
+			<mode>default</mode>
+		</mode_settings_t>
+		<logo_settings_t name="setting">
+			<bg-color>#0C2F83</bg-color>
+			<flr-color>#AA1931</flr-color>
+		</logo_settings_t>
+		<login_settings_t name="setting">
+			<title/><!-- will be updated as Product Name -->
+			<message/>
+			<message_color>black</message_color>
+			<bg_type>color</bg_type>
+			<bg_color>#36b9d2</bg_color>
+			<window_type>picture</window_type>
+			<window_color>pink</window_color>
+			<title_color>#378ec9</title_color>
+			<vline_color>black</vline_color>
+			<vline_transparent>100</vline_transparent>
+		</login_settings_t>
+		<access_settings_t name="setting">
+			<title>You now have logged in.</title>
+			<message/>
+			<message_color>black</message_color>
+			<window_type>color</window_type>
+			<window_color>#36b9d2</window_color>
+		</access_settings_t>
+	</default-page>
+
+	<custmiz-page>
+		<mode_settings_t name="setting">
+			<mode>default</mode>
+		</mode_settings_t>
+		<logo_settings_t name="setting">
+			<bg-color>#0C2F83</bg-color>
+			<flr-color>#AA1931</flr-color>
+		</logo_settings_t>
+		<login_settings_t name="setting">
+			<title>USG 50H</title>
+			<message/>
+			<message_color>black</message_color>
+			<bg_type>color</bg_type>
+			<bg_color>#36b9d2</bg_color>
+			<window_type>picture</window_type>
+			<window_color/>
+			<title_color>#378ec9</title_color>
+			<vline_color>black</vline_color>
+			<vline_transparent>100</vline_transparent>
+		</login_settings_t>
+		<access_settings_t name="setting">
+			<title>Welcome</title>
+			<message>none</message>
+			<message_color>black</message_color>
+			<window_type>color</window_type>
+			<window_color>#36b9d2</window_color>
+		</access_settings_t>
+	</custmiz-page>
+
+	<cdr>
+		<cdr_config_t name="setting">
+			<Activate></Activate>
+			<Quarantine_vid></Quarantine_vid>
+			<Max_block_number></Max_block_number>
+			<Quarantine_blockpage_activate></Quarantine_blockpage_activate>
+			<Blockpage_type></Blockpage_type>
+			<Ext_url></Ext_url>
+		</cdr_config_t>
+	</cdr>
+</zyxel>

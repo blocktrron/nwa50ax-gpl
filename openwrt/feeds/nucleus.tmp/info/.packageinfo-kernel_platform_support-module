@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/kernel/platform_support-module/Makefile
+Package: kmod-platform_support-module
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files +kmod-switchdev +kmod-zyklog +zyUMAC
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel platform_support-module package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: 	A Kernel Module for accessing HW information by /proc (led / board info. / slide switch / reset button / led button)
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/showstat/Makefile
+Package: showstat
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: show wifi statistics info
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: show wifi statistics info
+https://www.zyxel.com/
+
+@@
+
+

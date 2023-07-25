@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/netopeer-update-fw/Makefile
+Package: netopeer-update-fw
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libfirmware +wtp_module +zylog +libcurl +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula update fw
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula update fw
+https://www.zyxel.com/
+
+@@
+
+

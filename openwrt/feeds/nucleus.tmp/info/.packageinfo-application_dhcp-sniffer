@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/dhcp-sniffer/Makefile
+Package: dhcp-sniffer
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libubus +libubox +wifimgr +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula dhcp sniffer
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula dhcp sniffer
+https://www.zyxel.com/
+
+@@
+
+

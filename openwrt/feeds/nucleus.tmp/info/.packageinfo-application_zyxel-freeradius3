@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-freeradius3/Makefile
+Package: zyxel-freeradius3
+Submenu: application
+Version: 3.0.20
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +libtalloc +libatomic +zld-files +kmod-captive_portal +libcap +libpcap +libncurses +libreadline
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: FreeRADIUS Server v3.x
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: FreeRADIUS Server v3.x
+https://freeradius.org/
+
+@@
+
+

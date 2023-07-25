@@ -1,0 +1,8 @@
+--- a/files/lib/preinit/30_failsafe_wait	2021-02-02 20:09:34.331432710 +0800
++++ b/files/lib/preinit/30_failsafe_wait	2021-02-02 20:11:27.263432710 +0800
+@@ -97,4 +97,4 @@
+ 	fi
+ }
+
+-boot_hook_add preinit_main failsafe_wait
++#boot_hook_add preinit_main failsafe_wait

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/workAround/Makefile
+Package: workAround
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Prowlan , System protect.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Prowlan , System protect.
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-ntp/Makefile
+Package: zyxel-ntp
+Submenu: application
+Version: 4.2.8p12
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libcap +zld-files +libuam +zylog +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The ntpdate utility from ISC NTP & ProWLAN ntpdate agent
+Maintainer: 
+Source: 
+License: NTP License
+Type: ipkg
+Description: The ntpdate utility from ISC NTP & ProWLAN ntpdate agent
+http://www.ntp.org/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/wifimgr/Makefile
+Package: wifimgr
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libnl-tiny +libpthread +libubus +libubox +zyUMAC +zylog +zylog_wrapper +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: wifi netlink event manager
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: wifi netlink event manager
+https://www.zyxel.com/
+
+@@
+
+

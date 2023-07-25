@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/mlogin/Makefile
+Package: mlogin
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +libpam +libuam +zylog +zykit +libuser_profile +zld-files +wireless-hal +wpa3lib +wtp_module +libcurl +@LIBCURL_OPENSSL +LIBCURL_OPENSSL:libopenssl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel mlogin package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel mlogin package
+https://www.zyxel.com/
+
+@@
+
+

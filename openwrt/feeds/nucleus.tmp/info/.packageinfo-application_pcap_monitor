@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/pcap_monitor/Makefile
+Package: pcap_monitor
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Prowlan , pcap monitor.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Prowlan , pcap monitor.
+https://www.zyxel.com/
+
+@@
+
+

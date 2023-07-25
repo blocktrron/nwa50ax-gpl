@@ -1,0 +1,13 @@
+<WTP_wtp_image/nwa50ax>
+<list>
+name                :code
+version             :6.29(###.1)GPL
+</list>
+<model>
+COMPATIBLE_PRODUCT_MODEL[0]=6BE1
+COMPATIBLE_PRODUCT_MODEL[1]=6FE1
+COMPATIBLE_PRODUCT_MODEL[2]=FFFF
+COMPATIBLE_PRODUCT_MODEL[3]=FFFF
+COMPATIBLE_PRODUCT_MODEL[4]=FFFF
+</model>
+</WTP_wtp_image/nwa50ax>

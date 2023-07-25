@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zon/Makefile
+Package: zon
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libfeynman +libuam +zylog +libbmm +libfirmware
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN zon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN zon
+https://www.zyxel.com/
+
+@@
+
+

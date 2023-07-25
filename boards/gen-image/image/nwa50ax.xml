@@ -1,0 +1,5 @@
+		<set name="WTP_wtp_image/nwa50ax">
+			<scope>-f wtp_image/nwa50ax -D /db</scope>
+			<version>6.29(###.1)GPL</version>
+			<build_date>2023-05-23 10:11:17</build_date>
+		</set>

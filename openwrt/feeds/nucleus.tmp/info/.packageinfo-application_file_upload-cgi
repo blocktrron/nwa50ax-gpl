@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/file_upload-cgi/Makefile
+Package: file_upload-cgi
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +libbmm +libfirmware +zyio_library
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN file upload CGI
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN file upload CGI
+https://www.zyxel.com/
+
+@@
+
+

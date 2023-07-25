@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/wlan_apmode_rapd/Makefile
+Package: wlan_apmode_rapd
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +scan_agent +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wlan_apmode_rapd package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wlan_apmode_rapd package
+https://www.zyxel.com/
+
+@@
+
+

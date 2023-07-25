@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/uam/Makefile
+Package: uam
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libxml2 +zld-files +zylog +zykit +libuam +libpam +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN User Aware Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN User Aware Module
+https://www.zyxel.com/
+
+@@
+
+

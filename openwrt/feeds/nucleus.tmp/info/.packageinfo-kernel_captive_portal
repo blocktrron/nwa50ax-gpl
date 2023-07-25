@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/kernel/captive_portal/Makefile
+Package: kmod-captive_portal
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN Captive Portal Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Captive Portal Module
+https://www.zyxel.com/
+
+@@
+
+

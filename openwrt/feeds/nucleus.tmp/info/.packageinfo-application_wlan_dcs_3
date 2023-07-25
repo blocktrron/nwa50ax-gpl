@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/wlan_dcs_3/Makefile
+Package: wlan_dcs_3
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +scan_agent +libwifi_common +libevent14 +TARGET_ipq:qca-wifi
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wlan_dcs_3 package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wlan_dcs_3 package
+https://www.zyxel.com/
+
+@@
+
+

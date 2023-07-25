@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/cloud-auth/Makefile
+Package: cloud-auth
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libjson-c +libcurl +zld-files +zylog +libuam +zykit +libuser_profile +zyxel-redis +@LIBCURL_OPENSSL +LIBCURL_OPENSSL:libopenssl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Nebula Cloud Auth Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Nebula Cloud Auth Daemon
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,14 @@
+--- a/files/procd.sh
++++ b/files/procd.sh
+@@ -222,7 +222,10 @@ _procd_set_param() {
+ 		pidfile|user|seccomp|capabilities)
+ 			json_add_string "$type" "$1"
+ 		;;
+-		stdout|stderr|no_new_privs)
++                stdout|stderr)
++                        json_add_int "$type" "$1"
++                ;;
++		no_new_privs)
+ 			json_add_boolean "$type" "$1"
+ 		;;
+ 	esac

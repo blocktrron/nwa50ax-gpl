@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/radio_resource_measurement/Makefile
+Package: radio_resource_measurement
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zykit +wtp_module +libevent14 +zyUMAC +wifimgr
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel radio_resource_measurement package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel radio_resource_measurement package
+https://www.zyxel.com/
+
+@@
+
+

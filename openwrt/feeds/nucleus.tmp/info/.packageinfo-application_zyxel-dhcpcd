@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-dhcpcd/Makefile
+Package: zyxel-dhcpcd
+Submenu: application
+Version: 1.3.22-pl4
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel dhcpcd
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: Zyxel dhcpcd
+http://www.phystech.com/ftp/
+
+@@
+
+

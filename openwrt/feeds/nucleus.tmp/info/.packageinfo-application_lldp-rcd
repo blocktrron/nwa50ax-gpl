@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/lldp-rcd/Makefile
+Package: lldp-rcd
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libuam +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN lldp-rcd
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN lldp-rcd
+https://www.zyxel.com/
+
+@@
+
+

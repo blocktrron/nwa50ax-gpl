@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/wtp_module/Makefile
+Package: wtp_module
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +zylog +libevent14 +libzld-sysinfo +libfirmware +libopenssl +zyxel-redis +kmod-switchdev +@OPENSSL_WITH_DTLS +libiface_generic +libubus +libubox +wifimgr +wpa3lib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN wtp module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN wtp module
+https://www.zyxel.com/
+
+@@
+
+

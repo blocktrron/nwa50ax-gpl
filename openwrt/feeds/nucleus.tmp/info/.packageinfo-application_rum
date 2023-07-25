@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/rum/Makefile
+Package: rum
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zld-files +libuser_profile +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel rum package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel rum package
+https://www.zyxel.com/
+
+@@
+
+

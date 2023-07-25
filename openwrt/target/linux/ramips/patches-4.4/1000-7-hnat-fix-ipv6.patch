@@ -1,0 +1,106 @@
+From bb562245db23092457138fda867219afcc0ba8ff Mon Sep 17 00:00:00 2001
+From: Henry Yen <henry.yen@mediatek.com>
+Date: Tue, 22 Dec 2020 11:05:49 +0800
+Subject: [PATCH] net: mediatek: add IPv6 HQoS 0x5678 handling for MT7622
+
+The patch adds the support of HQoS 0x5678 handling for
+MT7622 IPv6 ETH->2.4G path. If without this change, the
+IPv6 ETH->2.4G traffic won't be properly scheduled and
+consequently causes some unexpected issues.
+(e.g., Youtube thumbnail un-shown problem)
+
+Test: build pass
+
+Change-Id: I01c4dff31ef1e3a6a709810497be79f196c346bf
+Signed-off-by: Henry Yen <henry.yen@mediatek.com>
+CR-Id: WCNCR00185554
+---
+
+diff --git a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
+index dc6500e..1a5152a 100644
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
+@@ -1505,37 +1505,68 @@
+ 	}
+ 
+ 	/* MT7622 wifi hw_nat not support QoS */
+-	entry->ipv4_hnapt.iblk2w.fqos = 0;
++	if (IS_IPV4_GRP(entry))
++		entry->ipv4_hnapt.iblk2w.fqos = 0;
++	else
++		entry->ipv6_5t_route.iblk2w.fqos = 0;
++
+ 	if (gmac_no == NR_WHNAT_WDMA_PORT) {
+-		entry->ipv4_hnapt.iblk2w.wdmaid =
+-			(skb_hnat_wdma_id(skb) & 0x01);
+-		entry->ipv4_hnapt.iblk2w.winfoi = 1;
+-		entry->ipv4_hnapt.winfo.bssid = skb_hnat_bss_id(skb);
+-		entry->ipv4_hnapt.winfo.wcid = skb_hnat_wc_id(skb);
+-		entry->ipv4_hnapt.winfo.rxid = skb_hnat_rx_id(skb);
++		if (IS_IPV4_GRP(entry)) {
++			entry->ipv4_hnapt.iblk2w.wdmaid =
++				(skb_hnat_wdma_id(skb) & 0x01);
++			entry->ipv4_hnapt.iblk2w.winfoi = 1;
++			entry->ipv4_hnapt.winfo.bssid = skb_hnat_bss_id(skb);
++			entry->ipv4_hnapt.winfo.wcid = skb_hnat_wc_id(skb);
++			entry->ipv4_hnapt.winfo.rxid = skb_hnat_rx_id(skb);
++		} else {
++			entry->ipv6_5t_route.iblk2w.wdmaid =
++				(skb_hnat_wdma_id(skb) & 0x01);
++			entry->ipv6_5t_route.iblk2w.winfoi = 1;
++			entry->ipv6_5t_route.winfo.bssid = skb_hnat_bss_id(skb);
++			entry->ipv6_5t_route.winfo.wcid = skb_hnat_wc_id(skb);
++			entry->ipv6_5t_route.winfo.rxid = skb_hnat_rx_id(skb);
++		}
+ 	} else {
+ 		if (IS_GMAC1_MODE && !hnat_dsa_is_enable(hnat_priv)) {
+ 			entry->bfib1.vpm = 1;
+ 			entry->bfib1.vlan_layer = 1;
+ 
+-			if (FROM_GE_LAN(skb))
+-				entry->ipv4_hnapt.vlan1 = 1;
+-			else if (FROM_GE_WAN(skb) || FROM_GE_VIRTUAL(skb))
+-				entry->ipv4_hnapt.vlan1 = 2;
++			if (FROM_GE_LAN(skb)) {
++				if (IS_IPV4_GRP(entry))
++					entry->ipv4_hnapt.vlan1 = 1;
++				else
++					entry->ipv6_5t_route.vlan1 = 1;
++			} else if (FROM_GE_WAN(skb) || FROM_GE_VIRTUAL(skb)) {
++				if (IS_IPV4_GRP(entry))
++					entry->ipv4_hnapt.vlan1 = 2;
++				else
++					entry->ipv6_5t_route.vlan1 = 2;
++			}
+ 		}
+ 
+ #if defined(CONFIG_NET_MEDIATEK_HW_QOS)
+ 		if (FROM_GE_LAN(skb) || FROM_GE_WAN(skb) || FROM_GE_VIRTUAL(skb)) {
+ 			entry->bfib1.vpm = 0;
+-			entry->ipv4_hnapt.etype = htons(HQOS_MAGIC_TAG);
+-			entry->ipv4_hnapt.vlan1 = skb_hnat_entry(skb);
+ 			entry->bfib1.vlan_layer = 1;
+-			entry->ipv4_hnapt.iblk2w.fqos = 1;
++
++			if (IS_IPV4_GRP(entry)) {
++				entry->ipv4_hnapt.etype = htons(HQOS_MAGIC_TAG);
++				entry->ipv4_hnapt.vlan1 = skb_hnat_entry(skb);
++				entry->ipv4_hnapt.iblk2w.fqos = 1;
++			} else {
++				entry->ipv6_5t_route.etype = htons(HQOS_MAGIC_TAG);
++				entry->ipv6_5t_route.vlan1 = skb_hnat_entry(skb);
++				entry->ipv6_5t_route.iblk2w.fqos = 1;
++			}
+ 		}
+ #endif
+ 	}
+ 
+-	entry->ipv4_hnapt.iblk2w.dp = gmac_no;
++	if (IS_IPV4_GRP(entry))
++		entry->ipv4_hnapt.iblk2w.dp = gmac_no;
++	else
++		entry->ipv6_5t_route.iblk2w.dp = gmac_no;
++
+ 	entry->bfib1.state = BIND;
+ 
+ 	return NF_ACCEPT;

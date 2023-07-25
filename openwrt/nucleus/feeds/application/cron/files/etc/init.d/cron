@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+# need to start before zyxhell
+START=50
+
+USE_PROCD=1
+PROG=/usr/sbin/cron
+
+start_service () {
+	[ -z "$(ls /etc/crontab)" ] && return 1
+
+	mkdir -p /var/spool/cron
+	ln -s /etc/crontab /var/spool/cron/ 2>/dev/null
+
+	procd_open_instance cron
+	procd_set_param command "$PROG" -f
+	procd_set_param respawn ${respawn_threshold:-300} ${respawn_timeout:-5} ${respawn_retry:-5}
+	procd_set_param file /etc/crontab
+	procd_close_instance
+}
+
+stop_service() {
+	procd_kill cron cron
+}
+

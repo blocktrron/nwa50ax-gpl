@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/neighbor_collector/Makefile
+Package: neighbor_collector
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +wtp_module +libevent14 +libjson-c +zykit +libidn
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Neighbor Collector Application
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel Neighbor Collector Application
+https://www.zyxel.com/
+
+@@
+
+

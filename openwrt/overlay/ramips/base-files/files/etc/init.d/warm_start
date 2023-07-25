@@ -1,0 +1,8 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2013-2014 OpenWrt.org
+
+STOP=90
+
+stop() {
+	touch /etc/zyxel/ftp/keep/warm_start
+}

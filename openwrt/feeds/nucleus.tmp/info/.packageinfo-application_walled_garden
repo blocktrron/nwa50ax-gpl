@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/walled_garden/Makefile
+Package: walled_garden
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +wtp_module +kmod-captive_portal
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Nebula Walled Garden Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Nebula Walled Garden Daemon
+https://www.zyxel.com/
+
+@@
+
+

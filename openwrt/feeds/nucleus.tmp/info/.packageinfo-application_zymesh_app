@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zymesh_app/Makefile
+Package: zymesh_app
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +zykit +zlib +libuam +libiface_generic +link_updown +wireless-hal
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZyMesh
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZyMesh
+https://www.zyxel.com/
+
+@@
+
+

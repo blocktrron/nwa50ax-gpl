@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/peripheral-detect/Makefile
+Package: peripheral-detect
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Peripheral detection daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   Handle peripheral event and do some actions
+https://www.zyxel.com/
+
+@@
+
+

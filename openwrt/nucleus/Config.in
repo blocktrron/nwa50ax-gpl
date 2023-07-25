@@ -1,0 +1,31 @@
+config KERNEL_ZYUMAC_SUPPORT
+	bool
+
+config KERNEL_ZYUMAC_BOARD_TYPE
+	hex "BOARD_TYPE for different boards"
+	default 0
+	help
+		This option could be used for boardtype hex value
+
+menuconfig ZYUMAC_SUPPORT
+	bool  "Zyxel Board Profile Setting"
+	select KERNEL_ZYUMAC_SUPPORT
+
+if ZYUMAC_SUPPORT
+
+        config ZYUMAC_BOARD_NAME
+                string "Enter Zyxel board name"
+                default ""
+
+        config ZYUMAC_MODEL_NAME
+                string "Enter Zyxel model name"
+                default ""
+endif
+
+if TARGET_ramips
+
+		config KERNEL_ZYUMAC_VER
+				string "Enter wlan driver version"
+				default "6.0"
+
+endif

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/net-tools/Makefile
+Package: net-tools
+Submenu: application
+Version: 2.10-alpha
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The net-tools package
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: The net-tools package
+https://sourceforge.net/projects/net-tools/
+
+@@
+
+

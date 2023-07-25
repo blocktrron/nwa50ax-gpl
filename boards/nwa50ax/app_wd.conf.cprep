@@ -1,0 +1,21 @@
+#app_name	min_process_count	max_process_count(-1 unlimited)	recover_enable	recover_reboot	recover_always	recover_max_try_count	recover_max_fail_count
+portal_transport	1                        	-1			1		1		1		1			3
+uamd			1				-1			1		1		1		1			3
+zyshd_wd		1				-1			0		1		1		1			3
+zyshd			1				-1			0		0		1		1			3
+lighttpd		1				-1			1		1		1		1			3
+syslog-ng		1				-1			0		1		1		1			3
+zylogger		1				-1			0		1		1		1			3
+fauthd			1				-1			1		1		1		1			3
+hostapd			1				-1			1		1		1		1			3
+rate_limit_managerd	1				-1			0		1		1		1			3
+pure-ftpd		1				-1			0		1		1		1			3
+scan_agent		1				-1			1		1		1		1			3
+wireless_hal		1				-1			1		1		1		1			3
+neighbor_collector	1				-1			1		1		1		1			3
+dot11k	            	1				 1			1		1		1		1			3
+cloudauthd		1				-1			1		1		1		1			2
+accountingd		1				-1			1		1		1		1			3
+ssid_manager            1                               -1                     	1               1               1               1                       3
+lldpd	            	1				 1			1		1		1		1			3
+dcs         		1               		-1          		1       	1       	1       	1           		3

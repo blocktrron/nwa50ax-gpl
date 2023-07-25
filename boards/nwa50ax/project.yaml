@@ -1,0 +1,41 @@
+version: '1.0'
+
+models:
+  - ZYXEL_REF
+
+parameters:
+  - uboot: nwa50ax.bm
+    uimage: lede-ramips-mt7621-uImage.bin
+    rootfs: lede-ramips-mt7621-root.squashfs
+    sysupgrade: lede-ramips-mt7621-mt7621-rfb-ax-nmbm-squashfs-sysupgrade.bin
+
+zld_config:
+  setup_script: ./build.sh setup
+  prepare_script: ./build.sh prepare
+  clean_script: ./build.sh clean
+
+builds:
+  - name: primary
+    default: true
+    feeds: config/nwa50ax.feeds.conf
+    defconfig: config/nwa50ax.defconfig
+    kconfig: config/nwa50ax.config-4.4
+    zyxel_dts: mt7621-rfb-ax-nmbm.dts
+    images:
+      - firmware
+
+images:
+  - name: firmware
+    type: default
+    version: 6.29(###.1)GPL
+
+releases:
+  - name: appimage_1
+    image: default
+    from_file: !varexpan NWA50AX.img
+    to_file: !varexpan nwa50ax-fullimage.NWA50AX.bin
+
+  - name: appimage_2
+    image: default
+    from_file: !varexpan NWA55AXE.img
+    to_file: !varexpan nwa50ax-fullimage.NWA55AXE.bin

@@ -1,0 +1,326 @@
+/dts-v1/;
+
+#include "mt7621.dtsi"
+#include <dt-bindings/input/input.h>
+
+/ {
+	compatible = "mediatek,mt7621-rfb-ax-nmbm", "mediatek,mt7621-soc";
+	model = "MediaTek MT7621 RFB (802.11ax, NAND with NMBM)";
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio0 18 1>;
+			linux,code = <KEY_RESTART>;
+		};
+	};
+
+	nmbm {
+		compatible = "generic,nmbm";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		lower-mtd-device = <&nandflash>;
+		forced-create;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "Bootloader";
+				reg = <0x0 0x80000>;
+			};
+
+			partition@80000 {
+				label = "u-boot-env";
+				reg = <0x80000 0x80000>;
+			};
+
+			partition@100000 {
+				label = "Factory";
+				reg = <0x100000 0x80000>;
+			};
+
+			partition@180000 {
+				label = "firmware";
+				reg = <0x180000 0x2800000>;
+			};
+
+			partition@2980000 {
+				label = "firmware_1";
+				reg = <0x2980000 0x2800000>;
+			};
+
+			partition@5180000 {
+				label = "rootfs_data";
+				reg = <0x5180000 0x1400000>;
+			};
+
+			partition@6580000 {
+				label = "logs";
+				reg = <0x6580000 0xd00000>;
+			};
+
+			partition@7280000 {
+				label = "myzyxel";
+				reg = <0x7280000 0x480000>;
+			};
+
+			partition@7700000 {
+				label = "bootconfig";
+				reg = <0x7700000 0x80000>;
+			};
+
+			partition@7780000 {
+				label = "mrd";
+				reg = <0x7780000 0x80000>;
+			};
+		};
+	};
+};
+
+&bch {
+	status = "okay";
+};
+
+&eth {
+        status = "okay";
+
+        gmac0: mac@0 {
+                compatible = "mediatek,eth-mac";
+                reg = <0>;
+                phy-mode = "trgmii";
+                fixed-link {
+                        speed = <1000>;
+                        full-duplex;
+                        pause;
+                };
+        };
+
+        gmac1: mac@1 {
+                compatible = "mediatek,eth-mac";
+                reg = <1>;
+                phy-mode = "rgmii";
+                fixed-link {
+                        speed = <1000>;
+                        full-duplex;
+                        pause;
+                };
+        };
+
+        mdio: mdio-bus {
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                phy1f: ethernet-phy@1f {
+                        reg = <0x1f>;
+                        phy-mode = "rgmii";
+                };
+        };
+};
+
+&gsw {
+        mediatek,mdio = <&mdio>;
+        mediatek,portmap = "llllw";
+        mediatek,mcm;
+	mt7530,direct-phy-access;
+
+        resets = <&rstctrl 2>;
+        reset-names = "mcm";
+
+        port5: port@5 {
+                status = "disabled";
+                compatible = "mediatek,mt753x-port";
+                reg = <5>;
+                phy-mode = "rgmii";
+                fixed-link {
+                        speed = <1000>;
+                        full-duplex;
+                };
+        };
+
+        port6: port@6 {
+                compatible = "mediatek,mt753x-port";
+                reg = <6>;
+                phy-mode = "trgmii";
+                fixed-link {
+                        speed = <1000>;
+                        full-duplex;
+                };
+        };
+
+        mdio-bus {
+                #address-cells = <1>;
+                #size-cells = <0>;
+        };
+};
+
+&hnat {
+        mtketh-wan = "eth1";
+        mtketh-ppd = "eth0";
+	ext-devices = "rax0", "ra0", "rax1", "ra1", "rax2", "ra2", "rax3", "ra3", "apclix0", "apcli0";
+        mtketh-max-gmac = <2>;
+        status = "okay";
+};
+
+&nand {
+	status = "okay";
+
+	nandflash: flash@0 {
+		reg = <0>;
+		nand-ecc-mode = "hw";
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+		};
+	};
+};
+
+&pinctrl {
+	state_default: pinctrl0 {
+		gpio {
+			mtk,group = "i2c";
+			mtk,function = "gpio";
+		};
+
+		uart2 {
+			mtk,group = "uart2";
+			mtk,function = "gpio";
+		};
+
+		uart3 {
+			mtk,group = "uart3";
+			mtk,function = "gpio";
+		};
+
+		rgmii2 {
+			mtk,group = "rgmii2";
+			mtk,function = "gpio";
+		};
+	};
+};
+
+&uartfull1 {
+	status = "disabled";
+};
+
+&uartfull2 {
+	status = "disabled";
+};
+
+&pcie {
+	status = "okay";
+};
+
+&u3phy1 {
+	status = "disabled";
+};
+
+&xhci {
+	status = "disabled";
+};
+
+/ {
+	zy_platform_gpios {
+		compatible = "zy-platform-gpios";
+
+		/* Red */
+		led_sys {
+			feature-en = <1>;
+			gpios = <&gpio0 6 0>;
+			init-output-low;
+			gpio-location = <0>;
+			is-led = <1>;
+			is-support-suppress = <1>;
+			is-support-locator = <1>;
+			is-support-blink = <1>;
+		};
+
+		/* Green */
+		led_power {
+			feature-en = <1>;
+			gpios = <&gpio0 7 0>;
+			init-output-high;
+			gpio-location = <0>;
+			is-led = <1>;
+			is-support-suppress = <1>;
+			is-support-locator = <1>;
+			is-support-blink = <1>;
+		};
+
+		/* Blue */
+		led_mgmt {
+			feature-en = <1>;
+			gpios = <&gpio0 8 0>;
+			init-output-low;
+			gpio-location = <0>;
+			is-led = <1>;
+			is-support-suppress = <1>;
+			is-support-locator = <1>;
+			is-support-blink = <1>;
+		};
+
+		/* Output to PCIe reset */
+		rst_pcie {
+			feature-en = <1>;
+			gpios = <&gpio0 19 1>;
+			init-output-high;
+		};
+
+		/* Output to MR */
+		rst_mb {
+			feature-en = <1>;
+			gpios = <&gpio0 22 1>;
+			init-output-high;
+		};
+
+		/* Output to WiFi MAC reset */
+		rst_wifi_mac {
+			feature-en = <1>;
+			gpios = <&gpio0 24 1>;
+			init-output-high;
+		};
+
+		apd_dc_in {
+			feature-en = <0>;
+			gpios = <&gpio0 28 1>;
+			init-input-enable;
+		};
+
+		poe_status {
+			feature-en = <0>;
+			gpios = <&gpio0 29 0>;
+			init-input-enable;
+		};
+
+		/* Reset button */
+		btn_rst_mb {
+			feature-en = <1>;
+			gpios = <&gpio0 30 1>;
+			init-input-enable;
+			debounce-interval = <60>;
+		};
+
+		board_info_1 {
+			feature-en = <1>;
+			gpios = <&gpio0 31 0>;
+			init-input-enable;
+		};
+
+		board_info_2 {
+			feature-en = <1>;
+			gpios = <&gpio1 0 0>; //GPIO32 in bank@1
+			init-input-enable;
+		};
+	};
+};

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/email-daily-report/Makefile
+Package: email-daily-report
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libxml2 +libpng +libuser_profile +zylog +zykit +libuam +libgd
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN email daily report
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN email daily report
+https://www.zyxel.com/
+
+@@
+
+

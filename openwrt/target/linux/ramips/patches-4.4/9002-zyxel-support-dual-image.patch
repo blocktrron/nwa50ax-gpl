@@ -1,0 +1,43 @@
+--- a/drivers/mtd/mtdpart.c	2020-12-10 12:45:49.151190529 +0800
++++ b/drivers/mtd/mtdpart.c	2020-12-10 12:46:22.939190529 +0800
+@@ -39,6 +39,19 @@
+ 
+ #define MTD_ERASE_PARTIAL	0x8000 /* partition only covers parts of an erase block */
+ 
++static int boot_img = 0;
++
++static int __init boot_img_setup(char *str)
++{
++	if (strcmp(str, "1") == 0)
++		boot_img = 1;
++	else
++		boot_img = 0;
++
++	return 1;
++}
++__setup("bootImage=", boot_img_setup);
++
+ /* Our partition linked list */
+ static LIST_HEAD(mtd_partitions);
+ static DEFINE_MUTEX(mtd_partitions_mutex);
+@@ -804,6 +817,7 @@
+ static void mtd_partition_split(struct mtd_info *master, struct mtd_part *part)
+ {
+ 	static int rootfs_found = 0;
++	char split_fw[64] = {'\0'};
+ 
+ 	if (rootfs_found)
+ 		return;
+@@ -814,7 +828,11 @@
+ 		rootfs_found = 1;
+ 	}
+ 
+-	if (!strcmp(part->mtd.name, SPLIT_FIRMWARE_NAME) &&
++	strncpy(split_fw, SPLIT_FIRMWARE_NAME, strlen(SPLIT_FIRMWARE_NAME));
++	if (boot_img == 1)
++		strcat(split_fw, "_1");
++
++	if (!strcmp(part->mtd.name, split_fw) &&
+ 	    config_enabled(CONFIG_MTD_SPLIT_FIRMWARE))
+ 		split_firmware(master, part);
+ 

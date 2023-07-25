@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/schedule_ssid/Makefile
+Package: schedule_ssid
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel schedule_ssid utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   schedule_ssid application.
+https://www.zyxel.com/
+
+@@
+
+

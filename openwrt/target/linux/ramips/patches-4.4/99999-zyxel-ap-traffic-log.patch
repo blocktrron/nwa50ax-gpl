@@ -1,0 +1,22 @@
+--- a/include/net/netfilter/nf_conntrack_extend.h	2020-06-04 10:45:20.000000000 +0800
++++ b/include/net/netfilter/nf_conntrack_extend.h	2022-08-24 16:43:19.959213633 +0800
+@@ -30,6 +30,7 @@
+ #if IS_ENABLED(CONFIG_NETFILTER_SYNPROXY)
+ 	NF_CT_EXT_SYNPROXY,
+ #endif
++	NF_CT_EXT_CONNTRACK_DATA,
+ 	NF_CT_EXT_NUM,
+ };
+ 
+--- a/include/uapi/linux/netfilter/nf_conntrack_common.h	2022-08-24 16:38:09.501309769 +0800
++++ b/include/uapi/linux/netfilter/nf_conntrack_common.h	2022-08-24 16:42:00.265734054 +0800
+@@ -95,6 +95,9 @@
+ 	IPS_OFFLOAD_BIT = 14,
+ 	IPS_OFFLOAD = (1 << IPS_OFFLOAD_BIT),
+ 
++	IPS_FORWARD_BIT = 15,
++	IPS_FORWARD = (1 << IPS_FORWARD_BIT),
++
+ };
+ 
+ /* Connection tracking event types */

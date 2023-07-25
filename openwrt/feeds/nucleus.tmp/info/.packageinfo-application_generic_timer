@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/generic_timer/Makefile
+Package: generic_timer
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +email-daily-report +zykit +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Generic Timer Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Daemon to collect device information (interface statistics, cpu, memery, sessions, uptime, hostname, firmware version, model name)
+https://www.zyxel.com/
+
+@@
+
+

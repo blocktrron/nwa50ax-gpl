@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/proWireless_snmptrap/Makefile
+Package: proWireless_snmptrap
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libxml2 +zyio_library
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWireless snmp trap
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWireless snmp trap
+https://www.zyxel.com/
+
+@@
+
+

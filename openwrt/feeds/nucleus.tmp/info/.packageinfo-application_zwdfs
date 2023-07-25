@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zwdfs/Makefile
+Package: zwdfs
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libubus
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zero-Wait DFS manager
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   It is intended to provide zero-wait DFS
+https://www.zyxel.com/
+
+@@
+
+

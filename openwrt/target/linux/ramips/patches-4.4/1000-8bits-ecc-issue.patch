@@ -1,0 +1,375 @@
+--- a/drivers/mtd/nand/mtk_ecc_mt7621.c	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/mtd/nand/mtk_ecc_mt7621.c	2020-12-15 14:39:18.000000000 +0800
+@@ -14,6 +14,7 @@
+ #include <linux/clk.h>
+ #include <linux/module.h>
+ #include <linux/iopoll.h>
++#include <linux/bitops.h>
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/mutex.h>
+@@ -44,7 +45,6 @@
+ {
+ 	struct nand_chip *nand = mtd_to_nand(mtd);
+ 	struct mtk_nfc *nfc = nand_get_controller_data(nand);
+-	struct device *dev = ecc->dev;
+ 	u32 error_byte_pos, error_bit_pos_in_byte;
+ 	u32 error_locations, error_bit_loc;
+ 	u32 num_error_bits;
+@@ -56,11 +56,8 @@
+ 	if (!num_error_bits)
+ 		return 0;
+ 
+-	if (num_error_bits == ecc->caps->err_mask) {
+-		mtd->ecc_stats.failed++;
+-		dev_warn(dev, "Uncorrectable ecc error\n");
++	if (num_error_bits == ecc->caps->err_mask)
+ 		return -1;
+-	}
+ 
+ 	for (i = 0; i < num_error_bits; i++) {
+ 		error_locations = readl(ecc->regs + ECC_DECEL(i / 2));
+@@ -81,8 +78,6 @@
+ 		bitflips++;
+ 	}
+ 
+-	mtd->ecc_stats.corrected += bitflips;
+-
+ 	return bitflips;
+ }
+ EXPORT_SYMBOL(mtk_ecc_correct_check);
+@@ -225,6 +220,135 @@
+ }
+ EXPORT_SYMBOL(mtk_ecc_init);
+ 
++/* Empty page bitflip fixup */
++static int mtk_ecc_check_bitflips(const void *buf, size_t len, u32 bitflips,
++				  u32 bitflips_threshold)
++{
++	const u8 *buf8 = buf;
++	const ulong *bufl;
++	ulong d;
++	u32 weight;
++
++	while (len && ((uintptr_t)buf8) % sizeof(ulong)) {
++		weight = hweight8(*buf8);
++		bitflips += BITS_PER_BYTE - weight;
++		buf8++;
++		len--;
++
++		if (unlikely(bitflips > bitflips_threshold))
++			return -EBADMSG;
++	}
++
++	bufl = (const ulong *)buf8;
++	while (len >= sizeof(ulong)) {
++		d = *bufl;
++
++		if (d != ~0UL) {
++			weight = hweight_long(d);
++			bitflips += BITS_PER_LONG - weight;
++		}
++
++		bufl++;
++		len -= sizeof(ulong);
++
++		if (unlikely(bitflips > bitflips_threshold))
++			return -EBADMSG;
++	}
++
++	buf8 = (const u8 *)bufl;
++	while (len) {
++		weight = hweight8(*buf8);
++		bitflips += BITS_PER_BYTE - weight;
++		buf8++;
++		len--;
++
++		if (unlikely(bitflips > bitflips_threshold))
++			return -EBADMSG;
++	}
++
++	return bitflips;
++}
++
++static int mtk_ecc_check_ecc_bitflips(const void *buf, u32 bits, u32 bitflips,
++				      u32 bitflips_threshold)
++{
++	u32 len, i;
++	int rc;
++	u8 b;
++
++	len = bits >> 3;
++	bits &= 7;
++
++	rc = mtk_ecc_check_bitflips(buf, len, bitflips, bitflips_threshold);
++	if (!bits || rc < 0)
++		return rc;
++
++	bitflips = rc;
++
++	/* We want a precise count of bits */
++	b = ((const u8 *)buf)[len];
++	for (i = 0; i < bits; i++) {
++		if (!(b & BIT(i)))
++			bitflips++;
++	}
++
++	if (unlikely(bitflips > bitflips_threshold))
++		return -EBADMSG;
++
++	return bitflips;
++}
++
++static void mtk_ecc_reset_ecc_bits(void *buf, u32 bits)
++{
++	u32 len;
++
++	len = bits >> 3;
++	bits &= 7;
++
++	memset(buf, 0xff, len);
++
++	/* Only reset bits protected by ECC to 1 */
++	if (bits)
++		((u8 *)buf)[len] |= GENMASK(bits - 1, 0);
++}
++
++int mtk_ecc_fixup_empty_step(struct mtk_ecc *ecc, struct nand_chip *chip,
++			     u32 fdm_size, void *buf, void *oob, void *eccp)
++{
++	u32 ecc_bits = chip->ecc.strength * ecc->caps->parity_bits;
++	int bitflips = 0;
++
++	/*
++	 * Check whether DATA + FDM + ECC of a sector contains correctable
++	 * bitflips
++	 */
++	bitflips = mtk_ecc_check_bitflips(buf, chip->ecc.size, bitflips,
++					  chip->ecc.strength);
++	if (bitflips < 0)
++		return -EBADMSG;
++
++	bitflips = mtk_ecc_check_bitflips(oob, fdm_size,
++					  bitflips, chip->ecc.strength);
++	if (bitflips < 0)
++		return -EBADMSG;
++
++	bitflips = mtk_ecc_check_ecc_bitflips(eccp, ecc_bits,
++					      bitflips, chip->ecc.strength);
++	if (bitflips < 0)
++		return -EBADMSG;
++
++	if (!bitflips)
++		return 0;
++
++	/* Reset the data of this sector to 0xff */
++	memset(buf, 0xff, chip->ecc.size);
++	memset(oob, 0xff, fdm_size);
++	mtk_ecc_reset_ecc_bits(eccp, ecc_bits);
++
++	return bitflips;
++}
++EXPORT_SYMBOL(mtk_ecc_fixup_empty_step);
++
+ static const struct mtk_ecc_caps mtk_ecc_caps_mt7621 = {
+ 	.err_mask = 0xf,
+ 	.ecc_strength = ecc_strength_mt7621,
+--- a/drivers/mtd/nand/mtk_nand_mt7621.c	2020-12-24 09:23:18.850973196 +0800
++++ b/drivers/mtd/nand/mtk_nand_mt7621.c	2020-12-15 14:39:18.000000000 +0800
+@@ -625,8 +625,7 @@
+ 		 * page has unrecoverable ecc error. we can choose to reject
+ 		 * follow-up actions here.
+ 		 */
+-		dev_warn(dev, "doing page merging on %u with bitflips "
+-			 "for jffs2 fixup\n", page);
++		dev_warn(dev, "doing page merging on %u with bitflips for jffs2 fixup\n", page);
+ 	}
+ 
+ 	/* write page with old data and new oob */
+@@ -651,6 +650,10 @@
+ 
+ 	memset(nfc->buffer, 0xff, mtd->writesize + mtd->oobsize);
+ 
++	/* Do not write empty page with ecc enabled */
++	if (mtk_nfc_check_empty_page(mtd, chip, nfc->buffer))
++		return 0;
++
+ 	chip->cmdfunc(mtd, NAND_CMD_SEQIN, 0x00, page);
+ 
+ 	ret = mtk_nfc_write_page_hwecc(mtd, chip, nfc->buffer, 1, page);
+@@ -667,9 +670,11 @@
+ 	u8 *buf, int oob_on, int page)
+ {
+ 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
+-	int bitflips = 0;
+-	int rc, i;
+-	u32 reg;
++	struct mtk_nfc_nand_chip *mtk_nand = to_mtk_nand(chip);
++	struct device *dev = nfc->dev;
++	int bitflips[16], errsecs = 0;
++	int ret = 0, rc, i;
++	u32 reg, col;
+ 
+ 	nfi_set_reg16(nfc, CNFG_READ_EN | CNFG_AUTO_FMT_EN
+ 			| CNFG_HW_ECC_EN, NFI_CNFG);
+@@ -681,29 +686,102 @@
+ 	reg =  chip->ecc.steps << CON_SEC_SHIFT | CON_BRD;
+ 	nfi_writew(nfc, reg, NFI_CON);
+ 
++	/* Reset oob buffer to full 0xff */
++	memset(chip->oob_poi, 0xff, mtd->oobsize);
++
+ 	for (i = 0; i < chip->ecc.steps; i++) {
+ 		mtk_nfc_read_buf(mtd, data_ptr(chip, buf, i), chip->ecc.size);
+ 		rc = mtk_ecc_wait_decode_done(nfc->ecc, i);
+ 
+ 		mtk_nfc_read_fdm(chip, i, 1);
+ 
++		bitflips[i] = 0;
++
+ 		if (rc < 0) {
+-			bitflips = -EIO;
++			ret = -EIO;
+ 		} else {
+ 			rc = mtk_ecc_correct_check(mtd, nfc->ecc,
+ 				data_ptr(chip, buf, i), oob_ptr(chip, i), i);
+ 
+-			if (rc < 0)
+-				bitflips = -EBADMSG;
+-			else if (bitflips >= 0)
+-				bitflips += rc;
++			if (rc < 0) {
++				/* Record this sector */
++				errsecs |= BIT(i);
++
++				if (!ret)
++					ret = -EBADMSG;
++			} else {
++				bitflips[i] = rc;
++			}
+ 		}
+ 	}
+ 
+ 	mtk_ecc_disable(nfc->ecc);
+ 	nfi_writew(nfc, 0, NFI_CON);
+ 
+-	return bitflips;
++	if (ret != -EBADMSG)
++		goto out;
++
++	/* Start raw read */
++	for (i = 0; i < chip->ecc.steps; i++) {
++		if (!(errsecs & BIT(i)))
++			continue;
++
++		/* Offset of the ecc data of the sector in raw page */
++		col = (uintptr_t)mtk_ecc_ptr(chip, i) - (uintptr_t)nfc->buffer;
++
++		/*
++		 * The NAND cache still contains the page we've read.
++		 * Use Random Data Out to read the ecc data directly
++		 */
++		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, col, -1);
++
++		nfi_set_reg16(nfc, CNFG_READ_EN, NFI_CNFG);
++		nfi_clear_reg16(nfc, CNFG_AUTO_FMT_EN | CNFG_HW_ECC_EN,
++				NFI_CNFG);
++		reg = chip->ecc.steps << CON_SEC_SHIFT | CON_BRD;
++		nfi_writew(nfc, reg, NFI_CON);
++
++		mtk_nfc_read_buf(mtd, ecc_ptr(chip, i),
++			mtk_nand->spare_per_sector - nfc->caps->fdm_size);
++
++		nfi_writew(nfc, 0, NFI_CON);
++
++		/* Try to fix the empty page */
++		rc = mtk_ecc_fixup_empty_step(nfc->ecc, chip,
++					      nfc->caps->fdm_size,
++					      data_ptr(chip, buf, i),
++					      oob_ptr(chip, i),
++					      ecc_ptr(chip, i));
++		if (rc >= 0) {
++			errsecs &= ~BIT(i);
++			bitflips[i] = rc;
++			dev_dbg(dev,
++				"Fixed ECC error at empty page %u setp %u\n",
++				page, i);
++		} else {
++			dev_warn(dev,
++				 "Uncorrectable bitflips in page %u, step %u\n",
++				 page, i);
++		}
++	}
++
++	if (!errsecs)
++		ret = 0;
++
++out:
++	if (ret) {
++		if (ret == -EBADMSG)
++			mtd->ecc_stats.failed++;
++
++		return ret;
++	}
++
++	for (i = 0; i < chip->ecc.steps; i++)
++		ret += bitflips[i];
++
++	mtd->ecc_stats.corrected += ret;
++
++	return ret;
+ }
+ 
+ static int mtk_nfc_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
+@@ -946,6 +1024,10 @@
+ {
+ 	int status;
+ 
++	/* Do not write empty page with ecc enabled */
++	if (ecc_on && mtk_nfc_check_empty_page(mtd, chip, buf))
++		return 0;
++
+ 	chip->cmdfunc(mtd, NAND_CMD_SEQIN, 0x00, page);
+ 
+ 	if (ecc_on)
+@@ -1028,8 +1110,7 @@
+ 			if (ret) {
+ 				/* I/O error. print error */
+ 				dev_err(dev,
+-					"raw read error %d on page %u for "
+-					"jffs2 fixup\n", ret, page);
++					"raw read error %d on page %u for jffs2 fixup\n", ret, page);
+ 				nfc->block_buffer[i].ecc_on = -1;
+ 			}
+ 			nfc->block_buffer[i].ecc_on = 0;
+@@ -1148,8 +1229,7 @@
+ 		 * page has unrecoverable ecc error. we can choose to reject
+ 		 * follow-up actions here.
+ 		 */
+-		dev_warn(dev, "doing page merging on %u with bitflips "
+-			 "for jffs2 fixup\n", page);
++		dev_warn(dev, "doing page merging on %u with bitflips for jffs2 fixup\n", page);
+ 	}
+ 
+ 	/* backup pending page data (buf will be touched during write) */
+@@ -1180,6 +1260,10 @@
+ 			return status > 0 ? 0 : status;
+ 	}
+ 
++	/* Do not write empty page with ecc enabled */
++	if (!raw && mtk_nfc_check_empty_page(mtd, chip, buf))
++		return 0;
++
+ 	chip->cmdfunc(mtd, NAND_CMD_SEQIN, 0x00, page);
+ 
+ 	if (unlikely(raw))
+--- a/drivers/mtd/nand/mtk_nand_mt7621.h	2020-12-24 09:23:18.850973196 +0800
++++ b/drivers/mtd/nand/mtk_nand_mt7621.h	2020-12-15 14:39:18.000000000 +0800
+@@ -199,5 +199,7 @@
+ 		 struct mtk_ecc_config *config);
+ struct mtk_ecc *of_mtk_ecc_get(struct device_node *);
+ void mtk_ecc_release(struct mtk_ecc *);
++int mtk_ecc_fixup_empty_step(struct mtk_ecc *ecc, struct nand_chip *chip,
++			     u32 fdm_size, void *buf, void *oob, void *eccp);
+ 
+ #endif

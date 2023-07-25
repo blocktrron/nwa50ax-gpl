@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/info_transfer/Makefile
+Package: info_transfer
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +wtp_module +libjson-c +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The Information transferation Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Tool to transfer information to Controller
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-lldpd/Makefile
+Package: zyxel-lldpd
+Submenu: application
+Version: 0.7.8
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN zyxel-lldpd
+Maintainer: 
+Source: 
+License: ISC
+Type: ipkg
+Description: ProWLAN zyxel-lldpd
+https://lldpd.github.io/
+
+@@
+
+

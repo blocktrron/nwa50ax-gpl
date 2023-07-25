@@ -1,0 +1,768 @@
+From 56be07daeb1fd363d23ff9f7b04a66682bd56a49 Mon Sep 17 00:00:00 2001
+From: Henry Yen <henry.yen@mediatek.com>
+Date: Wed, 16 Dec 2020 15:25:02 +0800
+Subject: [PATCH] net: mediatek: add Ethernet HW LRO debug tool
+
+This commit adds two debug interfaces to help users
+check whether Ethernet HW LRO is working fine or not.
+
+-----------------------------
+
+[Debug method 1 - Auto learn table]
+- Dump aggregated flows:
+	$ cat /proc/mtketh/hw_lro_auto_tlb
+- Modify MAX_AGGREGATED_CNT:
+	$ echo 0 [setting] > /proc/mtketh/hw_lro_auto_tlb
+- Modify MAX_AGG_TIME:
+	$ echo 1 [setting] > /proc/mtketh/hw_lro_auto_tlb
+- Modify AGE_TIME:
+	$ echo 2 [setting] > /proc/mtketh/hw_lro_auto_tlb
+- Modify AUTO_LEARN_LRO_ELIGIBLE_THRESHOLD:
+	$ echo 3 [setting] > /proc/mtketh/hw_lro_auto_tlb
+- Enable/Disable LRO:
+	$ echo 4 [1/0] > /proc/mtketh/hw_lro_auto_tlb
+
+[Debug method 2 - per LRO ring statistics]
+- Dump each LRO rings' statistics, which includes packet count,
+  packet length, flush reason, etc.
+	$ cat /proc/mtketh/hw_lro_stats
+
+-----------------------------
+
+Test: build pass
+
+Change-Id: Ieeb3b740bf1eb5a9138efe465106cdc2d0387ff8
+Signed-off-by: Henry Yen <henry.yen@mediatek.com>
+CR-Id: WCNCR00185554
+---
+
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_dbg.c b/drivers/net/ethernet/mediatek/mtk_eth_dbg.c
+index 7b0fe50..6c59ecb 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_dbg.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_dbg.c
+@@ -28,6 +28,18 @@
+ #include "mtk_eth_soc.h"
+ #include "mtk_eth_dbg.h"
+ 
++u32 hw_lro_agg_num_cnt[MTK_HW_LRO_RING_NUM][MTK_HW_LRO_MAX_AGG_CNT + 1];
++u32 hw_lro_agg_size_cnt[MTK_HW_LRO_RING_NUM][16];
++u32 hw_lro_tot_agg_cnt[MTK_HW_LRO_RING_NUM];
++u32 hw_lro_tot_flush_cnt[MTK_HW_LRO_RING_NUM];
++u32 hw_lro_agg_flush_cnt[MTK_HW_LRO_RING_NUM];
++u32 hw_lro_age_flush_cnt[MTK_HW_LRO_RING_NUM];
++u32 hw_lro_seq_flush_cnt[MTK_HW_LRO_RING_NUM];
++u32 hw_lro_timestamp_flush_cnt[MTK_HW_LRO_RING_NUM];
++u32 hw_lro_norule_flush_cnt[MTK_HW_LRO_RING_NUM];
++u32 mtk_hwlro_stats_ebl;
++static struct proc_dir_entry *proc_hw_lro_stats, *proc_hw_lro_auto_tlb;
++typedef int (*mtk_lro_dbg_func) (int par);
+ struct mtk_eth *g_eth;
+ 
+ void mt7530_mdio_w32(struct mtk_eth *eth, u32 reg, u32 val)
+@@ -687,10 +699,405 @@
+ 	.release = single_release
+ };
+ 
+-#define PROCREG_ESW_CNT         "esw_cnt"
+-#define PROCREG_TXRING          "tx_ring"
+-#define PROCREG_RXRING          "rx_ring"
+-#define PROCREG_DIR             "mtketh"
++void hw_lro_stats_update(u32 ring_no, struct mtk_rx_dma *rxd)
++{
++	u32 agg_cnt = RX_DMA_GET_REV(rxd->rxd2);
++	u32 agg_size = RX_DMA_GET_PLEN0(rxd->rxd2) |
++		(RX_DMA_GET_PLEN1(rxd->rxd2) << 14);
++
++	hw_lro_agg_size_cnt[ring_no - 1][agg_size / 5000]++;
++	hw_lro_agg_num_cnt[ring_no - 1][agg_cnt]++;
++	hw_lro_tot_flush_cnt[ring_no - 1]++;
++	hw_lro_tot_agg_cnt[ring_no - 1] += agg_cnt;
++}
++
++void hw_lro_flush_stats_update(u32 ring_no, struct mtk_rx_dma *rxd)
++{
++	u32 flush_reason = RX_DMA_GET_REV(rxd->rxd2);
++
++	if ((flush_reason & 0x7) == MTK_HW_LRO_AGG_FLUSH)
++		hw_lro_agg_flush_cnt[ring_no - 1]++;
++	else if ((flush_reason & 0x7) == MTK_HW_LRO_AGE_FLUSH)
++		hw_lro_age_flush_cnt[ring_no - 1]++;
++	else if ((flush_reason & 0x7) == MTK_HW_LRO_NOT_IN_SEQ_FLUSH)
++		hw_lro_seq_flush_cnt[ring_no - 1]++;
++	else if ((flush_reason & 0x7) == MTK_HW_LRO_TIMESTAMP_FLUSH)
++		hw_lro_timestamp_flush_cnt[ring_no - 1]++;
++	else if ((flush_reason & 0x7) == MTK_HW_LRO_NON_RULE_FLUSH)
++		hw_lro_norule_flush_cnt[ring_no - 1]++;
++}
++
++ssize_t hw_lro_stats_write(struct file *file, const char __user *buffer,
++			   size_t count, loff_t *data)
++{
++	memset(hw_lro_agg_num_cnt, 0, sizeof(hw_lro_agg_num_cnt));
++	memset(hw_lro_agg_size_cnt, 0, sizeof(hw_lro_agg_size_cnt));
++	memset(hw_lro_tot_agg_cnt, 0, sizeof(hw_lro_tot_agg_cnt));
++	memset(hw_lro_tot_flush_cnt, 0, sizeof(hw_lro_tot_flush_cnt));
++	memset(hw_lro_agg_flush_cnt, 0, sizeof(hw_lro_agg_flush_cnt));
++	memset(hw_lro_age_flush_cnt, 0, sizeof(hw_lro_age_flush_cnt));
++	memset(hw_lro_seq_flush_cnt, 0, sizeof(hw_lro_seq_flush_cnt));
++	memset(hw_lro_timestamp_flush_cnt, 0,
++	       sizeof(hw_lro_timestamp_flush_cnt));
++	memset(hw_lro_norule_flush_cnt, 0, sizeof(hw_lro_norule_flush_cnt));
++
++	pr_info("clear hw lro cnt table\n");
++
++	return count;
++}
++
++int hw_lro_stats_read(struct seq_file *seq, void *v)
++{
++	int i;
++
++	seq_puts(seq, "HW LRO statistic dump:\n");
++
++	/* Agg number count */
++	seq_puts(seq, "Cnt:   RING1 | RING2 | RING3 | Total\n");
++	for (i = 0; i <= MTK_HW_LRO_MAX_AGG_CNT; i++) {
++		seq_printf(seq, " %d :      %d        %d        %d        %d\n",
++			   i, hw_lro_agg_num_cnt[0][i],
++			   hw_lro_agg_num_cnt[1][i], hw_lro_agg_num_cnt[2][i],
++			   hw_lro_agg_num_cnt[0][i] + hw_lro_agg_num_cnt[1][i] +
++			   hw_lro_agg_num_cnt[2][i]);
++	}
++
++	/* Total agg count */
++	seq_puts(seq, "Total agg:   RING1 | RING2 | RING3 | Total\n");
++	seq_printf(seq, "                %d      %d      %d      %d\n",
++		   hw_lro_tot_agg_cnt[0], hw_lro_tot_agg_cnt[1],
++		   hw_lro_tot_agg_cnt[2],
++		   hw_lro_tot_agg_cnt[0] + hw_lro_tot_agg_cnt[1] +
++		   hw_lro_tot_agg_cnt[2]);
++
++	/* Total flush count */
++	seq_puts(seq, "Total flush:   RING1 | RING2 | RING3 | Total\n");
++	seq_printf(seq, "                %d      %d      %d      %d\n",
++		   hw_lro_tot_flush_cnt[0], hw_lro_tot_flush_cnt[1],
++		   hw_lro_tot_flush_cnt[2],
++		   hw_lro_tot_flush_cnt[0] + hw_lro_tot_flush_cnt[1] +
++		   hw_lro_tot_flush_cnt[2]);
++
++	/* Avg agg count */
++	seq_puts(seq, "Avg agg:   RING1 | RING2 | RING3 | Total\n");
++	seq_printf(seq, "                %d      %d      %d      %d\n",
++		   (hw_lro_tot_flush_cnt[0]) ?
++		    hw_lro_tot_agg_cnt[0] / hw_lro_tot_flush_cnt[0] : 0,
++		   (hw_lro_tot_flush_cnt[1]) ?
++		    hw_lro_tot_agg_cnt[1] / hw_lro_tot_flush_cnt[1] : 0,
++		   (hw_lro_tot_flush_cnt[2]) ?
++		    hw_lro_tot_agg_cnt[2] / hw_lro_tot_flush_cnt[2] : 0,
++		   (hw_lro_tot_flush_cnt[0] + hw_lro_tot_flush_cnt[1] +
++		    hw_lro_tot_flush_cnt[2]) ?
++		    ((hw_lro_tot_agg_cnt[0] + hw_lro_tot_agg_cnt[1] +
++		      hw_lro_tot_agg_cnt[2]) / (hw_lro_tot_flush_cnt[0] +
++		      hw_lro_tot_flush_cnt[1] + hw_lro_tot_flush_cnt[2])) : 0);
++
++	/*  Statistics of aggregation size counts */
++	seq_puts(seq, "HW LRO flush pkt len:\n");
++	seq_puts(seq, " Length  | RING1  | RING2  | RING3  | Total\n");
++	for (i = 0; i < 15; i++) {
++		seq_printf(seq, "%d~%d: %d      %d      %d      %d\n", i * 5000,
++			   (i + 1) * 5000, hw_lro_agg_size_cnt[0][i],
++			   hw_lro_agg_size_cnt[1][i], hw_lro_agg_size_cnt[2][i],
++			   hw_lro_agg_size_cnt[0][i] +
++			   hw_lro_agg_size_cnt[1][i] +
++			   hw_lro_agg_size_cnt[2][i]);
++	}
++
++	seq_puts(seq, "Flush reason:   RING1 | RING2 | RING3 | Total\n");
++	seq_printf(seq, "AGG timeout:      %d      %d      %d      %d\n",
++		   hw_lro_agg_flush_cnt[0], hw_lro_agg_flush_cnt[1],
++		   hw_lro_agg_flush_cnt[2],
++		   (hw_lro_agg_flush_cnt[0] + hw_lro_agg_flush_cnt[1] +
++		    hw_lro_agg_flush_cnt[2]));
++
++	seq_printf(seq, "AGE timeout:      %d      %d      %d      %d\n",
++		   hw_lro_age_flush_cnt[0], hw_lro_age_flush_cnt[1],
++		   hw_lro_age_flush_cnt[2],
++		   (hw_lro_age_flush_cnt[0] + hw_lro_age_flush_cnt[1] +
++		    hw_lro_age_flush_cnt[2]));
++
++	seq_printf(seq, "Not in-sequence:  %d      %d      %d      %d\n",
++		   hw_lro_seq_flush_cnt[0], hw_lro_seq_flush_cnt[1],
++		   hw_lro_seq_flush_cnt[2],
++		   (hw_lro_seq_flush_cnt[0] + hw_lro_seq_flush_cnt[1] +
++		    hw_lro_seq_flush_cnt[2]));
++
++	seq_printf(seq, "Timestamp:        %d      %d      %d      %d\n",
++		   hw_lro_timestamp_flush_cnt[0],
++		   hw_lro_timestamp_flush_cnt[1],
++		   hw_lro_timestamp_flush_cnt[2],
++		   (hw_lro_timestamp_flush_cnt[0] +
++		    hw_lro_timestamp_flush_cnt[1] +
++		    hw_lro_timestamp_flush_cnt[2]));
++
++	seq_printf(seq, "No LRO rule:      %d      %d      %d      %d\n",
++		   hw_lro_norule_flush_cnt[0],
++		   hw_lro_norule_flush_cnt[1],
++		   hw_lro_norule_flush_cnt[2],
++		   (hw_lro_norule_flush_cnt[0] +
++		    hw_lro_norule_flush_cnt[1] +
++		    hw_lro_norule_flush_cnt[2]));
++
++	return 0;
++}
++
++static int hw_lro_stats_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, hw_lro_stats_read, NULL);
++}
++
++static const struct file_operations hw_lro_stats_fops = {
++	.owner = THIS_MODULE,
++	.open = hw_lro_stats_open,
++	.read = seq_read,
++	.llseek = seq_lseek,
++	.write = hw_lro_stats_write,
++	.release = single_release
++};
++
++int hwlro_agg_cnt_ctrl(int cnt)
++{
++	int i;
++
++	FOR_EACH_LRO_RING(i) {
++		SET_PDMA_RXRING_MAX_AGG_CNT(g_eth, i, cnt);
++	}
++
++	return 0;
++}
++
++int hwlro_agg_time_ctrl(int time)
++{
++	int i;
++
++	FOR_EACH_LRO_RING(i) {
++		SET_PDMA_RXRING_AGG_TIME(g_eth, i, time);
++	}
++
++	return 0;
++}
++
++int hwlro_age_time_ctrl(int time)
++{
++	int i;
++
++	FOR_EACH_LRO_RING(i) {
++		SET_PDMA_RXRING_AGE_TIME(g_eth, i, time);
++	}
++
++	return 0;
++}
++
++int hwlro_threshold_ctrl(int bandwidth)
++{
++	SET_PDMA_LRO_BW_THRESHOLD(g_eth, bandwidth);
++
++	return 0;
++}
++
++int hwlro_ring_enable_ctrl(int enable)
++{
++	int i;
++
++	pr_info("[%s] %s HW LRO rings\n", __func__, (enable) ? "Enable" : "Disable");
++
++	FOR_EACH_LRO_RING(i) {
++		SET_PDMA_RXRING_VALID(g_eth, i, enable);
++	}
++
++	return 0;
++}
++
++int hwlro_stats_enable_ctrl(int enable)
++{
++	pr_info("[%s] %s HW LRO statistics\n", __func__, (enable) ? "Enable" : "Disable");
++	mtk_hwlro_stats_ebl = enable;
++
++	return 0;
++}
++
++static const mtk_lro_dbg_func lro_dbg_func[] = {
++	[0] = hwlro_agg_cnt_ctrl,
++	[1] = hwlro_agg_time_ctrl,
++	[2] = hwlro_age_time_ctrl,
++	[3] = hwlro_threshold_ctrl,
++	[4] = hwlro_ring_enable_ctrl,
++	[5] = hwlro_stats_enable_ctrl,
++};
++
++ssize_t hw_lro_auto_tlb_write(struct file *file, const char __user *buffer,
++			      size_t count, loff_t *data)
++{
++	char buf[32];
++	char *p_buf;
++	char *p_token = NULL;
++	char *p_delimiter = " \t";
++	long x = 0, y = 0;
++	int len = count;
++	int ret;
++
++	pr_info("[%s] write parameter len = %d\n\r", __func__, (int)len);
++
++	if (len >= sizeof(buf)) {
++		pr_info("Input handling fail!\n");
++		len = sizeof(buf) - 1;
++		return -1;
++	}
++
++	if (copy_from_user(buf, buffer, len))
++		return -EFAULT;
++
++	buf[len] = '\0';
++	pr_info("[%s] write parameter data = %s\n\r", __func__, buf);
++
++	p_buf = buf;
++	p_token = strsep(&p_buf, p_delimiter);
++	if (!p_token)
++		x = 0;
++	else
++		ret = kstrtol(p_token, 10, &x);
++
++	p_token = strsep(&p_buf, "\t\n ");
++	if (p_token) {
++		ret = kstrtol(p_token, 10, &y);
++		pr_info("y = %ld\n\r", y);
++	}
++
++	if (lro_dbg_func[x] && (ARRAY_SIZE(lro_dbg_func) > x))
++		(*lro_dbg_func[x]) (y);
++
++	return count;
++}
++
++void hw_lro_auto_tlb_dump(struct seq_file *seq, u32 index)
++{
++	int i;
++	struct mtk_lro_alt alt;
++	__be32 addr;
++	u32 tlb_info[9];
++	u32 dw_len, cnt, priority;
++	u32 entry;
++
++	if (index > 4)
++		index = index - 1;
++	entry = (index * 9) + 1;
++
++	/* read valid entries of the auto-learn table */
++	mtk_w32(g_eth, entry, MTK_FE_ALT_CF8);
++
++	for (i = 0; i < 9; i++)
++		tlb_info[i] = mtk_r32(g_eth, MTK_FE_ALT_SEQ_CFC);
++
++	memcpy(&alt, tlb_info, sizeof(struct mtk_lro_alt));
++
++	dw_len = alt.alt_info7.dw_len;
++	cnt = alt.alt_info6.cnt;
++
++	if (mtk_r32(g_eth, MTK_PDMA_LRO_CTRL_DW0) & MTK_LRO_ALT_PKT_CNT_MODE)
++		priority = cnt;		/* packet count */
++	else
++		priority = dw_len;	/* byte count */
++
++	/* dump valid entries of the auto-learn table */
++	if (index >= 4)
++		seq_printf(seq, "\n===== TABLE Entry: %d (Act) =====\n", index);
++	else
++		seq_printf(seq, "\n===== TABLE Entry: %d (LRU) =====\n", index);
++
++	if (alt.alt_info8.ipv4) {
++		addr = htonl(alt.alt_info1.sip0);
++		seq_printf(seq, "SIP = %pI4 (IPv4)\n", &addr);
++	} else {
++		seq_printf(seq, "SIP = %08X:%08X:%08X:%08X (IPv6)\n",
++			   alt.alt_info4.sip3, alt.alt_info3.sip2,
++			   alt.alt_info2.sip1, alt.alt_info1.sip0);
++	}
++
++	seq_printf(seq, "DIP_ID = %d\n", alt.alt_info8.dip_id);
++	seq_printf(seq, "TCP SPORT = %d | TCP DPORT = %d\n",
++		   alt.alt_info0.stp, alt.alt_info0.dtp);
++	seq_printf(seq, "VLAN_VID_VLD = %d\n", alt.alt_info6.vlan_vid_vld);
++	seq_printf(seq, "VLAN1 = %d | VLAN2 = %d | VLAN3 = %d | VLAN4 =%d\n",
++		   (alt.alt_info5.vlan_vid0 & 0xfff),
++		   ((alt.alt_info5.vlan_vid0 >> 12) & 0xfff),
++		   ((alt.alt_info6.vlan_vid1 << 8) |
++		   ((alt.alt_info5.vlan_vid0 >> 24) & 0xfff)),
++		   ((alt.alt_info6.vlan_vid1 >> 4) & 0xfff));
++	seq_printf(seq, "TPUT = %d | FREQ = %d\n", dw_len, cnt);
++	seq_printf(seq, "PRIORITY = %d\n", priority);
++}
++
++int hw_lro_auto_tlb_read(struct seq_file *seq, void *v)
++{
++	int i;
++	u32 reg_val;
++	u32 reg_op1, reg_op2, reg_op3, reg_op4;
++	u32 agg_cnt, agg_time, age_time;
++
++	seq_puts(seq, "Usage of /proc/mtketh/hw_lro_auto_tlb:\n");
++	seq_puts(seq, "echo [function] [setting] > /proc/mtketh/hw_lro_auto_tlb\n");
++	seq_puts(seq, "Functions:\n");
++	seq_puts(seq, "[0] = hwlro_agg_cnt_ctrl\n");
++	seq_puts(seq, "[1] = hwlro_agg_time_ctrl\n");
++	seq_puts(seq, "[2] = hwlro_age_time_ctrl\n");
++	seq_puts(seq, "[3] = hwlro_threshold_ctrl\n");
++	seq_puts(seq, "[4] = hwlro_ring_enable_ctrl\n");
++	seq_puts(seq, "[5] = hwlro_stats_enable_ctrl\n\n");
++
++	/* Read valid entries of the auto-learn table */
++	mtk_w32(g_eth, 0, MTK_FE_ALT_CF8);
++	reg_val = mtk_r32(g_eth, MTK_FE_ALT_SEQ_CFC);
++
++	seq_printf(seq,
++		   "HW LRO Auto-learn Table: (MTK_FE_ALT_SEQ_CFC=0x%x)\n",
++		   reg_val);
++
++	for (i = 7; i >= 0; i--) {
++		if (reg_val & (1 << i))
++			hw_lro_auto_tlb_dump(seq, i);
++	}
++
++	/* Read the agg_time/age_time/agg_cnt of LRO rings */
++	seq_puts(seq, "\nHW LRO Ring Settings\n");
++
++	FOR_EACH_LRO_RING(i) {
++		reg_op1 = mtk_r32(g_eth, MTK_LRO_CTRL_DW1_CFG(i));
++		reg_op2 = mtk_r32(g_eth, MTK_LRO_CTRL_DW2_CFG(i));
++		reg_op3 = mtk_r32(g_eth, MTK_LRO_CTRL_DW3_CFG(i));
++		reg_op4 = mtk_r32(g_eth, MTK_PDMA_LRO_CTRL_DW2);
++
++		agg_cnt =
++		    ((reg_op3 & 0x3) << 6) |
++		    ((reg_op2 >> MTK_LRO_RING_AGG_CNT_L_OFFSET) & 0x3f);
++		agg_time = (reg_op2 >> MTK_LRO_RING_AGG_TIME_OFFSET) & 0xffff;
++		age_time =
++		    ((reg_op2 & 0x3f) << 10) |
++		    ((reg_op1 >> MTK_LRO_RING_AGE_TIME_L_OFFSET) & 0x3ff);
++		seq_printf(seq,
++			   "Ring[%d]: MAX_AGG_CNT=%d, AGG_TIME=%d, AGE_TIME=%d, Threshold=%d\n",
++			   i, agg_cnt, agg_time, age_time, reg_op4);
++	}
++
++	seq_puts(seq, "\n");
++
++	return 0;
++}
++
++static int hw_lro_auto_tlb_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, hw_lro_auto_tlb_read, NULL);
++}
++
++static const struct file_operations hw_lro_auto_tlb_fops = {
++	.owner = THIS_MODULE,
++	.open = hw_lro_auto_tlb_open,
++	.read = seq_read,
++	.llseek = seq_lseek,
++	.write = hw_lro_auto_tlb_write,
++	.release = single_release
++};
+ 
+ struct proc_dir_entry *proc_reg_dir;
+ static struct proc_dir_entry *proc_esw_cnt;
+@@ -717,6 +1124,21 @@
+ 	if (!proc_esw_cnt)
+ 		pr_notice("!! FAIL to create %s PROC !!\n", PROCREG_ESW_CNT);
+ 
++	if (g_eth->hwlro) {
++		proc_hw_lro_stats =
++			proc_create(PROCREG_HW_LRO_STATS, 0, proc_reg_dir,
++				    &hw_lro_stats_fops);
++		if (!proc_hw_lro_stats)
++			pr_info("!! FAIL to create %s PROC !!\n", PROCREG_HW_LRO_STATS);
++
++		proc_hw_lro_auto_tlb =
++			proc_create(PROCREG_HW_LRO_AUTO_TLB, 0, proc_reg_dir,
++				    &hw_lro_auto_tlb_fops);
++		if (!proc_hw_lro_auto_tlb)
++			pr_info("!! FAIL to create %s PROC !!\n",
++				PROCREG_HW_LRO_AUTO_TLB);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -732,5 +1154,13 @@
+ 
+ 	if (proc_reg_dir)
+ 		remove_proc_entry(PROCREG_DIR, 0);
++
++	if (g_eth->hwlro) {
++		if (proc_hw_lro_stats)
++			remove_proc_entry(PROCREG_HW_LRO_STATS, proc_reg_dir);
++
++		if (proc_hw_lro_auto_tlb)
++			remove_proc_entry(PROCREG_HW_LRO_AUTO_TLB, proc_reg_dir);
++	}
+ }
+ 
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_dbg.h b/drivers/net/ethernet/mediatek/mtk_eth_dbg.h
+index 3298497..e9d7a04 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_dbg.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_dbg.h
+@@ -15,17 +15,137 @@
+  *   Copyright (C) 2013-2016 Michael Lee <igvtee@gmail.com>
+  */
+ 
++#include "mtk_eth_soc.h"
++
+ #ifndef MTK_ETH_DBG_H
+ #define MTK_ETH_DBG_H
+ 
+ #ifdef CONFIG_NET_MEDIATEK_DBG
+-#define MTKETH_MII_READ                  0x89F3
+-#define MTKETH_MII_WRITE                 0x89F4
+-#define MTKETH_ESW_REG_READ              0x89F1
+-#define MTKETH_ESW_REG_WRITE             0x89F2
+-#define MTKETH_MII_READ_CL45             0x89FC
+-#define MTKETH_MII_WRITE_CL45            0x89FD
+-#define REG_ESW_MAX                     0xFC
++#define MTKETH_MII_READ			0x89F3
++#define MTKETH_MII_WRITE		0x89F4
++#define MTKETH_ESW_REG_READ		0x89F1
++#define MTKETH_ESW_REG_WRITE		0x89F2
++#define MTKETH_MII_READ_CL45		0x89FC
++#define MTKETH_MII_WRITE_CL45		0x89FD
++#define REG_ESW_MAX			0xFC
++
++#define PROCREG_ESW_CNT			"esw_cnt"
++#define PROCREG_TXRING			"tx_ring"
++#define PROCREG_RXRING			"rx_ring"
++#define PROCREG_DIR			"mtketh"
++#define PROCREG_HW_LRO_STATS		"hw_lro_stats"
++#define PROCREG_HW_LRO_AUTO_TLB		"hw_lro_auto_tlb"
++
++/* HW LRO flush reason */
++#define MTK_HW_LRO_AGG_FLUSH		(1)
++#define MTK_HW_LRO_AGE_FLUSH		(2)
++#define MTK_HW_LRO_NOT_IN_SEQ_FLUSH	(3)
++#define MTK_HW_LRO_TIMESTAMP_FLUSH	(4)
++#define MTK_HW_LRO_NON_RULE_FLUSH	(5)
++
++#define SET_PDMA_RXRING_MAX_AGG_CNT(eth, x, y)				\
++{									\
++	u32 reg_val1 = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));		\
++	u32 reg_val2 = mtk_r32(eth, MTK_LRO_CTRL_DW3_CFG(x));		\
++	reg_val1 &= ~MTK_LRO_RING_AGG_CNT_L_MASK;			\
++	reg_val2 &= ~MTK_LRO_RING_AGG_CNT_H_MASK;			\
++	reg_val1 |= ((y) & 0x3f) << MTK_LRO_RING_AGG_CNT_L_OFFSET;	\
++	reg_val2 |= (((y) >> 6) & 0x03) <<				\
++		     MTK_LRO_RING_AGG_CNT_H_OFFSET;			\
++	mtk_w32(eth, reg_val1, MTK_LRO_CTRL_DW2_CFG(x));		\
++	mtk_w32(eth, reg_val2, MTK_LRO_CTRL_DW3_CFG(x));		\
++}
++
++#define SET_PDMA_RXRING_AGG_TIME(eth, x, y)				\
++{									\
++	u32 reg_val = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));		\
++	reg_val &= ~MTK_LRO_RING_AGG_TIME_MASK;				\
++	reg_val |= ((y) & 0xffff) << MTK_LRO_RING_AGG_TIME_OFFSET;	\
++	mtk_w32(eth, reg_val, MTK_LRO_CTRL_DW2_CFG(x));			\
++}
++
++#define SET_PDMA_RXRING_AGE_TIME(eth, x, y)				\
++{									\
++	u32 reg_val1 = mtk_r32(eth, MTK_LRO_CTRL_DW1_CFG(x));		\
++	u32 reg_val2 = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));		\
++	reg_val1 &= ~MTK_LRO_RING_AGE_TIME_L_MASK;			\
++	reg_val2 &= ~MTK_LRO_RING_AGE_TIME_H_MASK;			\
++	reg_val1 |= ((y) & 0x3ff) << MTK_LRO_RING_AGE_TIME_L_OFFSET;	\
++	reg_val2 |= (((y) >> 10) & 0x03f) <<				\
++		     MTK_LRO_RING_AGE_TIME_H_OFFSET;			\
++	mtk_w32(eth, reg_val1, MTK_LRO_CTRL_DW1_CFG(x));		\
++	mtk_w32(eth, reg_val2, MTK_LRO_CTRL_DW2_CFG(x));		\
++}
++
++#define SET_PDMA_LRO_BW_THRESHOLD(eth, x)				\
++{									\
++	u32 reg_val = mtk_r32(eth, MTK_PDMA_LRO_CTRL_DW2);		\
++	reg_val = (x);							\
++	mtk_w32(eth, reg_val, MTK_PDMA_LRO_CTRL_DW2);			\
++}
++
++#define SET_PDMA_RXRING_VALID(eth, x, y)				\
++{									\
++	u32 reg_val = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));		\
++	reg_val &= ~(0x1 << MTK_RX_PORT_VALID_OFFSET);			\
++	reg_val |= ((y) & 0x1) << MTK_RX_PORT_VALID_OFFSET;		\
++	mtk_w32(eth, reg_val, MTK_LRO_CTRL_DW2_CFG(x));			\
++}
++
++struct mtk_lro_alt_info0 {
++	u32 dtp : 16;
++	u32 stp : 16;
++};
++
++struct mtk_lro_alt_info1 {
++	u32 sip0 : 32;
++};
++
++struct mtk_lro_alt_info2 {
++	u32 sip1 : 32;
++};
++
++struct mtk_lro_alt_info3 {
++	u32 sip2 : 32;
++};
++
++struct mtk_lro_alt_info4 {
++	u32 sip3 : 32;
++};
++
++struct mtk_lro_alt_info5 {
++	u32 vlan_vid0 : 32;
++};
++
++struct mtk_lro_alt_info6 {
++	u32 vlan_vid1 : 16;
++	u32 vlan_vid_vld : 4;
++	u32 cnt : 12;
++};
++
++struct mtk_lro_alt_info7 {
++	u32 dw_len : 32;
++};
++
++struct mtk_lro_alt_info8 {
++	u32 dip_id : 2;
++	u32 ipv6 : 1;
++	u32 ipv4 : 1;
++	u32 resv : 27;
++	u32 valid : 1;
++};
++
++struct mtk_lro_alt {
++	struct mtk_lro_alt_info0 alt_info0;
++	struct mtk_lro_alt_info1 alt_info1;
++	struct mtk_lro_alt_info2 alt_info2;
++	struct mtk_lro_alt_info3 alt_info3;
++	struct mtk_lro_alt_info4 alt_info4;
++	struct mtk_lro_alt_info5 alt_info5;
++	struct mtk_lro_alt_info6 alt_info6;
++	struct mtk_lro_alt_info7 alt_info7;
++	struct mtk_lro_alt_info8 alt_info8;
++};
+ 
+ struct mtk_esw_reg {
+ 	unsigned int off;
+@@ -67,6 +187,8 @@
+ int mtketh_debugfs_init(struct mtk_eth *eth);
+ void mtketh_debugfs_exit(struct mtk_eth *eth);
+ int mtk_do_priv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd);
++void hw_lro_stats_update(u32 ring_no, struct mtk_rx_dma *rxd);
++void hw_lro_flush_stats_update(u32 ring_no, struct mtk_rx_dma *rxd);
+ #else
+ int mtk_do_priv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index cae0ade..67185b8 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1138,6 +1138,11 @@
+ 			     __func__, skb_hnat_entry(skb), skb_hnat_sport(skb),
+ 			     skb_hnat_reason(skb), skb_hnat_alg(skb));
+ #endif
++		if (mtk_hwlro_stats_ebl &&
++		    IS_HW_LRO_RING(ring->ring_no) && eth->hwlro) {
++			hw_lro_stats_update(ring->ring_no, &trxd);
++			hw_lro_flush_stats_update(ring->ring_no, &trxd);
++		}
+ 
+ 		skb_record_rx_queue(skb, 0);
+ 		napi_gro_receive(napi, skb);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 2a1158d..7cf4f7a 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -46,12 +46,15 @@
+ 				 NETIF_F_IPV6_CSUM)
+ #define NEXT_RX_DESP_IDX(X, Y)	(((X) + 1) & ((Y) - 1))
+ #define IS_HW_LRO_RING(ring_no)	((ring_no > 0) && (ring_no < 4))
++#define FOR_EACH_LRO_RING(ring_no)		\
++	for ((ring_no) = 1; (ring_no) < 4; (ring_no)++)
+ 
+ #define MTK_MAX_RX_RING_NUM	4
+ #define MTK_HW_LRO_DMA_SIZE	8
+ 
+ #define	MTK_MAX_LRO_RX_LENGTH		(4096 * 3)
+ #define	MTK_MAX_LRO_IP_CNT		2
++#define MTK_HW_LRO_RING_NUM		3
+ #define	MTK_HW_LRO_TIMER_UNIT		1	/* 20 us */
+ #define	MTK_HW_LRO_REFRESH_TIME		50000	/* 1 sec. */
+ #define	MTK_HW_LRO_AGG_TIME		10	/* 200us */
+@@ -76,6 +79,11 @@
+ /* Frame Engine Interrupt Grouping Register */
+ #define MTK_FE_INT_GRP		0x20
+ 
++/* Frame Engine LRO auto-learn table info */
++#define MTK_FE_ALT_CF8		0x300
++#define MTK_FE_ALT_SGL_CFC	0x304
++#define MTK_FE_ALT_SEQ_CFC	0x308
++
+ /* CDMP Ingress Control Register */
+ #define MTK_CDMQ_IG_CTRL	0x1400
+ #define MTK_CDMQ_STAG_EN	BIT(0)
+@@ -181,6 +189,36 @@
+ #define MTK_RING_MAX_AGG_CNT_L		((MTK_HW_LRO_MAX_AGG_CNT & 0x3f) << 26)
+ #define MTK_RING_MAX_AGG_CNT_H		((MTK_HW_LRO_MAX_AGG_CNT >> 6) & 0x3)
+ 
++/* LRO_RX_RING_CTRL_DW masks */
++#define BITS(m, n)			(~(BIT(m) - 1) & ((BIT(n) - 1) | BIT(n)))
++#define MTK_LRO_RING_AGG_TIME_MASK	BITS(10, 25)
++#define MTK_LRO_RING_AGG_CNT_L_MASK	BITS(26, 31)
++#define MTK_LRO_RING_AGG_CNT_H_MASK	BITS(0, 1)
++#define MTK_LRO_RING_AGE_TIME_L_MASK	BITS(22, 31)
++#define MTK_LRO_RING_AGE_TIME_H_MASK	BITS(0, 5)
++
++/* LRO_RX_RING_CTRL_DW0 offsets */
++#define MTK_RX_IPV6_FORCE_OFFSET	(0)
++#define MTK_RX_IPV4_FORCE_OFFSET	(1)
++
++/* LRO_RX_RING_CTRL_DW1 offsets  */
++#define MTK_LRO_RING_AGE_TIME_L_OFFSET	(22)
++
++/* LRO_RX_RING_CTRL_DW2 offsets  */
++#define MTK_LRO_RING_AGE_TIME_H_OFFSET	(0)
++#define MTK_RX_MODE_OFFSET		(6)
++#define MTK_RX_PORT_VALID_OFFSET	(8)
++#define MTK_RX_MYIP_VALID_OFFSET	(9)
++#define MTK_LRO_RING_AGG_TIME_OFFSET	(10)
++#define MTK_LRO_RING_AGG_CNT_L_OFFSET	(26)
++
++/* LRO_RX_RING_CTRL_DW3 offsets  */
++#define MTK_LRO_RING_AGG_CNT_H_OFFSET	(0)
++
++/* LRO_RX_RING_STP_DTP_DW offsets */
++#define MTK_RX_TCP_DEST_PORT_OFFSET	(0)
++#define MTK_RX_TCP_SRC_PORT_OFFSET	(16)
++
+ /* QDMA TX Queue Configuration Registers */
+ #define MTK_QTX_CFG(x)		(0x1800 + (x * 0x10))
+ #define QDMA_RES_THRES		4
+@@ -305,6 +343,8 @@
+ #define RX_DMA_PLEN1(_x)	(((_x) & 0x3) << 0)
+ #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
+ #define RX_DMA_GET_PLEN1(_x)	(((_x) >> 0) & 0x3)
++#define RX_DMA_GET_AGG_CNT(_x)	(((_x) >> 2) & 0xff)
++#define RX_DMA_GET_REV(_x)	(((_x) >> 10) & 0x1f)
+ #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
+ #define RX_DMA_VTAG             BIT(15)
+ 
+@@ -884,6 +924,8 @@
+ /* the struct describing the SoC. these are declared in the soc_xyz.c files */
+ extern const struct of_device_id of_mtk_match[];
+ 
++extern u32 mtk_hwlro_stats_ebl;
++
+ /* read the hardware status register */
+ void mtk_stats_update_mac(struct mtk_mac *mac);
+ 

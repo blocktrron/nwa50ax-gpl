@@ -1,0 +1,23 @@
+Source-Makefile: feeds/nucleus/library/libxml2/Makefile
+Package: libxml2
+Submenu: library
+Version: 2.9.8
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zlib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Types: host
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Gnome XML library
+Maintainer: 
+Source: 
+License: MIT
+Type: ipkg
+Description: Gnome XML library
+http://xmlsoft.org/
+
+@@
+
+

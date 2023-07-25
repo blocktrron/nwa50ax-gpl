@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/kernel/sw_mt76xx/Makefile
+Package: kmod-sw_mt76xx
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files +kmod-switchdev +kmod-zyklog +kmod-platform_support-module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel switchdev callback for MT76xx
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   kernel module for mt76xx switchdev callback
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/netopeer-remote-debug/Makefile
+Package: netopeer-remote-debug
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula remote debug
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula remote debug
+https://www.zyxel.com/
+
+@@
+
+

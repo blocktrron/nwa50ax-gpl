@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libgpio_control/Makefile
+Package: libgpio_control
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel libgpio_control package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Library that used for controlling LED
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,527 @@
+Index: linux-4.4.198/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c
+===================================================================
+--- linux-4.4.198.orig/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c
++++ linux-4.4.198/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c
+@@ -201,7 +201,7 @@ static int mt753x_set_port_pvid(struct s
+ 	return 0;
+ }
+ 
+-static void mt753x_vlan_ctrl(struct gsw_mt753x *gsw, u32 cmd, u32 val)
++void mt753x_vlan_ctrl(struct gsw_mt753x *gsw, u32 cmd, u32 val)
+ {
+ 	int i;
+ 
+@@ -369,7 +369,7 @@ static int mt753x_set_port_link(struct s
+ #endif
+ }
+ 
+-static u64 get_mib_counter(struct gsw_mt753x *gsw, int i, int port)
++u64 get_mib_counter(struct gsw_mt753x *gsw, int i, int port)
+ {
+ 	unsigned int offset;
+ 	u64 lo, hi, hi2;
+@@ -454,7 +454,7 @@ static void mt753x_port_isolation(struct
+ 	}
+ }
+ 
+-static void mt753x_write_vlan_entry(struct gsw_mt753x *gsw, int vlan, u16 vid,
++void mt753x_write_vlan_entry(struct gsw_mt753x *gsw, int vlan, u16 vid,
+ 				    u8 ports, u8 etags)
+ {
+ 	int port;
+Index: linux-4.4.198/drivers/net/phy/mtk/mt753x/Makefile
+===================================================================
+--- linux-4.4.198.orig/drivers/net/phy/mtk/mt753x/Makefile
++++ linux-4.4.198/drivers/net/phy/mtk/mt753x/Makefile
+@@ -8,5 +8,5 @@ mt753x-$(CONFIG_SWCONFIG)	+= mt753x_swco
+ 
+ mt753x-y			+= mt753x_mdio.o mt7530.o mt7531.o \
+ 					mt753x_common.o mt753x_nl.o mt753x_phy.o \
+-					mt753x_extphy.o
++					mt753x_extphy.o mt753x_zld.o
+ 
+Index: linux-4.4.198/drivers/net/phy/mtk/mt753x/mt753x_zld.c
+===================================================================
+--- /dev/null
++++ linux-4.4.198/drivers/net/phy/mtk/mt753x/mt753x_zld.c
+@@ -0,0 +1,310 @@
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/device.h>
++#include <linux/delay.h>
++#include <linux/reset.h>
++#include <linux/hrtimer.h>
++#include <linux/mii.h>
++#include <linux/of_mdio.h>
++#include <linux/of_platform.h>
++#include <linux/of_gpio.h>
++#include <linux/of_net.h>
++#include <linux/of_irq.h>
++
++#include "mt753x.h"
++#include "mt753x_swconfig.h"
++#include "mt753x_regs.h"
++#include "mt753x_nl.h"
++#include "mt7530.h"
++#include "mt7531.h"
++#include "mt753x_zld.h"
++
++extern void mt753x_write_vlan_entry(struct gsw_mt753x *gsw, int vlan, u16 vid,
++				    u8 ports, u8 etags);
++extern void mt753x_vlan_ctrl(struct gsw_mt753x *gsw, u32 cmd, u32 val);
++extern u64 get_mib_counter(struct gsw_mt753x *gsw, int i, int port);
++
++int zld_mt753x_mibcounter_get(u8 port, zld_mib_counter_t *mib_counter)
++{
++	int ret = 0;
++	struct gsw_mt753x *gsw = NULL;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return -1;
++
++	mib_counter->TxDrop = get_mib_counter(gsw, TxDrop, port);
++	mib_counter->TxCRC = get_mib_counter(gsw, TxCRC, port);
++	mib_counter->TxUni = get_mib_counter(gsw, TxUni, port);
++	mib_counter->TxMulti = get_mib_counter(gsw, TxMulti, port);
++	mib_counter->TxBroad = get_mib_counter(gsw, TxBroad, port);
++	mib_counter->TxCollision = get_mib_counter(gsw, TxCollision, port);
++	mib_counter->TxSingleCol = get_mib_counter(gsw, TxSingleCol, port);
++	mib_counter->TxMultiCol = get_mib_counter(gsw, TxMultiCol, port);
++	mib_counter->TxDefer = get_mib_counter(gsw, TxDefer, port);
++	mib_counter->TxLateCol = get_mib_counter(gsw, TxLateCol, port);
++	mib_counter->TxExcCol = get_mib_counter(gsw, TxExcCol, port);
++	mib_counter->TxPause = get_mib_counter(gsw, TxPause, port);
++	mib_counter->Tx64Byte = get_mib_counter(gsw, Tx64Byte, port);
++	mib_counter->Tx65Byte = get_mib_counter(gsw, Tx65Byte, port);
++	mib_counter->Tx128Byte = get_mib_counter(gsw,Tx128Byte , port);
++	mib_counter->Tx256Byte = get_mib_counter(gsw, Tx256Byte, port);
++	mib_counter->Tx512Byte = get_mib_counter(gsw, Tx512Byte, port);
++	mib_counter->Tx1024Byte = get_mib_counter(gsw, Tx1024Byte, port);
++	mib_counter->TxByte = get_mib_counter(gsw, TxByte, port);
++	mib_counter->RxDrop = get_mib_counter(gsw, RxDrop, port);
++	mib_counter->RxFiltered = get_mib_counter(gsw, RxFiltered, port);
++	mib_counter->RxUni = get_mib_counter(gsw, RxUni, port);
++	mib_counter->RxMulti = get_mib_counter(gsw, RxMulti, port);
++	mib_counter->RxBroad = get_mib_counter(gsw, RxBroad, port);
++	mib_counter->RxAlignErr = get_mib_counter(gsw, RxAlignErr, port);
++	mib_counter->RxCRC = get_mib_counter(gsw, RxCRC, port);
++	mib_counter->RxUnderSize = get_mib_counter(gsw, RxUnderSize, port);
++	mib_counter->RxFragment = get_mib_counter(gsw, RxFragment, port);
++	mib_counter->RxOverSize = get_mib_counter(gsw, RxOverSize, port);
++	mib_counter->RxJabber = get_mib_counter(gsw, RxJabber, port);
++	mib_counter->RxPause = get_mib_counter(gsw, RxPause, port);
++	mib_counter->Rx64Byte = get_mib_counter(gsw, Rx64Byte, port);
++	mib_counter->Rx65Byte = get_mib_counter(gsw, Rx65Byte, port);
++	mib_counter->Rx128Byte = get_mib_counter(gsw, Rx128Byte, port);
++	mib_counter->Rx256Byte = get_mib_counter(gsw, Rx256Byte, port);
++	mib_counter->Rx512Byte = get_mib_counter(gsw, Rx512Byte, port);
++	mib_counter->Rx1024Byte = get_mib_counter(gsw, Rx1024Byte, port);
++	mib_counter->RxByte = get_mib_counter(gsw, RxByte, port);
++	mib_counter->RxCtrlDrop = get_mib_counter(gsw, RxCtrlDrop, port);
++	mib_counter->RxIngDrop = get_mib_counter(gsw, RxIngDrop, port);
++	mib_counter->RxARLDrop = get_mib_counter(gsw, RxARLDrop, port);
++
++	mt753x_put_gsw();
++	return ret;
++}
++
++void zld_mt753x_mibcounter_reset(u8 port)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	/* reset all mib counters*/
++	mt753x_reg_write(gsw, MIB_RSET_REG, MIB_RSET);
++	mt753x_reg_write(gsw, MIB_RSET_REG, MIB_RSTR);
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_phy_read(u8 port, u32 reg, u32 *value)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	if (port > 0 || port < MT753X_NUM_PORTS){
++		gsw = mt753x_get_first_gsw();
++		if(!gsw)
++			return;
++		*value = gsw->mii_read(gsw, port, reg);
++		mt753x_put_gsw();
++	}
++}
++
++void zld_mt753x_phy_write(u8 port, u32 reg, u32 value)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	if (port > 0 || port < MT753X_NUM_PORTS){
++		gsw = mt753x_get_first_gsw();
++		if(!gsw)
++			return;
++		gsw->mii_write(gsw, port, reg, value);
++		mt753x_put_gsw();
++	}
++}
++
++void zld_mt753x_reg_read(u32 reg, int *value)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	*value = mt753x_reg_read(gsw, reg);
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_reg_write(u32 reg, int value)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	mt753x_reg_write(gsw, reg, value);
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_read_vlan_entry(u32 vlan, u32 *member, u32 *etags)
++{
++	struct gsw_mt753x *gsw = NULL;
++	u32 member_t = 0, etags_t = 0;
++
++	gsw = mt753x_get_first_gsw();
++
++	if(!gsw)
++		return;
++
++	mt753x_vlan_ctrl(gsw, VTCR_READ_VLAN_ENTRY, vlan);
++	member_t = mt753x_reg_read(gsw, VAWD1);
++	member_t &= PORT_MEM_M;
++	member_t >>= PORT_MEM_S;
++	etags_t = mt753x_reg_read(gsw, VAWD2);
++	*member = member_t;
++	*etags = etags_t;
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_write_vlan_entry(u16 vlan, u8 member, u8 etags)
++{
++	struct gsw_mt753x *gsw = NULL;
++	int i = 0;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	for (i = 0; i < MT753X_NUM_VLANS; i++) {
++		if(vlan == gsw->vlan_entries[i].vid)
++			mt753x_write_vlan_entry(gsw, i, vlan, member, etags);
++	}
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_get_pvid(u8 port, u16 *pvid)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	*pvid = mt753x_reg_read(gsw, PPBV1(port));
++	*pvid &= GRP_PORT_VID_M;
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_set_pvid(u8 port, u16 pvid)
++{
++	struct gsw_mt753x *gsw = NULL;
++	u32 val = 0;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	val = mt753x_reg_read(gsw, PPBV1(port));
++	val &= ~GRP_PORT_VID_M;
++	val |= pvid;
++	mt753x_reg_write(gsw, PPBV1(port), val);
++	mt753x_put_gsw();
++}
++
++/* [Port link Status]
++ * bit0:   0/1: link Down/Up
++ * bit1:   0/1: Duplex Half/Full
++ * bit3-2: 00: 10Mbps
++ *         01: 100Mbps
++ *         10: 1000Mbps
++*/
++void zld_mt753x_get_port_link(u8 port, u32 *link)
++{
++	struct gsw_mt753x *gsw = NULL;
++	u32 pmsr = 0;
++
++	if (port > 0 || port < MT753X_NUM_PORTS){
++		gsw = mt753x_get_first_gsw();
++		if(!gsw)
++			return;
++		pmsr = mt753x_reg_read(gsw, PMSR(port));
++		mt753x_put_gsw();
++	}
++	*link = pmsr;
++}
++
++void zld_mt753x_set_port_link(u8 port, u32 link)
++{
++	struct gsw_mt753x *gsw = NULL;
++
++	if (port > 0 || port < MT753X_NUM_PORTS){
++		gsw = mt753x_get_first_gsw();
++		if(!gsw)
++			return;
++
++		gsw->mii_write(gsw, port, MII_BMCR, link);
++		mt753x_put_gsw();
++	}
++}
++
++void zld_mt753x_set_port_power_down(u8 port, u8 link)
++{
++	struct gsw_mt753x *gsw = NULL;
++	u16 val = 0;
++
++	if (port > 0 || port < MT753X_NUM_PORTS){
++		gsw = mt753x_get_first_gsw();
++		if(!gsw)
++			return;
++		val = gsw->mii_read(gsw, port, MII_BMCR);
++		if(link == 1)
++			val |= BMCR_PDOWN;
++		else
++			val &= ~BMCR_PDOWN;
++		gsw->mii_write(gsw, port, MII_BMCR, val);
++		mt753x_put_gsw();
++	}
++}
++
++void zld_mt753x_port_mode_set(u8 port, u32 mode)
++{
++	struct gsw_mt753x *gsw = NULL;
++	u32 pcr_mode = 0;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	pcr_mode = PORT_MATRIX_M | mode;
++	mt753x_reg_write(gsw, PCR(port), pcr_mode);
++	mt753x_put_gsw();
++}
++
++void zld_mt753x_port_attr_set(u8 port, u32 attr)
++{
++	struct gsw_mt753x *gsw = NULL;
++	u32 pvc_mode = 0;
++
++	gsw = mt753x_get_first_gsw();
++	if(!gsw)
++		return;
++
++	pvc_mode = (0x8100 << STAG_VPID_S) | (attr << VLAN_ATTR_S);
++	mt753x_reg_write(gsw, PVC(port), pvc_mode);
++	mt753x_put_gsw();
++}
++
++EXPORT_SYMBOL(zld_mt753x_mibcounter_get);
++EXPORT_SYMBOL(zld_mt753x_mibcounter_reset);
++EXPORT_SYMBOL(zld_mt753x_reg_read);
++EXPORT_SYMBOL(zld_mt753x_reg_write);
++EXPORT_SYMBOL(zld_mt753x_read_vlan_entry);
++EXPORT_SYMBOL(zld_mt753x_write_vlan_entry);
++EXPORT_SYMBOL(zld_mt753x_get_pvid);
++EXPORT_SYMBOL(zld_mt753x_set_pvid);
++EXPORT_SYMBOL(zld_mt753x_get_port_link);
++EXPORT_SYMBOL(zld_mt753x_set_port_link);
++EXPORT_SYMBOL(zld_mt753x_set_port_power_down);
++EXPORT_SYMBOL(zld_mt753x_port_mode_set);
++EXPORT_SYMBOL(zld_mt753x_port_attr_set);
++EXPORT_SYMBOL(zld_mt753x_phy_read);
++EXPORT_SYMBOL(zld_mt753x_phy_write);
++
+Index: linux-4.4.198/drivers/net/phy/mtk/mt753x/mt753x_zld.h
+===================================================================
+--- /dev/null
++++ linux-4.4.198/drivers/net/phy/mtk/mt753x/mt753x_zld.h
+@@ -0,0 +1,109 @@
++#define MIB_RSET_REG 0x4fe0
++#define MIB_RSET 0xf0
++#define MIB_RSTR 0x800000f0
++
++typedef struct
++{
++u64 TxDrop;
++u64 TxCRC;
++u64 TxUni;
++u64 TxMulti;
++u64 TxBroad;
++u64 TxCollision;
++u64 TxSingleCol;
++u64 TxMultiCol;
++u64 TxDefer;
++u64 TxLateCol;
++u64 TxExcCol;
++u64 TxPause;
++u64 Tx64Byte;
++u64 Tx65Byte;
++u64 Tx128Byte;
++u64 Tx256Byte;
++u64 Tx512Byte;
++u64 Tx1024Byte;
++u64 TxByte;
++u64 RxDrop;
++u64 RxFiltered;
++u64 RxUni;
++u64 RxMulti;
++u64 RxBroad;
++u64 RxAlignErr;
++u64 RxCRC;
++u64 RxUnderSize;
++u64 RxFragment;
++u64 RxOverSize;
++u64 RxJabber;
++u64 RxPause;
++u64 Rx64Byte;
++u64 Rx65Byte;
++u64 Rx128Byte;
++u64 Rx256Byte;
++u64 Rx512Byte;
++u64 Rx1024Byte;
++u64 RxByte;
++u64 RxCtrlDrop;
++u64 RxIngDrop;
++u64 RxARLDrop;
++} zld_mib_counter_t;
++
++enum mib_info{
++	TxDrop = 0,
++	TxCRC,
++	TxUni,
++	TxMulti,
++	TxBroad,
++	TxCollision,
++	TxSingleCol,
++	TxMultiCol,
++	TxDefer,
++	TxLateCol,
++	TxExcCol,
++	TxPause,
++	Tx64Byte,
++	Tx65Byte,
++	Tx128Byte,
++	Tx256Byte,
++	Tx512Byte,
++	Tx1024Byte,
++	TxByte,
++	RxDrop,
++	RxFiltered,
++	RxUni,
++	RxMulti,
++	RxBroad,
++	RxAlignErr,
++	RxCRC,
++	RxUnderSize,
++	RxFragment,
++	RxOverSize,
++	RxJabber,
++	RxPause,
++	Rx64Byte,
++	Rx65Byte,
++	Rx128Byte,
++	Rx256Byte,
++	Rx512Byte,
++	Rx1024Byte,
++	RxByte,
++	RxCtrlDrop,
++	RxIngDrop,
++	RxARLDrop,
++};
++
++int zld_mt753x_mibcounter_get(u8 port, zld_mib_counter_t *mib_counter);
++void zld_mt753x_mibcounter_reset(u8 port);
++void zld_mt753x_reg_read(u32 reg, int *value);
++void zld_mt753x_reg_write(u32 reg, int value);
++void zld_mt753x_read_vlan_entry(u32 vlan, u32 *member, u32 *etags);
++void zld_mt753x_write_vlan_entry(u16 vlan, u8 member, u8 etags);
++void zld_mt753x_get_pvid(u8 port, u16 *pvid);
++void zld_mt753x_set_pvid(u8 port, u16 pvid);
++void zld_mt753x_get_port_link(u8 port, u32 *link);
++void zld_mt753x_set_port_link(u8 port, u32 link);
++void zld_mt753x_set_port_power_down(u8 port, u8 link);
++void zld_mt753x_port_mode_set(u8 port, u32 mode);
++void zld_mt753x_port_attr_set(u8 port, u32 attr);
++void zld_mt753x_phy_read(u8 port, u32 reg, u32 *value);
++void zld_mt753x_phy_write(u8 port, u32 reg, u32 value);
++
+Index: linux-4.4.198/drivers/net/ethernet/mediatek/Makefile
+===================================================================
+--- linux-4.4.198.orig/drivers/net/ethernet/mediatek/Makefile
++++ linux-4.4.198/drivers/net/ethernet/mediatek/Makefile
+@@ -3,6 +3,6 @@
+ #
+ 
+ obj-$(CONFIG_NET_MEDIATEK_SOC)			+= mtk_eth_soc.o mtk_sgmii.o \
+-						   mtk_eth_path.o
++						   mtk_eth_path.o mtk_eth_zld.o
+ obj-$(CONFIG_NET_MEDIATEK_DBG)			+= mtk_eth_dbg.o
+ obj-$(CONFIG_NET_MEDIATEK_HNAT)                 += mtk_hnat/
+Index: linux-4.4.198/drivers/net/ethernet/mediatek/mtk_eth_zld.c
+===================================================================
+--- /dev/null
++++ linux-4.4.198/drivers/net/ethernet/mediatek/mtk_eth_zld.c
+@@ -0,0 +1,32 @@
++#include <linux/netdevice.h>
++#include "mtk_eth_soc.h"
++#include "mtk_eth_dbg.h"
++#include "mtk_eth_zld.h"
++
++extern void mii_mgr_write_combine(struct mtk_eth *eth, u32 phy_addr, u32 phy_register,
++			   u32 write_data);
++extern void mii_mgr_read_combine(struct mtk_eth *eth, u32 phy_addr, u32 phy_register,
++			  u32 *read_data);
++
++void zld_mt7530_mdio_write(struct net_device *dev, u32 phy_addr, u32 reg, u32 val)
++{
++	struct mtk_mac *mac = netdev_priv(dev);
++	struct mtk_eth *eth = mac->hw;
++
++	if(eth == NULL)
++		return;
++	mii_mgr_write_combine(eth, phy_addr, reg, val);
++}
++
++void zld_mt7530_mdio_read(struct net_device *dev, u32 phy_addr, u32 reg, u32 *val)
++{
++	struct mtk_mac *mac = netdev_priv(dev);
++	struct mtk_eth *eth = mac->hw;
++
++	if(eth == NULL)
++		return;
++	mii_mgr_read_combine(eth, phy_addr, reg, val);
++}
++
++EXPORT_SYMBOL(zld_mt7530_mdio_write);
++EXPORT_SYMBOL(zld_mt7530_mdio_read);
+Index: linux-4.4.198/drivers/net/ethernet/mediatek/mtk_eth_zld.h
+===================================================================
+--- /dev/null
++++ linux-4.4.198/drivers/net/ethernet/mediatek/mtk_eth_zld.h
+@@ -0,0 +1,2 @@
++void zld_mt7530_mdio_write(struct net_device *dev, u32 phy_addr, u32 reg, u32 val);
++void zld_mt7530_mdio_read(struct net_device *dev, u32 phy_addr, u32 reg, u32 *val);

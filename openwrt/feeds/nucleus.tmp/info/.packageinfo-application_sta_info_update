@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/sta_info_update/Makefile
+Package: sta_info_update
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula sta info update
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula sta info update
+https://www.zyxel.com/
+
+@@
+
+

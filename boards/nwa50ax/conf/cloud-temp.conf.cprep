@@ -1,0 +1,54 @@
+hybrid-mode cloud
+!
+hardware-watchdog-timer start
+!
+software-watchdog-timer 30
+!
+interface-name ge1 ge1
+!
+interface-name br0 lan
+!
+username admin encrypted-password $4$WliGKvFQ$yMEH/WCnH1+NXuIUp0lzpUinIyEnrHFoRgesi6NdOFytmQg8lRfsVzUUjBGY+FiS4Up6KIgoP8OMEP0L3hRYSN2kpFTDIet31GoNwlM+S7U$ user-type admin
+username admin description Administration account
+!
+dhcp6-request-object dns dns-server
+dhcp6-request-object ntp ntp-server
+!
+wlan-wds-profile smart_mesh
+ ssid smart_mesh
+!
+!
+manager ap bridge forward-delay 0
+manager ap bridge stp off
+manager ap vlan vlan-id 1 untag
+manager ap vlan ip address dhcp
+manager ap vlan managed-ip address 192.168.1.2 255.255.255.0
+manager ap vlan ipv6 enable
+!
+ip http server
+!
+ip http secure-server cert default
+ip http secure-server
+!
+ip ssh server cert default
+ip ssh server
+!
+ip ftp server cert default
+ip ftp server
+!
+ntp server 0.pool.ntp.org
+ntp
+!
+snmp-server
+snmp-server version v2c
+!
+auth-server activate
+!
+app-watch-dog activate
+!
+logging system-log suppression
+!
+led_locator blink-timer 10
+!
+led_suppress disable
+!

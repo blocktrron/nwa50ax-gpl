@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-dnsmasq/Makefile
+Package: zyxel-dnsmasq
+Submenu: application
+Version: 2.85
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +ipset +zylog +zld-files +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: A DNS and DHCP server
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: A DNS and DHCP server
+http://www.thekelleys.org.uk/dnsmasq/doc.html
+
+@@
+
+

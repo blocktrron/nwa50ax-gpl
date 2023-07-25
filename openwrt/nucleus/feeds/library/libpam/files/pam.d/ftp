@@ -1,0 +1,7 @@
+auth	requisite	pam_uam.so
+auth	[success=done auth_err=die user_unknown=ignore] pam_auth_admin.so
+auth	required	pam_nologin.so
+auth	required	pam_unix.so nullok
+
+account	required	pam_uam.so
+session	required	pam_uam.so

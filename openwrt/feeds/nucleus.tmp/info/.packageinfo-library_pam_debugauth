@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/pam_debugauth/Makefile
+Package: pam_debugauth
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: PAM module for Debug authentication
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: PAM module for Debug authentication
+https://www.zyxel.com/
+
+@@
+
+

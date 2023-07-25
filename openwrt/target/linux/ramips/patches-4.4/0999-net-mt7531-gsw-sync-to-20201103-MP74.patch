@@ -1,0 +1,344 @@
+diff -urN a/drivers/net/phy/mtk/mt753x/mt7530.c b/drivers/net/phy/mtk/mt753x/mt7530.c
+--- a/drivers/net/phy/mtk/mt753x/mt7530.c	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt7530.c	2020-11-16 12:04:57.324594037 +0800
+@@ -64,6 +64,9 @@
+ #define PHY_DEV1E_REG_123		0x123
+ #define PHY_DEV1E_REG_A6		0xa6
+ 
++/* PHY DSP Register 0x3 bitmap of define */
++#define TrFreezeForce	BIT(2)
++
+ /* Values of XTAL_FSEL */
+ #define XTAL_20MHZ			1
+ #define XTAL_40MHZ			2
+@@ -383,8 +386,12 @@
+ 
+ 		/* Port5 to PHY direct mode */
+ 		if (of_property_read_u32(gsw->port5_cfg.np, "phy-address",
+-					 &phyad))
++					 &phyad)) {
++			if (gsw->port5_cfg.stag_on)
++				mt753x_reg_write(gsw, PVC(5), PVC_PORT_STAG);
++
+ 			goto parse_p6;
++		}
+ 
+ 		if (phyad != 0 && phyad != 4) {
+ 			dev_info(gsw->dev,
+@@ -433,6 +440,9 @@
+ 		}
+ 	}
+ 
++	if (gsw->port6_cfg.stag_on)
++		mt753x_reg_write(gsw, PVC(6), PVC_PORT_STAG);
++
+ 	mt753x_reg_write(gsw, MHWSTRAP, hwstrap);
+ 	mt753x_reg_write(gsw, P6ECR, p6ecr);
+ 
+@@ -632,6 +642,11 @@
+ 		val = gsw->mii_read(gsw, i, MII_BMCR);
+ 		val &= ~BMCR_PDOWN;
+ 		gsw->mii_write(gsw, i, MII_BMCR, val);
++
++		/* Disable TrFreeze */
++		val = mt753x_tr_read(gsw, i, DSP_CH, DSP_NOD, DSP_03);
++		val |= TrFreezeForce;
++		mt753x_tr_write(gsw, i, DSP_CH, DSP_NOD, DSP_03, val);
+ 	}
+ 
+ 	return 0;
+diff -urN a/drivers/net/phy/mtk/mt753x/mt7531.c b/drivers/net/phy/mtk/mt753x/mt7531.c
+--- a/drivers/net/phy/mtk/mt753x/mt7531.c	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt7531.c	2020-11-16 12:04:57.324594037 +0800
+@@ -12,6 +12,7 @@
+ #include <linux/delay.h>
+ #include <linux/hrtimer.h>
+ #include <linux/mii.h>
++#include <linux/of_net.h>
+ 
+ #include "mt753x.h"
+ #include "mt753x_regs.h"
+@@ -76,6 +77,9 @@
+ #define GBE_EFUSE			0x7bc8
+ #define GBE_SEL_EFUSE_EN		BIT(0)
+ 
++/* PHY DSP Register 0x3 bitmap of define */
++#define TrFreezeForce	BIT(2)
++
+ /* PHY ENABLE Register bitmap define */
+ #define PHY_DEV1F			0x1f
+ #define PHY_DEV1F_REG_44		0x44
+@@ -505,6 +509,12 @@
+ 
+ 	mt753x_reg_write(gsw, PMCR(port), pmcr);
+ 
++	if (port_cfg->stag_on) {
++		u32 val = mt753x_reg_read(gsw, PVC(port));
++
++		mt753x_reg_write(gsw, PVC(port), val | PVC_PORT_STAG);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -855,6 +865,11 @@
+ 		val = gsw->mii_read(gsw, i, MII_ADVERTISE);
+ 		val |= ADVERTISE_PAUSE_ASYM;
+ 		gsw->mii_write(gsw, i, MII_ADVERTISE, val);
++
++		/* Disable TrFreeze */
++		val = mt753x_tr_read(gsw, i, DSP_CH, DSP_NOD, DSP_03);
++		val |= TrFreezeForce;
++		mt753x_tr_write(gsw, i, DSP_CH, DSP_NOD, DSP_03, val);
+ 	}
+ }
+ 
+@@ -969,9 +984,11 @@
+ 	mt753x_reg_write(gsw, PMCR(5), FORCE_MODE_LNK);
+ 	mt753x_reg_write(gsw, PMCR(6), FORCE_MODE_LNK);
+ 
+-	/* Switch soft reset */
+-	mt753x_reg_write(gsw, SYS_CTRL, SW_SYS_RST | SW_REG_RST);
+-	usleep_range(10, 20);
++	/* Do switch soft reset if dsa does not exist */
++	if (!gsw->dsa_based) {
++		mt753x_reg_write(gsw, SYS_CTRL, SW_SYS_RST | SW_REG_RST);
++		usleep_range(10, 20);
++	}
+ 
+ 	/* Enable MDC input Schmitt Trigger */
+ 	val = mt753x_reg_read(gsw, SMT0_IOLB);
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x_common.c b/drivers/net/phy/mtk/mt753x/mt753x_common.c
+--- a/drivers/net/phy/mtk/mt753x/mt753x_common.c	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x_common.c	2020-11-16 12:04:57.324594037 +0800
+@@ -13,6 +13,7 @@
+ 
+ #include "mt753x.h"
+ #include "mt753x_regs.h"
++#include "mt753x_nl.h"
+ 
+ void mt753x_irq_enable(struct gsw_mt753x *gsw)
+ {
+@@ -61,6 +62,7 @@
+ 	} else {
+ 		dev_info(gsw->dev, "Port %d Link is Down\n", port);
+ 	}
++	mt753x_nl_port_status_notify(port, (pmsr & MAC_LNK_STS) ? 1 : 0);
+ }
+ 
+ void mt753x_irq_worker(struct work_struct *work)
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x.h b/drivers/net/phy/mtk/mt753x/mt753x.h
+--- a/drivers/net/phy/mtk/mt753x/mt753x.h	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x.h	2020-11-16 12:04:57.324594037 +0800
+@@ -57,6 +57,7 @@
+ 	u32 speed: 2;
+ 	u32 duplex: 1;
+ 	bool ssc_on;
++	bool stag_on;
+ };
+ 
+ struct mt753x_phy {
+@@ -82,6 +83,7 @@
+ 	struct mt753x_port_cfg port5_cfg;
+ 	struct mt753x_port_cfg port6_cfg;
+ 
++	bool dsa_based;
+ 	bool hw_phy_cal;
+ 	bool phy_status_poll;
+ 	struct mt753x_phy phys[MT753X_NUM_PHYS];
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x_mdio.c b/drivers/net/phy/mtk/mt753x/mt753x_mdio.c
+--- a/drivers/net/phy/mtk/mt753x/mt753x_mdio.c	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x_mdio.c	2020-11-16 12:04:57.324594037 +0800
+@@ -312,6 +312,8 @@
+ 
+ 		port_cfg->ssc_on = of_property_read_bool(port_cfg->np,
+ 							 "mediatek,ssc-on");
++		port_cfg->stag_on = of_property_read_bool(port_cfg->np,
++							  "mediatek,stag-on");
+ 		port_cfg->enabled = 1;
+ 	}
+ }
+@@ -699,13 +701,15 @@
+ 
+ static int mt753x_probe(struct platform_device *pdev)
+ {
+-	struct gsw_mt753x *gsw;
+-	struct mt753x_sw_id *sw;
+ 	struct device_node *np = pdev->dev.of_node;
++	struct net_device *dsa_dev;
+ 	struct device_node *mdio;
+ 	struct mii_bus *mdio_bus;
+-	int ret = -EINVAL;
++	struct device_node *dsa;
++	struct mt753x_sw_id *sw;
++	struct gsw_mt753x *gsw;
+ 	struct chip_rev rev;
++	int ret = -EINVAL;
+ 	int i;
+ 
+ 	mdio = of_parse_phandle(np, "mediatek,mdio", 0);
+@@ -734,6 +738,10 @@
+ 	/* Load MAC port configurations */
+ 	mt753x_load_port_cfg(gsw);
+ 
++	dsa = of_parse_phandle(gsw->dev->of_node, "mediatek,dsa_port", 0);
++	if (dsa)
++		gsw->dsa_based = true;
++
+ 	/* Check for valid switch and then initialize */
+ 	for (i = 0; i < ARRAY_SIZE(mt753x_sw_ids); i++) {
+ 		if (!mt753x_sw_ids[i]->detect(gsw, &rev)) {
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x_nl.c b/drivers/net/phy/mtk/mt753x/mt753x_nl.c
+--- a/drivers/net/phy/mtk/mt753x/mt753x_nl.c	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x_nl.c	2020-11-16 12:04:57.324594037 +0800
+@@ -363,13 +363,60 @@
+ 	},
+ };
+ 
++static const struct genl_multicast_group mt753x_nl_mcgrp[] = {
++	[MT753X_MCGRP_PORT_STATUS] = { .name = MT753X_MULTICAST_GROUP_PORT_STATUS }
++};
++
++int mt753x_nl_port_status_notify(int port, int status)
++{
++	struct sk_buff *msg;
++	void *msg_header;
++	int ret;
++
++	msg = genlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
++	if (!msg)
++		return -ENOMEM;
++
++	/* Construct send-back message header */
++	msg_header = genlmsg_put(msg, 0, 0, &mt753x_nl_family, 0, MT753X_CMD_NOTIFY);
++	if (!msg_header) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ret = nla_put_s32(msg, MT753X_ATTR_TYPE_PHY, port);
++	if (ret < 0)
++		goto err;
++
++	ret = nla_put_s32(msg, MT753X_ATTR_TYPE_VAL, status);
++	if (ret < 0)
++		goto err;
++
++	/* Finalize a generic netlink message (update message header) */
++	genlmsg_end(msg, msg_header);
++
++	/* Notify a message */
++	ret = genlmsg_multicast(&mt753x_nl_family, msg, 0, MT753X_MCGRP_PORT_STATUS, GFP_KERNEL);
++	if (ret != 0 && ret != -ESRCH) {
++		pr_info("genlmsg_multicast to user failed, return %d\n", ret);
++		goto err;
++	}
++
++	return ret;
++
++err:
++	if (msg)
++		nlmsg_free(msg);
++
++	return ret;
++}
+ int __init mt753x_nl_init(void)
+ {
+ 	int ret;
+ 
+-	ret = genl_register_family_with_ops(&mt753x_nl_family, mt753x_nl_ops);
++	ret = genl_register_family_with_ops_groups(&mt753x_nl_family, mt753x_nl_ops, mt753x_nl_mcgrp);
+ 	if (ret) {
+-		pr_info("mt753x-nl: genl_register_family_with_ops failed\n");
++		pr_info("mt753x-nl: genl_register_family_with_ops_groups failed\n");
+ 		return ret;
+ 	}
+ 
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x_nl.h b/drivers/net/phy/mtk/mt753x/mt753x_nl.h
+--- a/drivers/net/phy/mtk/mt753x/mt753x_nl.h	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x_nl.h	2020-11-16 12:04:57.324594037 +0800
+@@ -20,6 +20,7 @@
+ 	MT753X_CMD_REPLY,
+ 	MT753X_CMD_READ,
+ 	MT753X_CMD_WRITE,
++	MT753X_CMD_NOTIFY,
+ 
+ 	__MT753X_CMD_MAX,
+ };
+@@ -37,11 +38,18 @@
+ 	__MT753X_ATTR_TYPE_MAX,
+ };
+ 
++enum mt753x_multicast_groups {
++	MT753X_MCGRP_PORT_STATUS,
++	__MT753X_MCGRP_MAX
++};
++
++#define MT753X_MULTICAST_GROUP_PORT_STATUS		"port_status"
+ #define MT753X_NR_ATTR_TYPE		(__MT753X_ATTR_TYPE_MAX - 1)
+ 
+ #ifdef __KERNEL__
+ int __init mt753x_nl_init(void);
+ void __exit mt753x_nl_exit(void);
+ #endif /* __KERNEL__ */
++int mt753x_nl_port_status_notify(int port, int status);
+ 
+ #endif /* _MT753X_NL_H_ */
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x_regs.h b/drivers/net/phy/mtk/mt753x/mt753x_regs.h
+--- a/drivers/net/phy/mtk/mt753x/mt753x_regs.h	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x_regs.h	2020-11-16 12:04:57.324594037 +0800
+@@ -339,6 +339,7 @@
+ 
+ enum tr_dsp_reg_addr {
+ 	DSP_MIN = 0x0,
++	DSP_03	= 0x3,
+ 	DSP_06  = 0x6,
+ 	DSP_08  = 0x8,
+ 	DSP_0f  = 0xf,
+diff -urN a/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c b/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c
+--- a/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c	2020-11-16 12:02:52.115052839 +0800
++++ b/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c	2020-11-16 12:04:57.324594037 +0800
+@@ -441,10 +441,17 @@
+ 
+ 	mt753x_reg_write(gsw, PCR(gsw->cpu_port), PORT_MATRIX_M);
+ 
+-	for (i = 0; i < MT753X_NUM_PORTS; i++)
+-		mt753x_reg_write(gsw, PVC(i),
+-				 (0x8100 << STAG_VPID_S) |
+-				 (VA_TRANSPARENT_PORT << VLAN_ATTR_S));
++	for (i = 0; i < MT753X_NUM_PORTS; i++) {
++		u32 pvc_mode = 0x8100 << STAG_VPID_S;
++
++		if ((gsw->port5_cfg.stag_on && i == 5) ||
++		    (gsw->port6_cfg.stag_on && i == 6))
++			pvc_mode |= PVC_PORT_STAG;
++		else
++			pvc_mode |= (VA_TRANSPARENT_PORT << VLAN_ATTR_S);
++
++		mt753x_reg_write(gsw, PVC(i), pvc_mode);
++	}
+ }
+ 
+ static void mt753x_write_vlan_entry(struct gsw_mt753x *gsw, int vlan, u16 vid,
+@@ -522,6 +529,10 @@
+ 			pvc_mode = (0x8100 << STAG_VPID_S) |
+ 				(VA_TRANSPARENT_PORT << VLAN_ATTR_S);
+ 
++		if ((gsw->port5_cfg.stag_on && i == 5) ||
++		    (gsw->port6_cfg.stag_on && i == 6))
++			pvc_mode = (0x8100 << STAG_VPID_S) | PVC_PORT_STAG;
++
+ 		mt753x_reg_write(gsw, PVC(i), pvc_mode);
+ 	}
+ 
+@@ -684,7 +695,9 @@
+ 	map = mt753x_find_mapping(gsw->dev->of_node);
+ 	if (map)
+ 		mt753x_apply_mapping(gsw, map);
+-	mt753x_apply_config(swdev);
++
++	if (!gsw->dsa_based)
++		mt753x_apply_config(swdev);
+ 
+ 	return 0;
+ }

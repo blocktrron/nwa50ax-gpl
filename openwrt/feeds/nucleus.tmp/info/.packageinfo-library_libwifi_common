@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libwifi_common/Makefile
+Package: libwifi_common
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zyUMAC +libstainfo
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The common library to wifi function
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: The common library to wifi function
+https://www.zyxel.com/
+
+@@
+
+

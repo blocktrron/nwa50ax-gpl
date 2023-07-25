@@ -1,0 +1,110 @@
+Index: procd-2018-01-22-9a4036fb/service/instance.c
+===================================================================
+--- procd-2018-01-22-9a4036fb.orig/service/instance.c
++++ procd-2018-01-22-9a4036fb/service/instance.c
+@@ -72,8 +72,8 @@ static const struct blobmsg_policy insta
+ 	[INSTANCE_ATTR_WATCH] = { "watch", BLOBMSG_TYPE_ARRAY },
+ 	[INSTANCE_ATTR_ERROR] = { "error", BLOBMSG_TYPE_ARRAY },
+ 	[INSTANCE_ATTR_USER] = { "user", BLOBMSG_TYPE_STRING },
+-	[INSTANCE_ATTR_STDOUT] = { "stdout", BLOBMSG_TYPE_BOOL },
+-	[INSTANCE_ATTR_STDERR] = { "stderr", BLOBMSG_TYPE_BOOL },
++	[INSTANCE_ATTR_STDOUT] = { "stdout", BLOBMSG_TYPE_INT32 },
++	[INSTANCE_ATTR_STDERR] = { "stderr", BLOBMSG_TYPE_INT32 },
+ 	[INSTANCE_ATTR_NO_NEW_PRIVS] = { "no_new_privs", BLOBMSG_TYPE_BOOL },
+ 	[INSTANCE_ATTR_JAIL] = { "jail", BLOBMSG_TYPE_TABLE },
+ 	[INSTANCE_ATTR_TRACE] = { "trace", BLOBMSG_TYPE_BOOL },
+@@ -331,11 +331,19 @@ instance_run(struct service_instance *in
+ 
+ 	_stdin = open("/dev/null", O_RDONLY);
+ 
+-	if (_stdout == -1)
+-		_stdout = open("/dev/null", O_WRONLY);
++	if (_stdout == -1) {
++		if (in->has_debug)
++			_stdout = open("/dev/console", O_WRONLY);
++		else
++			_stdout = open("/dev/null", O_WRONLY);
++	}	
+ 
+-	if (_stderr == -1)
+-		_stderr = open("/dev/null", O_WRONLY);
++	if (_stderr == -1) {
++		if (in->has_debug)
++			_stderr = open("/dev/console", O_WRONLY);
++		else
++			_stderr = open("/dev/null", O_WRONLY);
++	}	
+ 
+ 	if (_stdin > -1) {
+ 		dup2(_stdin, STDIN_FILENO);
+@@ -897,11 +905,27 @@ instance_config_parse(struct service_ins
+ 	if (!in->trace && tb[INSTANCE_ATTR_JAIL])
+ 		in->has_jail = instance_jail_parse(in, tb[INSTANCE_ATTR_JAIL]);
+ 
+-	if (tb[INSTANCE_ATTR_STDOUT] && blobmsg_get_bool(tb[INSTANCE_ATTR_STDOUT]))
+-		in->_stdout.fd.fd = -1;
+-
+-	if (tb[INSTANCE_ATTR_STDERR] && blobmsg_get_bool(tb[INSTANCE_ATTR_STDERR]))
+-		in->_stderr.fd.fd = -1;
++	if (tb[INSTANCE_ATTR_STDOUT]) {
++		in->debug_stdout = blobmsg_get_u32(tb[INSTANCE_ATTR_STDOUT]);
++		if (in->debug_stdout == 1) {
++			in->_stdout.fd.fd = -1;
++			in->has_debug = 0;
++		} else {
++			in->_stdout.fd.fd = -2;
++			in->has_debug = 1;
++		}	
++	}	
++
++	if (tb[INSTANCE_ATTR_STDERR]) {
++		in->debug_stderr = blobmsg_get_u32(tb[INSTANCE_ATTR_STDERR]);
++		if (in->debug_stderr == 1) {
++			in->_stderr.fd.fd = -1;
++			in->has_debug = 0;
++		} else {
++			in->_stdout.fd.fd = -2;
++			in->has_debug = 1;
++		}	
++	}	
+ 
+ 	instance_fill_any(&in->data, tb[INSTANCE_ATTR_DATA]);
+ 
+@@ -1006,6 +1030,9 @@ instance_init(struct service_instance *i
+ 	in->_stderr.fd.fd = -2;
+ 	in->_stderr.stream.string_data = true;
+ 	in->_stderr.stream.notify_read = instance_stderr;
++	in->has_debug = 0;
++	in->debug_stdout = 0;
++	in->debug_stderr = 0;
+ 
+ 	blobmsg_list_init(&in->netdev, struct instance_netdev, node, instance_netdev_cmp);
+ 	blobmsg_list_init(&in->file, struct instance_file, node, instance_file_cmp);
+Index: procd-2018-01-22-9a4036fb/service/instance.h
+===================================================================
+--- procd-2018-01-22-9a4036fb.orig/service/instance.h
++++ procd-2018-01-22-9a4036fb/service/instance.h
+@@ -41,6 +41,9 @@ struct service_instance {
+ 
+ 	int8_t nice;
+ 	bool valid;
++	bool has_debug;
++	uint32_t debug_stdout;
++	uint32_t debug_stderr;
+ 
+ 	uid_t uid;
+ 	gid_t gid;
+Index: procd-2018-01-22-9a4036fb/service/service.c
+===================================================================
+--- procd-2018-01-22-9a4036fb.orig/service/service.c
++++ procd-2018-01-22-9a4036fb/service/service.c
+@@ -581,6 +581,9 @@ service_get_process_info(struct ubus_con
+ 	
+ 			c = blobmsg_open_table(&b, in->name);
+ 			blobmsg_add_u8(&b, "valid", in->valid);
++			blobmsg_add_u8(&b, "debug", in->has_debug);
++			blobmsg_add_u32(&b, "debug_stdout", in->debug_stdout);
++			blobmsg_add_u32(&b, "debug_stderr", in->debug_stderr);
+ 			blobmsg_add_u32(&b, "respawn_retry", in->respawn_retry);
+ 			blobmsg_add_u32(&b, "respawn_count", in->respawn_count);
+ 			blobmsg_add_string(&b, "runtime", runtime);

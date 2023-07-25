@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/ccd/Makefile
+Package: ccd
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libzld-sysinfo
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Counter Collection Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Counter Collection Daemon
+https://www.zyxel.com/
+
+@@
+
+

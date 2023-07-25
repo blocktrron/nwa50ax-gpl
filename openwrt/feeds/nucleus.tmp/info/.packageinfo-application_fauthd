@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/fauthd/Makefile
+Package: fauthd
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +zld-files +zylog +libuam +zykit +wtp_module +zyio_library +kmod-captive_portal +wpa3lib +libubus +libubox +wifimgr
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Force Auth Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Force Auth Daemon
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/kernel/magic_seed-module/Makefile
+Package: kmod-magic_seed-module
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +magic-seed
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN Magic Seed Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Magic Seed Module
+https://www.zyxel.com/
+
+@@
+
+

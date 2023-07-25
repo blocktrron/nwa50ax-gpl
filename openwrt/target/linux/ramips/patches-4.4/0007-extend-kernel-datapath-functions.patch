@@ -1,0 +1,634 @@
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -50,7 +50,21 @@ struct br_ip_list {
+ 
+ #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ 
++struct net_bridge_port;
++
+ extern void brioctl_set(int (*ioctl_hook)(struct net *, unsigned int, void __user *));
++extern struct net_device *br_port_dev_get(struct net_device *dev,
++					  unsigned char *addr,
++					  struct sk_buff *skb,
++					  unsigned int cookie);
++extern void br_refresh_fdb_entry(struct net_device *dev, const char *addr);
++extern void br_dev_update_stats(struct net_device *dev,
++				struct rtnl_link_stats64 *nlstats);
++extern struct net_bridge_fdb_entry *br_fdb_has_entry(struct net_device *dev,
++						     const char *addr,
++						     __u16 vid);
++extern void br_fdb_update_register_notify(struct notifier_block *nb);
++extern void br_fdb_update_unregister_notify(struct notifier_block *nb);
+ 
+ typedef int br_should_route_hook_t(struct sk_buff *skb);
+ extern br_should_route_hook_t __rcu *br_should_route_hook;
+@@ -78,4 +92,36 @@ static inline bool br_multicast_has_quer
+ }
+ #endif
+ 
++typedef struct net_bridge_port *br_port_dev_get_hook_t(struct net_device *dev,
++						       struct sk_buff *skb,
++						       unsigned char *addr,
++						       unsigned int cookie);
++extern br_port_dev_get_hook_t __rcu *br_port_dev_get_hook;
++
++typedef void (br_notify_hook_t)(int group, int event, const void *ptr);
++extern br_notify_hook_t __rcu *br_notify_hook;
++typedef int (br_multicast_handle_hook_t)(const struct net_bridge_port *src,
++		struct sk_buff *skb);
++extern br_multicast_handle_hook_t __rcu *br_multicast_handle_hook;
++
++#define BR_FDB_EVENT_ADD     0x01
++#define BR_FDB_EVENT_DEL     0x02
++struct br_fdb_event {
++	unsigned char addr[6];
++	unsigned char is_local;
++	struct net_device *dev;
++	struct net_bridge *br;
++	struct net_device *orig_dev;
++};
++extern void br_fdb_register_notify(struct notifier_block *nb);
++extern void br_fdb_unregister_notify(struct notifier_block *nb);
++extern struct net_device *br_fdb_bridge_dev_get_and_hold(struct net_bridge *br);
++
++typedef struct net_bridge_port *br_get_dst_hook_t(
++		const struct net_bridge_port *src,
++		struct sk_buff **skb);
++extern br_get_dst_hook_t __rcu *br_get_dst_hook;
++
++typedef void (br_notify_hook_t)(int group, int event, const void *ptr);
++extern br_notify_hook_t __rcu *br_notify_hook;
+ #endif
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -266,6 +266,10 @@ static void __exit br_deinit(void)
+ 	br_fdb_fini();
+ }
+ 
++/* Hook for bridge event notifications */
++br_notify_hook_t __rcu *br_notify_hook __read_mostly;
++EXPORT_SYMBOL_GPL(br_notify_hook);
++
+ module_init(br_init)
+ module_exit(br_deinit)
+ MODULE_LICENSE("GPL");
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -38,6 +38,20 @@ static void fdb_notify(struct net_bridge
+ 
+ static u32 fdb_salt __read_mostly;
+ 
++ATOMIC_NOTIFIER_HEAD(br_fdb_notifier_list);
++
++void br_fdb_register_notify(struct notifier_block *nb)
++{
++	atomic_notifier_chain_register(&br_fdb_notifier_list, nb);
++}
++EXPORT_SYMBOL_GPL(br_fdb_register_notify);
++
++void br_fdb_unregister_notify(struct notifier_block *nb)
++{
++	atomic_notifier_chain_unregister(&br_fdb_notifier_list, nb);
++}
++EXPORT_SYMBOL_GPL(br_fdb_unregister_notify);
++
+ int __init br_fdb_init(void)
+ {
+ 	br_fdb_cache = kmem_cache_create("bridge_fdb_cache",
+@@ -289,12 +303,27 @@ out:
+ 	spin_unlock_bh(&br->hash_lock);
+ }
+ 
++ATOMIC_NOTIFIER_HEAD(br_fdb_update_notifier_list);
++
++void br_fdb_update_register_notify(struct notifier_block *nb)
++{
++	atomic_notifier_chain_register(&br_fdb_update_notifier_list, nb);
++}
++EXPORT_SYMBOL_GPL(br_fdb_update_register_notify);
++
++void br_fdb_update_unregister_notify(struct notifier_block *nb)
++{
++	atomic_notifier_chain_unregister(&br_fdb_update_notifier_list, nb);
++}
++EXPORT_SYMBOL_GPL(br_fdb_update_unregister_notify);
++
+ void br_fdb_cleanup(unsigned long _data)
+ {
+ 	struct net_bridge *br = (struct net_bridge *)_data;
+ 	unsigned long delay = hold_time(br);
+ 	unsigned long next_timer = jiffies + br->ageing_time;
+ 	int i;
++	struct br_fdb_event fdb_event;
+ 
+ 	spin_lock(&br->hash_lock);
+ 	for (i = 0; i < BR_HASH_SIZE; i++) {
+@@ -308,10 +337,16 @@ void br_fdb_cleanup(unsigned long _data)
+ 			if (f->added_by_external_learn)
+ 				continue;
+ 			this_timer = f->updated + delay;
+-			if (time_before_eq(this_timer, jiffies))
++			if (time_before_eq(this_timer, jiffies)) {
++				memset(&fdb_event, 0, sizeof(fdb_event));
++				ether_addr_copy(fdb_event.addr, f->addr.addr);
+ 				fdb_delete(br, f);
+-			else if (time_before(this_timer, next_timer))
++				atomic_notifier_call_chain(
++					&br_fdb_update_notifier_list, 0,
++					(void *)&fdb_event);
++			} else if (time_before(this_timer, next_timer)) {
+ 				next_timer = this_timer;
++			}
+ 		}
+ 	}
+ 	spin_unlock(&br->hash_lock);
+@@ -390,6 +425,8 @@ struct net_bridge_fdb_entry *__br_fdb_ge
+ 	return NULL;
+ }
+ 
++EXPORT_SYMBOL_GPL(__br_fdb_get);
++
+ #if IS_ENABLED(CONFIG_ATM_LANE)
+ /* Interface used by ATM LANE hook to test
+  * if an addr is on some other bridge port */
+@@ -561,12 +598,21 @@ int br_fdb_insert(struct net_bridge *br,
+ 	return ret;
+ }
+ 
++/* Get the bridge device */
++struct net_device *br_fdb_bridge_dev_get_and_hold(struct net_bridge *br)
++{
++	dev_hold(br->dev);
++	return br->dev;
++}
++EXPORT_SYMBOL_GPL(br_fdb_bridge_dev_get_and_hold);
++
+ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 		   const unsigned char *addr, u16 vid, bool added_by_user)
+ {
+ 	struct hlist_head *head = &br->hash[br_mac_hash(addr, vid)];
+ 	struct net_bridge_fdb_entry *fdb;
+ 	bool fdb_modified = false;
++	struct br_fdb_event fdb_event;
+ 
+ 	/* some users want to always flood. */
+ 	if (hold_time(br) == 0)
+@@ -588,8 +634,16 @@ void br_fdb_update(struct net_bridge *br
+ 		} else {
+ 			/* fastpath: update of existing entry */
+ 			if (unlikely(source != fdb->dst)) {
++				ether_addr_copy(fdb_event.addr, addr);
++				fdb_event.br = br;
++				fdb_event.orig_dev = fdb->dst->dev;
++				fdb_event.dev = source->dev;
+ 				fdb->dst = source;
+ 				fdb_modified = true;
++				
++				atomic_notifier_call_chain(
++					&br_fdb_update_notifier_list,
++					0, (void *)&fdb_event);
+ 			}
+ 			fdb->updated = jiffies;
+ 			if (unlikely(added_by_user))
+@@ -614,6 +668,44 @@ void br_fdb_update(struct net_bridge *br
+ 	}
+ }
+ 
++/* Refresh FDB entries for bridge packets being forwarded by offload engines */
++void br_refresh_fdb_entry(struct net_device *dev, const char *addr)
++{
++	struct net_bridge_port *p = br_port_get_rcu(dev);
++
++	if (!p || p->state == BR_STATE_DISABLED)
++		return;
++
++	if (!is_valid_ether_addr(addr)) {
++		pr_info("bridge: Attempt to refresh with invalid ether address %pM\n",
++			addr);
++		return;
++	}
++
++	rcu_read_lock();
++	br_fdb_update(p->br, p, addr, 0, true);
++	rcu_read_unlock();
++}
++EXPORT_SYMBOL_GPL(br_refresh_fdb_entry);
++
++/* Look up the MAC address in the device's bridge fdb table */
++struct net_bridge_fdb_entry *br_fdb_has_entry(struct net_device *dev,
++					      const char *addr, __u16 vid)
++{
++	struct net_bridge_port *p = br_port_get_rcu(dev);
++	struct net_bridge_fdb_entry *fdb;
++
++	if (!p || p->state == BR_STATE_DISABLED)
++		return NULL;
++
++	rcu_read_lock();
++	fdb = fdb_find_rcu(&p->br->hash[br_mac_hash(addr, vid)], addr, vid);
++	rcu_read_unlock();
++
++	return fdb;
++}
++EXPORT_SYMBOL_GPL(br_fdb_has_entry);
++
+ static int fdb_to_nud(const struct net_bridge *br,
+ 		      const struct net_bridge_fdb_entry *fdb)
+ {
+@@ -687,6 +779,23 @@ static void fdb_notify(struct net_bridge
+ 	struct sk_buff *skb;
+ 	int err = -ENOBUFS;
+ 
++	if (fdb->dst) {
++		int event;
++		struct br_fdb_event fdb_event;
++
++		if (type == RTM_NEWNEIGH)
++			event = BR_FDB_EVENT_ADD;
++		else
++			event = BR_FDB_EVENT_DEL;
++
++		fdb_event.dev = fdb->dst->dev;
++		ether_addr_copy(fdb_event.addr, fdb->addr.addr);
++		fdb_event.is_local = fdb->is_local;
++		atomic_notifier_call_chain(&br_fdb_notifier_list,
++					   event,
++					   (void *)&fdb_event);
++	}
++
+ 	skb = nlmsg_new(fdb_nlmsg_size(), GFP_ATOMIC);
+ 	if (skb == NULL)
+ 		goto errout;
+@@ -698,6 +807,7 @@ static void fdb_notify(struct net_bridge
+ 		kfree_skb(skb);
+ 		goto errout;
+ 	}
++	__br_notify(RTNLGRP_NEIGH, type, fdb);
+ 	rtnl_notify(skb, net, 0, RTNLGRP_NEIGH, NULL, GFP_ATOMIC);
+ 	return;
+ errout:
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -28,6 +28,10 @@
+ 
+ #include "br_private.h"
+ 
++/* Hook for external forwarding logic */
++br_port_dev_get_hook_t __rcu *br_port_dev_get_hook __read_mostly;
++EXPORT_SYMBOL_GPL(br_port_dev_get_hook);
++
+ /*
+  * Determine initial path cost based on speed.
+  * using recommendations from 802.1d standard
+@@ -535,6 +539,7 @@ int br_add_if(struct net_bridge *br, str
+ 	dev_set_mtu(br->dev, br_min_mtu(br));
+ 
+ 	kobject_uevent(&p->kobj, KOBJ_ADD);
++	call_netdevice_notifiers(NETDEV_BR_JOIN, dev);
+ 
+ 	return 0;
+ 
+@@ -569,6 +574,8 @@ int br_del_if(struct net_bridge *br, str
+ 	if (!p || p->br != br)
+ 		return -EINVAL;
+ 
++	call_netdevice_notifiers(NETDEV_BR_LEAVE, dev);
++
+ 	/* Since more than one interface can be attached to a bridge,
+ 	 * there still maybe an alternate path for netconsole to use;
+ 	 * therefore there is no reason for a NETDEV_RELEASE event.
+@@ -596,3 +603,85 @@ void br_port_flags_change(struct net_bri
+ 	if (mask & BR_AUTO_MASK)
+ 		nbp_update_port_count(br);
+ }
++
++/* br_port_dev_get()
++ *      If a skb is provided, and the br_port_dev_get_hook_t hook exists,
++ *      use that to try and determine the egress port for that skb.
++ *      If not, or no egress port could be determined, use the given addr
++ *      to identify the port to which it is reachable,
++ *	returing a reference to the net device associated with that port.
++ *
++ * NOTE: Return NULL if given dev is not a bridge or the mac has no
++ * associated port.
++ */
++struct net_device *br_port_dev_get(struct net_device *dev, unsigned char *addr,
++				   struct sk_buff *skb,
++				   unsigned int cookie)
++{
++	struct net_bridge_fdb_entry *fdbe;
++	struct net_bridge *br;
++	struct net_device *netdev = NULL;
++
++	/* Is this a bridge? */
++	if (!(dev->priv_flags & IFF_EBRIDGE))
++		return NULL;
++
++	rcu_read_lock();
++
++	/* If the hook exists and the skb isn't NULL, try and get the port */
++	if (skb) {
++		br_port_dev_get_hook_t *port_dev_get_hook;
++
++		port_dev_get_hook = rcu_dereference(br_port_dev_get_hook);
++		if (port_dev_get_hook) {
++			struct net_bridge_port *pdst =
++				__br_get(port_dev_get_hook, NULL, dev, skb,
++					 addr, cookie);
++			if (pdst) {
++				dev_hold(pdst->dev);
++				netdev = pdst->dev;
++				goto out;
++			}
++		}
++	}
++
++	/* Either there is no hook, or can't
++	 * determine the port to use - fall back to using FDB
++	 */
++
++	br = netdev_priv(dev);
++
++	/* Lookup the fdb entry and get reference to the port dev */
++	fdbe = __br_fdb_get(br, addr, 0);
++	if (fdbe && fdbe->dst) {
++		netdev = fdbe->dst->dev; /* port device */
++		dev_hold(netdev);
++	}
++out:
++	rcu_read_unlock();
++	return netdev;
++}
++EXPORT_SYMBOL_GPL(br_port_dev_get);
++
++/* Update bridge statistics for bridge packets processed by offload engines */
++void br_dev_update_stats(struct net_device *dev,
++			 struct rtnl_link_stats64 *nlstats)
++{
++	struct net_bridge *br;
++	struct pcpu_sw_netstats *stats;
++
++	/* Is this a bridge? */
++	if (!(dev->priv_flags & IFF_EBRIDGE))
++		return;
++
++	br = netdev_priv(dev);
++	stats = per_cpu_ptr(br->stats, 0);
++
++	u64_stats_update_begin(&stats->syncp);
++	stats->rx_packets += nlstats->rx_packets;
++	stats->rx_bytes += nlstats->rx_bytes;
++	stats->tx_packets += nlstats->tx_packets;
++	stats->tx_bytes += nlstats->tx_bytes;
++	u64_stats_update_end(&stats->syncp);
++}
++EXPORT_SYMBOL_GPL(br_dev_update_stats);
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -449,6 +449,7 @@ void br_ifinfo_notify(int event, struct
+ 		kfree_skb(skb);
+ 		goto errout;
+ 	}
++	__br_notify(RTNLGRP_LINK, event, port);
+ 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ 	return;
+ errout:
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -21,6 +21,8 @@
+ #include <net/ip6_fib.h>
+ #include <linux/if_vlan.h>
+ #include <linux/rhashtable.h>
++#include <linux/export.h>
++#include <linux/netfilter.h>
+ 
+ #define BR_HASH_BITS 8
+ #define BR_HASH_SIZE (1 << BR_HASH_BITS)
+@@ -905,15 +907,29 @@ extern const struct nf_br_ops __rcu *nf_
+ 
+ /* br_netfilter.c */
+ #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
++extern int brnf_call_ebtables;
+ int br_nf_core_init(void);
+ void br_nf_core_fini(void);
+ void br_netfilter_rtable_init(struct net_bridge *);
++bool br_netfilter_run_hooks(void);
+ #else
+ static inline int br_nf_core_init(void) { return 0; }
+ static inline void br_nf_core_fini(void) {}
+ #define br_netfilter_rtable_init(x)
++#define br_netfilter_run_hooks()	false
+ #endif
+ 
++static inline int
++BR_HOOK(uint8_t pf, unsigned int hook, struct net *net, struct sock *sk,
++	struct sk_buff *skb, struct net_device *in, struct net_device *out,
++	int (*okfn)(struct net *, struct sock *, struct sk_buff *))
++{
++	if (!br_netfilter_run_hooks())
++		return okfn(net, sk, skb);
++
++	return NF_HOOK(pf, hook, net, sk, skb, in, out, okfn);
++}
++
+ /* br_stp.c */
+ void br_log_state(const struct net_bridge_port *p);
+ void br_set_state(struct net_bridge_port *p, unsigned int state);
+@@ -984,4 +1000,15 @@ static inline int br_sysfs_addbr(struct
+ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
+ #endif /* CONFIG_SYSFS */
+ 
++#define __br_get(__hook, __default, __args ...) \
++		(__hook ? (__hook(__args)) : (__default))
++
++static inline void __br_notify(int group, int type, const void *data)
++{
++	br_notify_hook_t *notify_hook = rcu_dereference(br_notify_hook);
++
++	if (notify_hook)
++		notify_hook(group, type, data);
++}
++
+ #endif
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1321,6 +1321,8 @@ enum netdev_priv_flags {
+ 	IFF_OPENVSWITCH			= 1<<22,
+ 	IFF_L3MDEV_SLAVE		= 1<<23,
+ 	IFF_MACSEC			= 1<<27,
++	IFF_GRE_V4_TAP          = 1<<29,
++	IFF_GRE_V6_TAP          = 1<<30,
+ };
+ 
+ #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
+@@ -2187,6 +2189,8 @@ struct pcpu_sw_netstats {
+ #define NETDEV_CHANGEINFODATA	0x0018
+ #define NETDEV_BONDING_INFO	0x0019
+ #define NETDEV_PRECHANGEUPPER	0x001A
++#define NETDEV_BR_JOIN      0x001B
++#define NETDEV_BR_LEAVE     0x001C
+ 
+ int register_netdevice_notifier(struct notifier_block *nb);
+ int unregister_netdevice_notifier(struct notifier_block *nb);
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -391,6 +391,9 @@ static inline bool ipv6_addr_is_solict_m
+ #endif
+ }
+ 
++struct net_device *ipv6_dev_find(struct net *net, struct in6_addr *addr,
++                 int strict);
++
+ #ifdef CONFIG_PROC_FS
+ int if6_proc_init(void);
+ void if6_proc_exit(void);
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -633,6 +633,8 @@ static netdev_tx_t ipgre_xmit(struct sk_
+ 	if (IS_ERR(skb))
+ 		goto out;
+ 
++	skb->skb_iif = dev->ifindex;
++
+ 	__gre_xmit(skb, dev, tnl_params, skb->protocol);
+ 	return NETDEV_TX_OK;
+ 
+@@ -660,6 +662,8 @@ static netdev_tx_t gre_tap_xmit(struct s
+ 	if (skb_cow_head(skb, dev->needed_headroom))
+ 		goto free_skb;
+ 
++	skb->skb_iif = dev->ifindex;
++
+ 	__gre_xmit(skb, dev, &tunnel->parms.iph, htons(ETH_P_TEB));
+ 	return NETDEV_TX_OK;
+ 
+@@ -1062,7 +1066,7 @@ static void ipgre_tap_setup(struct net_d
+ {
+ 	ether_setup(dev);
+ 	dev->netdev_ops		= &gre_tap_netdev_ops;
+-	dev->priv_flags 	|= IFF_LIVE_ADDR_CHANGE;
++	dev->priv_flags 	|= IFF_LIVE_ADDR_CHANGE | IFF_GRE_V4_TAP;
+ 	ip_tunnel_setup(dev, gre_tap_net_id);
+ }
+ 
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -1799,6 +1799,35 @@ struct inet6_ifaddr *ipv6_get_ifaddr(str
+ 	return result;
+ }
+ 
++/* ipv6_dev_find()
++ *  Find (and hold) net device that has the given address.
++ *  Or NULL on failure.
++ */
++struct net_device *ipv6_dev_find(struct net *net, struct in6_addr *addr,
++                 int strict)
++{
++    struct inet6_ifaddr *ifp;
++    struct net_device *dev;
++
++    ifp = ipv6_get_ifaddr(net, addr, NULL, strict);
++    if (!ifp)
++        return NULL;
++
++    if (!ifp->idev) {
++        in6_ifa_put(ifp);
++        return NULL;
++    }
++
++    dev = ifp->idev->dev;
++    if (dev)
++        dev_hold(dev);
++
++    in6_ifa_put(ifp);
++
++    return dev;
++}
++EXPORT_SYMBOL(ipv6_dev_find);
++
+ /* Gets referenced address, destroys ifaddr */
+ 
+ static void addrconf_dad_stop(struct inet6_ifaddr *ifp, int dad_failed)
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -765,7 +765,7 @@ static netdev_tx_t ip6gre_xmit2(struct s
+ 	}
+ 
+ 	skb_set_inner_protocol(skb, protocol);
+-
++	skb->skb_iif = dev->ifindex;
+ 	ip6tunnel_xmit(NULL, skb, dev);
+ 	return 0;
+ tx_err_link_failure:
+@@ -1525,7 +1525,7 @@ static void ip6gre_tap_setup(struct net_
+ 
+ 	dev->netdev_ops = &ip6gre_tap_netdev_ops;
+ 	dev->destructor = ip6gre_dev_free;
+-
++	dev->priv_flags |= IFF_GRE_V6_TAP;
+ 	dev->features |= NETIF_F_NETNS_LOCAL;
+ }
+ 
+--- a/net/netfilter/nf_conntrack_proto_tcp.c
++++ b/net/netfilter/nf_conntrack_proto_tcp.c
+@@ -36,12 +36,14 @@
+ #include <net/netfilter/ipv6/nf_conntrack_ipv6.h>
+ 
+ /* Do not check the TCP window for incoming packets  */
+-static int nf_ct_tcp_no_window_check __read_mostly = 1;
++int nf_ct_tcp_no_window_check __read_mostly = 1;
++EXPORT_SYMBOL_GPL(nf_ct_tcp_no_window_check);
+ 
+ /* "Be conservative in what you do,
+     be liberal in what you accept from others."
+     If it's non-zero, we mark only out of window RST segments as INVALID. */
+-static int nf_ct_tcp_be_liberal __read_mostly = 0;
++int nf_ct_tcp_be_liberal __read_mostly = 0;
++EXPORT_SYMBOL_GPL(nf_ct_tcp_be_liberal);
+ 
+ /* If it is set to zero, we disable picking up already established
+    connections. */
+--- a/net/ipv4/ip_tunnel_core.c
++++ b/net/ipv4/ip_tunnel_core.c
+@@ -56,6 +56,10 @@ int iptunnel_xmit(struct sock *sk, struc
+ 	struct net *net = dev_net(rt->dst.dev);
+ 	struct iphdr *iph;
+ 	int err;
++	int skb_iif;
++
++	/* Save input interface index */
++	skb_iif = skb->skb_iif;
+ 
+ 	skb_scrub_packet(skb, xnet);
+ 
+@@ -79,6 +83,9 @@ int iptunnel_xmit(struct sock *sk, struc
+ 	iph->ttl	=	ttl;
+ 	__ip_select_ident(net, iph, skb_shinfo(skb)->gso_segs ?: 1);
+ 
++	if (proto == IPPROTO_IPV6 || proto == IPPROTO_GRE)
++		skb->skb_iif = skb_iif;
++
+ 	err = ip_local_out(net, sk, skb);
+ 	if (unlikely(net_xmit_eval(err)))
+ 		pkt_len = 0;
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -974,6 +974,8 @@ static int ip6_tnl_rcv(struct sk_buff *s
+ 		tstats->rx_bytes += skb->len;
+ 		u64_stats_update_end(&tstats->syncp);
+ 
++		/* Reset the skb_iif to Tunnels interface index */
++		skb->skb_iif = t->dev->ifindex;
+ 		netif_rx(skb);
+ 
+ 		rcu_read_unlock();
+@@ -1220,6 +1222,9 @@ static int ip6_tnl_xmit2(struct sk_buff
+ 	ipv6h->nexthdr = proto;
+ 	ipv6h->saddr = fl6->saddr;
+ 	ipv6h->daddr = fl6->daddr;
++
++	/* Reset the skb_iif to Tunnels interface index */
++	skb->skb_iif = dev->ifindex;
+ 	ip6tunnel_xmit(NULL, skb, dev);
+ 	return 0;
+ tx_err_link_failure:

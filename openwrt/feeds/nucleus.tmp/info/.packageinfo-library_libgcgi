@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libgcgi/Makefile
+Package: libgcgi
+Submenu: library
+Version: 0.9.5
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: GNU CGI Library in C
+Maintainer: 
+Source: 
+License: LGPL
+Type: ipkg
+Description: GNU CGI Library in C
+http://catchen.org/gcgi/
+
+@@
+
+

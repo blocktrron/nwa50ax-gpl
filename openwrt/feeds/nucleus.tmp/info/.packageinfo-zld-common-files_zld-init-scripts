@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/zld-common-files/zld-init-scripts/Makefile
+Package: zld-init-scripts
+Submenu: zld-common-files
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZLD init scripts.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZLD init scripts.
+https://www.zyxel.com/
+
+@@
+
+

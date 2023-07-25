@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-iputils/Makefile
+Package: zyxel-iputils
+Submenu: application
+Version: 20180629
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel iputils package
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel iputils package
+http://www.skbuff.net/iputils/
+
+@@
+
+

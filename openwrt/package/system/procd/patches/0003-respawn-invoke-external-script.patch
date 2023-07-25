@@ -1,0 +1,18 @@
+Index: procd-2018-01-22-9a4036fb/service/instance.c
+===================================================================
+--- procd-2018-01-22-9a4036fb.orig/service/instance.c
++++ procd-2018-01-22-9a4036fb/service/instance.c
+@@ -555,6 +555,13 @@ instance_exit(struct uloop_process *p, i
+ 	} else if (in->restart) {
+ 		instance_start(in);
+ 	} else if (in->respawn) {
++		/*run this script when an app restart by procd*/
++		{	char cmdline[128];
++
++			sprintf(cmdline, "source /sbin/procd_start_instance.sh %s %d %d %s &", in->srv->name, in->respawn_count, in->respawn_retry, in->name);	
++			system(cmdline);
++
++		}
+ 		if (runtime < in->respawn_threshold)
+ 			in->respawn_count++;
+ 		else

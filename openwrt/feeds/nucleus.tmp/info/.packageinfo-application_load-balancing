@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/load-balancing/Makefile
+Package: load-balancing
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zylog +zykit +libuam +libevent14 +zyUMAC +zld-files +librt +zysh +libwifi_common +wpa3lib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel load-balancing package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel load-balancing package
+https://www.zyxel.com/
+
+@@
+
+

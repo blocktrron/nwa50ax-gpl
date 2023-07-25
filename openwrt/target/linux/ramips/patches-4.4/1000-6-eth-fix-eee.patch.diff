@@ -1,0 +1,76 @@
+From c452632efe80b457cae1e0576b068124327483b1 Mon Sep 17 00:00:00 2001
+From: Landen Chao <landen.chao@mediatek.com>
+Date: Tue, 22 Dec 2020 20:57:17 +0800
+Subject: [PATCH] eth: mediatek: fix EEE setting
+
+  1. Read the EEE local and link partner advertisement from the PHY addr
+described in dts.
+
+  2. Align EEE wakeup time and threshold from mt7531.
+
+Test: mt7629/mt7622 EVB + external SGMII 1G PHY test pass
+
+Change-Id: I73b13a4a822e3fb1490a8e19575366fe729d2360
+CR-Id: WCNCR00181147
+Signed-off-by: Landen Chao <landen.chao@mediatek.com>
+---
+
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 67185b8..d619c11 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -227,6 +227,7 @@
+ 	u16 lcl_adv = 0, rmt_adv = 0;
+ 	u32 lcl_eee = 0, rmt_eee = 0;
+ 	u8 flowctrl;
++	u32 mac_eee;
+ 	u32 mcr = MAC_MCR_MAX_RX_1536 | MAC_MCR_IPG_CFG |
+ 		  MAC_MCR_FORCE_MODE | MAC_MCR_TX_EN |
+ 		  MAC_MCR_RX_EN | MAC_MCR_BACKOFF_EN |
+@@ -320,14 +321,24 @@
+ 			  flowctrl & FLOW_CTRL_TX ? "enabled" : "disabled");
+ 	}
+ 	/*EEE capability*/
+-	mtk_cl45_ind_read(eth, 0, MDIO_MMD_AN, MDIO_AN_EEE_ADV, &lcl_eee);
+-	mtk_cl45_ind_read(eth, 0, MDIO_MMD_AN, MDIO_AN_EEE_LPABLE, &rmt_eee);
++	mtk_cl45_ind_read(eth, dev->phydev->addr, MDIO_MMD_AN,
++			  MDIO_AN_EEE_ADV, &lcl_eee);
++	mtk_cl45_ind_read(eth, dev->phydev->addr, MDIO_MMD_AN,
++			  MDIO_AN_EEE_LPABLE, &rmt_eee);
+ 
+ 	if ((lcl_eee & rmt_eee & MDIO_EEE_1000T) == MDIO_EEE_1000T)
+ 		mcr |= MAC_MCR_MDIO_EEE_1000T;
+ 	if ((lcl_eee & rmt_eee & MDIO_EEE_100TX) == MDIO_EEE_100TX)
+ 		mcr |= MAC_MCR_MDIO_EEE_100TX;
+ 
++	mac_eee = mtk_r32(mac->hw, MTK_MAC_EEE(mac->id));
++	mac_eee &= ~MAC_EEE_SETTING_MASK;
++	if (mcr & (MAC_MCR_MDIO_EEE_100TX | MAC_MCR_MDIO_EEE_1000T))
++		mac_eee |= MAC_WAKEUP_TIME_1000(0x11) |
++			   MAC_WAKEUP_TIME_100(0x1e) |
++			   MAC_LPI_TXIDLE_THD(0x1e);
++	mtk_w32(mac->hw, mac_eee, MTK_MAC_EEE(mac->id));
++
+ 	/*Setup MCR*/
+ 	mtk_w32(mac->hw, mcr, MTK_MAC_MCR(mac->id));
+ 
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 7cf4f7a..1b83d72 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -399,6 +399,15 @@
+ 				 MAC_MCR_FORCE_TX_FC | MAC_MCR_SPEED_1000 | \
+ 				 MAC_MCR_FORCE_DPX | MAC_MCR_FORCE_LINK)
+ 
++/* Mac EEE control registers */
++#define MTK_MAC_EEE(x)	(0x10104 + (x * 0x100))
++#define MAC_WAKEUP_TIME_1000(x)	((x << 24) & GENMASK(31, 24))
++#define MAC_WAKEUP_TIME_100(x)	((x << 16) & GENMASK(23, 16))
++#define MAC_LPI_TXIDLE_THD(x)	((x << 8) & GENMASK(15, 8))
++#define MAC_EEE_SETTING_MASK	(MAC_WAKEUP_TIME_1000(0xff) | \
++				 MAC_WAKEUP_TIME_100(0xff) | \
++				 MAC_LPI_TXIDLE_THD(0xff))
++
+ /* TRGMII RXC control register */
+ #define TRGMII_RCK_CTRL		0x10300
+ #define DQSI0(x)		((x << 0) & GENMASK(6, 0))

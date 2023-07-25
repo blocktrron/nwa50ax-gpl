@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libbmm/Makefile
+Package: libbmm
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN BMM(BM MRD MYZYXEL) Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN BMM(BM MRD MYZYXEL) Library
+https://www.zyxel.com/
+
+@@
+
+

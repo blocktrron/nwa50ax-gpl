@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/kernel/hy_fwd/Makefile
+Package: kmod-hy_fwd
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: hybrid forwarding module
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: hybrid forwarding module
+https://www.zyxel.com/
+
+@@
+
+

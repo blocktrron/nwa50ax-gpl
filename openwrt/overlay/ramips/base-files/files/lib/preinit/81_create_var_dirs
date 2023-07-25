@@ -1,0 +1,9 @@
+#!/bin/sh
+
+create_var_dirs() {
+	install -d /var/lock
+	install -d /var/run
+	install -d /var/state
+}
+
+boot_hook_add preinit_main create_var_dirs

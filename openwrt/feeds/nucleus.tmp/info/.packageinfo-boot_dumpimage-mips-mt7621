@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/boot/dumpimage-mips-mt7621/Makefile
+Package: dumpimage-mips-mt7621
+Submenu: Applications
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread @TARGET_mt7621||TARGET_ramips +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: MTK Properties
+Category: MTK Properties
+Repository: base
+Title: dumpimage for MT7621 based platforms
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: dumpimage for MT7621 based platforms
+http://www.denx.de/wiki/U-Boot
+
+@@
+
+

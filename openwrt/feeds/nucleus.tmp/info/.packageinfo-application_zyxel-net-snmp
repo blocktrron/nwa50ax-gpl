@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zyxel-net-snmp/Makefile
+Package: zyxel-net-snmp
+Submenu: application
+Version: 5.4.3
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zyio_library +zykit +libxml2 +libopenssl +wireless-hal
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel net-snmp package
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel net-snmp package
+http://net-snmp.sourceforge.net/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/logfwd-helper/Makefile
+Package: logfwd-helper
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +zykit +wtp_module +libiface_generic +kmod-switchdev
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Log forward Helper Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Tool that used to send log to Controller via CAPWAP
+https://www.zyxel.com/
+
+@@
+
+

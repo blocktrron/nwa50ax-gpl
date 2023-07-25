@@ -1,0 +1,11 @@
+--- a/etc/board.d/02_network	2021-02-02 20:03:34.995432710 +0800
++++ b/etc/board.d/02_network	2021-02-02 20:11:21.063432710 +0800
+@@ -278,7 +278,7 @@
+ 	mt7621-rfb-*)
+ 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
+ 		ucidef_add_switch "switch0" \
+-			"0:lan" "1:lan" "2:lan" "3:lan" "4:wan" "6@eth0" "5@eth1"
++			"0:lan" "1:lan" "2:lan" "3:lan" "4:lan" "6@eth0" "5@eth1"
+ 		;;
+ 	mt7621-raeth-*)
+ 		ucidef_set_interfaces_lan_wan "eth0" "eth1"

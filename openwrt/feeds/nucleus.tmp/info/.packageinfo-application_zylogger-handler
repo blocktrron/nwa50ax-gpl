@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zylogger-handler/Makefile
+Package: zylogger-handler
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +zylog_wrapper
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylogger-handler package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylogger-handler package
+https://www.zyxel.com/
+
+@@
+
+

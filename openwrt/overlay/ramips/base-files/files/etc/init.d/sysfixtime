@@ -1,0 +1,42 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2013-2014 OpenWrt.org
+
+START=02
+STOP=90
+
+# 2020/01/01
+DEFAULT_INIT_TIME=1577836800
+
+start() {
+	local maxtime="$(maxtime)"
+	date -s @$maxtime
+
+	if [ -e /etc/zyxel/ftp/conf/.TZ ]; then
+		cat /etc/zyxel/ftp/conf/.TZ > /etc/TZ
+	fi
+}
+
+stop() {
+	date -u +%m%d%H%M%Y.%S > /etc/zyxel/ftp/conf/.time-cache.conf
+	if [ -f "/etc/TZ" ]; then
+		cat /etc/TZ > /etc/zyxel/ftp/conf/.TZ
+	fi
+}
+
+maxtime() {
+	local file newest
+
+	if [ -e /etc/zyxel/ftp/conf/.time-cache.conf ]; then
+		date -r /etc/zyxel/ftp/conf/.time-cache.conf +%s
+	else
+		for file in $( find /etc/init.d -type f ) ; do
+			[ -z "$newest" -o "$newest" -ot "$file" ] && newest=$file
+		done
+		if [ "$newest" ]; then
+			date -r "$newest" +%s
+		else
+			echo $DEFAULT_INIT_TIME
+		fi
+	fi
+}
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/wpa3lib/Makefile
+Package: wpa3lib
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN WPA3 library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN WPA3 library
+https://www.zyxel.com/
+
+@@
+
+

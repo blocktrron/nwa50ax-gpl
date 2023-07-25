@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zysh/Makefile
+Package: zysh
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +libidn +libpam +libtecla +libopenssl +app_wd +link_updown +wlan_dcs_3 +accounting-daemon +kmod-zyklog +kmod-captive_portal +fauthd +nebula-led-ctrl +pki +email-daily-report +zld-files +wireless-hal +zylog +libbmm +libfirmware +wtp_module +libuam +walled_garden +wpa3lib +libiface_generic +libuser_profile +zykit +zylog_wrapper +zyio_library +libzld-sysinfo +generic_timer +kmod-switchdev +libzyDualImage +wlan_apmode_rapd +scan_agent +radio_resource_measurement +ssid_manager +neighbor_collector +info_transfer +libgpio_control +diag_info +pcap_monitor +smart_mesh +kmod-hy_fwd
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel ZySH package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel ZySH package
+https://www.zyxel.com/
+
+@@
+
+

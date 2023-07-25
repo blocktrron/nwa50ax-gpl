@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/file_export/Makefile
+Package: file_export
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN file export CGI
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN file export CGI
+https://www.zyxel.com/
+
+@@
+
+

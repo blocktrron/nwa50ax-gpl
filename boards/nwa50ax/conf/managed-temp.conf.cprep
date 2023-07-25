@@ -1,0 +1,35 @@
+hybrid-mode managed
+!
+hardware-watchdog-timer start
+!
+software-watchdog-timer 30
+!
+interface-name ge1 ge1
+!
+username admin encrypted-password $4$WliGKvFQ$yMEH/WCnH1+NXuIUp0lzpUinIyEnrHFoRgesi6NdOFytmQg8lRfsVzUUjBGY+FiS4Up6KIgoP8OMEP0L3hRYSN2kpFTDIet31GoNwlM+S7U$ user-type admin
+username admin description Administration account
+!
+dhcp6-request-object dns dns-server
+dhcp6-request-object ntp ntp-server
+!
+capwap ap vlan vlan-id 1 untag
+capwap ap vlan ip address dhcp
+capwap ap bridge forward-delay 0
+capwap ap ac-ip auto
+capwap ap vlan ipv6 enable
+!
+ip ssh server cert default
+ip ssh server
+!
+ip ftp server cert default
+ip ftp server
+!
+snmp-server
+snmp-server version v2c
+!
+app-watch-dog activate
+!
+led_locator blink-timer 10
+!
+led_suppress disable
+!

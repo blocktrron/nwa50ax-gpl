@@ -1,0 +1,24 @@
+Source-Makefile: feeds/nucleus/application/syslog-ng/Makefile
+Package: syslog-ng
+Submenu: application
+Version: 1.6.12-6
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libol +librt
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: A powerful syslog daemon
+Maintainer: 
+Source: syslog-ng-1.6.12.tar.gz
+License: GPL-2.0
+Type: ipkg
+Description: 	syslog-ng reads and logs messages to the system console, log
+	files, other machines and/or users as specified by its
+	configuration file.
+http://www.balabit.hu/products/syslog-ng/
+
+@@
+
+

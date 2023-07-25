@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/memcheck/Makefile
+Package: memcheck
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Memory Check daemon
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Memory Check daemon
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+

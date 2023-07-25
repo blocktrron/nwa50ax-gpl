@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libevent14/Makefile
+Package: libevent14
+Submenu: library
+Version: 1.4.15
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: libevent (v1.4)
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: libevent (v1.4)
+http://libevent.org/
+
+@@
+
+

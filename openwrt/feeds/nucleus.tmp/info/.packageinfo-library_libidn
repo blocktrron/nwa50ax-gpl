@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/library/libidn/Makefile
+Package: libidn
+Submenu: library
+Version: 1.35
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Stringprep, Punycode and IDNA implementation
+Maintainer: 
+Source: 
+License: GPL-2.0+
+Type: ipkg
+Description: Stringprep, Punycode and IDNA implementation
+
+@@
+
+

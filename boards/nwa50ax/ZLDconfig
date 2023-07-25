@@ -1,0 +1,967 @@
+#/bin/bash
+# ZLDconfig : ZLD system configuration script file
+
+check_log_file_size() {
+	limitsize=2048
+	if [ -f $1 ]; then
+		actualsize=$(wc -c < "$1" | cut -f 1)
+		if [ ! -z "$actualsize" ] && [ $actualsize -ge $limitsize ]; then
+			rm $1
+			echo "size is over $limitsize bytes, overwrite it" >> $1
+		fi
+	fi
+}
+LOG_FILE=/etc/zyxel/ftp/ZLDconfig/ZLDconfig.log
+mkdir -p /etc/zyxel/ftp/ZLDconfig
+check_log_file_size $LOG_FILE
+date >> $LOG_FILE
+
+# Order of priority in ebtables nat chain
+#ifdef ZLDCONFIG_WIRELESS_STORM_CONTROL
+ebtables -t nat -N WIRELESS_STORM_CONTROL -P RETURN
+ebtables -t nat -A PREROUTING -i wlan-+ -j WIRELESS_STORM_CONTROL
+#endif
+
+#ifdef AAA_WEB_PORTAL
+ebtables -t nat -N REDIRECT_VLAN_POLICY -P RETURN
+ebtables -t nat -A PREROUTING -j REDIRECT_VLAN_POLICY
+#endif
+
+#if defined(ZLDCONFIG_WLAN_RATELIMIT_SUPPORT)
+ebtables -t nat -N RATE_LIMIT_MANAGE -P RETURN
+ebtables -t nat -A POSTROUTING -j RATE_LIMIT_MANAGE
+ebtables -t filter -N RATE_LIMIT_MANAGE -P RETURN
+ebtables -t filter -A INPUT -j RATE_LIMIT_MANAGE
+#endif
+
+# redirect stdout & stderr
+exec 1>/dev/null
+exec 2>/dev/console
+
+SYSCONF_PATH=/etc/zyxel/ftp/conf
+chmod 777 /etc/zyxel/ftp/conf
+
+# Set system value
+echo "1" > /proc/sys/vm/overcommit_memory
+
+# Initialize interface library
+/usr/sbin/iface_libinit
+
+#product name
+product=$(/usr/bin/zykit_info -P)
+
+echo "Welcome to $product" >> /var/zyxel/issue.net
+echo "" >> /var/zyxel/issue.net
+
+echo "Welcome to $product" > /var/zyxel/issue
+echo "" >> /var/zyxel/issue
+
+#if defined(ZLDCONFIG_WTP_DUALIMAGE)
+#Check Image Integraity.
+/usr/sbin/zyDualImageKit detect
+#endif
+
+#ifdef ZLDCONFIG_MULTIPLE_PRODUCT
+/usr/bin/zykit_info -F 2> /dev/null
+/etc/zyxel/conf/regen-fw.sh fwversion
+#endif
+
+sysctl -w kernel.panic_on_oops=1
+sysctl -w vm.panic_on_oom=1
+sysctl -w kernel.panic=5
+sysctl -w net.ipv4.ip_local_port_range="32768 61000"
+
+# set core dump size and core dump path
+ulimit -c unlimited
+
+# remove the cli dump in ftp/tmp
+rm -rf /etc/zyxel/ftp/tmp/clidump.gui
+
+# create necessary files/directories 
+mkdir -p /var/zyxel/net-snmp
+# for sshd key file and http
+#if defined(AAA_WEB_PORTAL)
+mkdir -p /tmp/sta_lists
+mkdir -p /etc/zyxel/ftp/captive-portal
+# create dir to save netopeer config.bak
+mkdir -p /etc/zyxel/ftp/netopeer-cbk-conf
+chmod 777 /etc/zyxel/ftp/netopeer-cbk-conf
+#endif
+# for cacert.pem
+CACERT=ZLDSYSPARM_CACERT_PATH
+BUILDIN_CACERT=ZLDSYSPARM_BUILDIN_CACERT_PATH
+/usr/bin/cacert_deploy.sh ${BUILDIN_CACERT} ${CACERT}
+
+PRODUCT_SERIES_NAME=$(/usr/bin/zykit_info -l)
+
+echo "Start $PRODUCT_SERIES_NAME system daemon...." > /dev/console
+
+# make console accessible for everyone to write log
+chmod 666 /dev/ttyS0
+
+# bring up loopback interface for ping to local
+ifconfig lo 127.0.0.1 up
+
+# clean multiboot ip address
+ifconfig eth0 0.0.0.0
+
+#switch to routing mode
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+# disable SSR-after-ilde
+sysctl -w net.ipv4.tcp_slow_start_after_idle=0
+
+#adjuest arp enties
+echo 8192 > /proc/sys/net/ipv4/neigh/default/gc_thresh2
+echo 16384 > /proc/sys/net/ipv4/neigh/default/gc_thresh3
+
+# clean up dhcp client runtime files
+rm -f /etc/dhcpc/dhcpcd-*.*
+
+
+# set the max of the recv buffer
+echo 524288 > /proc/sys/net/core/rmem_max
+
+#copy /etc/dhcpc/dhcpcd.exe to /var/zyxel/zysh/
+cp /etc/dhcpc/dhcpcd.exe /var/zyxel/zysh/
+
+# create zysh init. lock file, zyshd will kill this file, after init.
+touch /var/run/zyshd-init.lock
+
+/etc/init.d/ssid_manager start
+
+#if defined(ZLDCONFIG_CAPWAP_WTP_SUPPORT)
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+if [ -e /etc/zyxel/ftp/conf/startup-config.conf ]; then
+	CLOUD_MODE=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "hybrid-mode cloud"`
+fi
+if [ -z "$CLOUD_MODE" ]; then
+#endif
+	/usr/local/bin/capwap_client.sh
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+fi
+#endif
+#endif
+
+#if defined(ZLDCONFIG_PCAP_MONITOR)
+/usr/sbin/pcap_monitor &
+#endif
+
+#if defined(ZLDCONFIG_BLE_SUPPORT)
+/usr/bin/bleconfigd &
+#endif
+
+# kill lldp-rcd before ZySH starts
+killall -9 lldp_rcd 2>/dev/null
+
+# bring up zyshd
+/bin/zyshd_wd &
+
+while [ -e /var/run/zyshd-init.lock ]; do
+    sleep 1
+done
+renice -1 `pidof zyshd_wd`
+
+# Please make sure the command set after prowlan_swled daemon
+echo "" > /proc/sys/kernel/modprobe
+
+#if defined(ZLDCONFIG_WIRELESS_HAL_SUPPORT)
+/etc/init.d/wireless-hal start
+#endif
+
+#if defined(ZLDCONFIG_WLAN_BAND_SELECT_WTP_SUPPORT)
+/etc/init.d/bandselect start
+#endif
+
+#if defined(ZLDCONFIG_WLAN_BUILD_MTK_DRIVER)
+# get vap macaddr
+zysh -p 100 -e "show wlan _vap_macaddr slot 0" > /tmp/slot0_mac
+zysh -p 100 -e "show wlan _vap_macaddr slot 1" > /tmp/slot1_mac
+/etc/wlan/apply_vap_mac.sh
+
+# Bring up all VAP
+iwpriv wlan-1-1 set DebugCat=0xFFFE6BBD
+ifconfig wlan-1-1 up
+ifconfig wlan-1-1 down
+
+#endif
+
+#if defined(ZLDCONFIG_WLAN_BUILD_ATHEROS_DRIVER)
+if [ -e /etc/rc.d/rc.ath_wlan ]; then
+	zysh -p 100 -e "show wlan _countrycode" > /tmp/mrd_countrycode
+	zysh -p 100 -e "show wlan _macaddr" > /tmp/wlan_ifmac	
+	/etc/rc.d/rc.ath_wlan up
+fi
+
+
+if [ $(( `/usr/bin/zykit_info -c`&0x800 )) != "0" ]; then    ## support 3 radio scan
+        /etc/wlan/ThirdRadioProcess.sh wlan-3-1 start ap
+fi
+#endif
+
+#if defined(ZLDCONFIG_WLAN_ROGUEAP_DETECTION_SUPPORT) && defined(ZLDCONFIG_WLAN_RAD_AC_SUPPORT)
+#if defined(ZLDCONFIG_WLAN_APMODE_RAPD_SERVER_SUPPORT)
+/usr/sbin/wlan_apmode_rapd &
+#else
+/usr/sbin/wlan_mon_executor &
+#endif
+#endif
+
+#if defined(ZLDCONFIG_WLAN_ROGUEAP_CONTAINMENT_SUPPORT) && defined(ZLDCONFIG_WLAN_RAD_WTP_SUPPORT)
+/usr/sbin/wlan_contain &
+#endif
+
+#if defined(ZLDCONFIG_WLAN_AUTO_HEALING_WTP_SUPPORT)
+/usr/sbin/auto_healing_transport &
+#endif
+
+#if defined(ZLDCONFIG_MD5_SUPPORT)
+if [ -e /etc/zyxel/ftp/ZLDconfig/write ]; then
+	echo "/etc/zyxel/ftp/ZLDconfig/write is exists" >> $LOG_FILE
+	md5sum $SYSCONF_PATH/startup-config.conf > $SYSCONF_PATH/startup-config.conf.md5
+	rm /etc/zyxel/ftp/ZLDconfig/write
+fi
+
+OverwriteSytemDefaultConfigd(){
+	echo "OverwriteSytemDefaultConfigd" >> $LOG_FILE
+	cp -f /etc/zyxel/conf/system-default.conf $SYSCONF_PATH/system-default.conf
+	sync
+}
+OverwriteSytemDefaultConfigd
+#endif
+
+#if defined(ZLDCONFIG_INITIAL_SETUP_SSID)
+zysh -p 100 -e "_debug mac-to-default-ssid"
+#endif
+
+#if defined(ZLDCONFIG_FIRMWARE_UNIFY)
+if [ -e /etc/zyxel/ftp/conf/startup-config.conf ]; then
+#if defined(ZLDCONFIG_CAPWAP_WTP_SUPPORT)
+	HYBRID_MODE=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "hybrid-mode"`
+	if [ -z "$HYBRID_MODE" ]; then
+		zysh -p 110 -e "configure terminal _manager ap managed"
+	fi
+#endif	
+	STANDALONE=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "standalone"`
+#if defined(ZLDCONFIG_CAPWAP_WTP_SUPPORT)
+	AC_DISCOVERY=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "ac-discovery"`
+	if [ ! -z "$STANDALONE" ] && [ -z "$AC_DISCOVERY" ]; then
+		zysh -p 110 -e "configure terminal manager ap ac-discovery disable"
+	fi
+#endif
+fi
+#endif
+
+RecordBootStatus() {
+	echo "$1" > /var/run/boot-status
+}
+
+#if defined(ZLDCONFIG_MD5_SUPPORT)
+SyncConfFormat(){
+	local conf_path=$1
+
+	if [ -e "$conf_path" ]; then
+		# After "CLI conversion stage1", startup-config.conf has been modified by
+		# the following commands, so we did the same thing for default configuration.
+		sed -i 's/^ //g' $conf_path
+		sed -i 's/\r//g' $conf_path
+		sed -i 's/^M//g' $conf_path
+	fi
+}
+
+SyncFormatAndGetConfSize(){
+	local conf_err="-1"
+	local actualsize=$conf_err
+	local conf_path=$1
+	local target_default_conf_path=/tmp/GetDefaultConfigdSize.conf.remove
+
+	if [ -e "$conf_path" ]; then
+		cp -f $conf_path $target_default_conf_path
+		SyncConfFormat $target_default_conf_path
+		sync
+		actualsize=$(wc -c < "$target_default_conf_path")
+		rm $target_default_conf_path
+		sync
+	fi
+
+	echo "$actualsize"
+}
+
+# return the minimum size of
+# (/etc/zyxel/conf/system-default.conf, /etc/zyxel/conf/default/$mode-temp.conf)
+GetDefaultConfigdSize(){
+	local mode=$1
+	local temp_path=/etc/zyxel/conf/default
+
+	case "$mode" in
+	"cloud")
+		temp_path="$temp_path/cloud-temp.conf"
+		;;
+
+	"managed")
+		temp_path=""
+		;;
+
+	"standalone")
+		temp_path="$temp_path/standalone-temp.conf"
+		;;
+
+	*)
+		temp_path=""
+		;;
+	esac
+
+	local mode_conf_size=$(SyncFormatAndGetConfSize $temp_path)
+	local default_conf_size=$(SyncFormatAndGetConfSize "/etc/zyxel/conf/system-default.conf")
+
+	if [ "$1" == "managed" ]; then
+		echo 0
+	elif [ -z "$temp_path" ]; then
+		echo -1
+	else
+		if [ ! -z $mode_conf_size ] && [ ! -z $default_conf_size ] && \
+			[ $mode_conf_size -ge 0 ] && [ $default_conf_size -ge 0 ]; then
+			echo $((mode_conf_size > default_conf_size ? default_conf_size : mode_conf_size))
+		elif [ -z $mode_conf_size ] || [ $mode_conf_size -lt 0 ]; then
+			echo "$default_conf_size"
+		else
+			echo -1
+		fi
+	fi
+}
+
+CheckConfigdSizeAndMD5() {
+	echo "CheckConfigdSizeAndMD5" >> $LOG_FILE
+	local md5_to_test=$1
+	if [ -e $SYSCONF_PATH/$md5_to_test ]; then
+		local mode=`cat $SYSCONF_PATH/$md5_to_test | grep hybrid-mode | awk -F ' ' {'print $2'}`
+		local minimumsize=$(GetDefaultConfigdSize $mode)
+		local actualsize=$(wc -c <"$SYSCONF_PATH/$md5_to_test")
+		echo "mode = $mode" >> $LOG_FILE
+		echo "minimumsize = $minimumsize" >> $LOG_FILE
+		echo "actualsize = $actualsize" >> $LOG_FILE
+		if [ ! -z $minimumsize ] && [ ! -z $actualsize ] && \
+			[ $minimumsize -ge 0 ] && [ $actualsize -ge $minimumsize ]; then
+			md5sum $SYSCONF_PATH/$md5_to_test >> $LOG_FILE
+			cat $SYSCONF_PATH/$md5_to_test.md5 >> $LOG_FILE
+			if md5sum -c $SYSCONF_PATH/$md5_to_test.md5; then
+				return 0
+			fi
+		fi
+	fi
+
+	return 1
+}
+
+CheckConfigdSize() {
+	echo "CheckConfigdSize" >> $LOG_FILE
+	local file_to_test=$1
+	if [ -e $SYSCONF_PATH/$file_to_test ]; then
+		local mode=`cat $SYSCONF_PATH/$file_to_test | grep hybrid-mode | awk -F ' ' {'print $2'}`
+		local minimumsize=$(GetDefaultConfigdSize $mode)
+		local actualsize=$(wc -c <"$SYSCONF_PATH/$file_to_test")
+		echo "mode = $mode" >> $LOG_FILE
+		echo "minimumsize = $minimumsize" >> $LOG_FILE
+		echo "actualsize = $actualsize" >> $LOG_FILE
+		if [ ! -z $minimumsize ] && [ ! -z $actualsize ] && \
+			[ $minimumsize -ge 0 ] && [ $actualsize -ge $minimumsize ]; then
+			return 0
+		fi
+	fi
+	return 1
+}
+
+# This function is used to backward-compatible. The old firmware does not
+# support MD5 checksum and the first time upgrade to the new version. We use
+# loose condition to validate the config file and re-generate the md5 checksum
+FirstMD5Generation() {
+	if [ -e $SYSCONF_PATH/startup-config.conf.md5 ] && \
+		md5sum -s -c $SYSCONF_PATH/startup-config.conf.md5; then
+		echo "FirstMD5Generation 1" >> $LOG_FILE
+		state="START_UP"
+	else
+		CheckConfigdSize startup-config.conf; JOB_RET=$?
+		if [ $JOB_RET = 0 ]; then
+			echo "FirstMD5Generation 2" >> $LOG_FILE
+			md5sum $SYSCONF_PATH/startup-config.conf > $SYSCONF_PATH/startup-config.conf.md5
+			sync
+			state="START_UP"
+		else
+			CheckConfigdSize lastgood.conf; JOB_RET=$?
+			if [ $JOB_RET = 0 ]; then
+				echo "FirstMD5Generation 3" >> $LOG_FILE
+				md5sum $SYSCONF_PATH/lastgood.conf > $SYSCONF_PATH/lastgood.conf.md5
+				sync
+				state="LAST_GOOD"
+			else
+				echo "FirstMD5Generation 4" >> $LOG_FILE
+				RecordBootStatus 5 # fallback to system-default
+				state="SYSTEM_DEFAULT"
+			fi
+		fi
+	fi
+}
+#endif
+
+SaveConfig() {
+	echo "SaveConfig" >> $LOG_FILE
+	zysh -p 100 -e write
+}
+UpdateLastgood() {
+#if defined(ZLDCONFIG_MD5_SUPPORT)
+	echo "UpdateLastgood" >> $LOG_FILE
+	if [ ! -e $SYSCONF_PATH/lastgood.conf ]; then
+		echo "lastgood.conf is empty" >> $LOG_FILE
+		cp $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/lastgood.conf
+		md5sum $SYSCONF_PATH/lastgood.conf > $SYSCONF_PATH/lastgood.conf.md5
+		sync
+	else
+		if ! diff -q $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/lastgood.conf > /dev/null; then
+			echo "lastgood.conf is not the same as startup-config.conf" >> $LOG_FILE
+			cp $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/lastgood.conf
+			md5sum $SYSCONF_PATH/lastgood.conf > $SYSCONF_PATH/lastgood.conf.md5
+			sync
+		fi
+	fi
+#else
+	[ ! -e $SYSCONF_PATH/lastgood.conf ] && cp $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/lastgood.conf
+	diff -q $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/lastgood.conf > /dev/null || cp $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/lastgood.conf
+#endif
+}
+
+CheckDefaultConfig(){
+	/usr/bin/zy_compare_conf
+	if [ $? != 0 ]; then
+		echo -e "\n!!!!!Saved startup-config.conf is different with system-default.conf. Please check!!!!!" > /dev/console
+	fi
+}
+
+UpdateLastgoodDefault() {
+	cp $SYSCONF_PATH/system-default.conf $SYSCONF_PATH/lastgood-default.conf
+	if [ -e $SYSCONF_PATH/startup-config.conf ]; then
+		SRC_CONF=$SYSCONF_PATH/startup-config.conf
+	elif [ -e $SYSCONF_PATH/lastgood.conf ]; then
+		SRC_CONF=$SYSCONF_PATH/lastgood.conf
+	else
+		return 1
+	fi
+
+	VLAN=`grep "ap vlan vlan-id" $SRC_CONF | awk -F "vlan vlan-id " {'print $2'}`
+	IP=`grep "ap vlan ip address" $SRC_CONF | awk -F "ip address " {'print $2'}`
+	GATEWAY=`grep "ap vlan ip gateway" $SRC_CONF | awk -F "ip gateway " {'print $2'}`
+	MANAGED_IP=`grep "ap vlan managed-ip address" $SRC_CONF | awk -F "managed-ip address " {'print $2'}`
+	DNS=`grep "ap vlan ip dns" $SRC_CONF | awk -F "ip dns " {'print $2'}`
+
+	DST_CONF=$SYSCONF_PATH/lastgood-default.conf
+	if [ "$VLAN" != "" ]; then
+		sed -i "s/vlan vlan-id 1 untag/vlan vlan-id $VLAN/" $DST_CONF
+	fi
+	if [ "$GATEWAY" != "" ]; then
+		sed -i "s/vlan ip address dhcp/vlan ip address dhcp\nmanager ap vlan ip gateway $GATEWAY/" $DST_CONF
+	fi
+	if [ "$DNS" != "" ]; then
+		sed -i "s/vlan ip address dhcp/vlan ip address dhcp\nmanager ap vlan ip dns $DNS/" $DST_CONF
+	fi
+	if [ "$IP" != "" ]; then
+		sed -i "s/vlan ip address dhcp/vlan ip address $IP/" $DST_CONF
+	fi
+	if [ "$MANAGED_IP" != "" ]; then
+		sed -i "s/vlan managed-ip address 192.168.1.2 255.255.255.0/vlan managed-ip address $MANAGED_IP/" $DST_CONF
+	fi
+
+	return 0
+}
+
+# function : config ZLD system as default.
+ConfigZLDtoDefault() {
+   echo "Use system default configuration file (system-default.conf)" > /dev/console
+   if [ -e $SYSCONF_PATH/system-default.conf ]; then
+      if [ "$1" == 0 ]; then
+          zysh -p 110 $SYSCONF_PATH/system-default.conf
+      else
+         UpdateLastgoodDefault; JOB_RET=$?
+         if [ $JOB_RET = 0 ]; then
+            echo "Failed to apply startup-config.conf, Applying lastgood-default.conf" > /dev/console
+            zysh -p 110 $SYSCONF_PATH/lastgood-default.conf
+            if [ $? != 0 ]; then
+               echo "Failed to apply lastgood-default.conf, Applying system-default.conf" > /dev/console
+               zysh -p 110 $SYSCONF_PATH/system-default.conf
+            fi
+         else
+            zysh -p 110 $SYSCONF_PATH/system-default.conf
+         fi
+      fi
+      if [ $? = 0 ]; then
+        echo "$PRODUCT_SERIES_NAME system is configured successfully with system-default.conf" > /dev/console
+        SaveConfig
+        UpdateLastgood
+        CheckDefaultConfig
+        zylogger -s 21 -p 6 -f 21 $PRODUCT_SERIES_NAME is configured successfully with default configuration file. 
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+        NEBULA_AP_START_CFG_DIR=ZLDSYSPARM_NEBULA_NC_RUNNING_CFG_BACKUP_DIR
+        rm -rf $NEBULA_AP_START_CFG_DIR 2>/dev/null
+#endif
+      else
+        echo "$PRODUCT_SERIES_NAME default system configuration error. system configuration stop." > /dev/console
+        # echo "Call log API to notify user here"
+        zylogger -s 21 -p 1 -f 21 $PRODUCT_SERIES_NAME apply default configuration file error. System can not be configured correctly.
+      fi
+   else
+      echo "Error: no system default config file, system configuration stop!!" > /dev/console
+      # echo "Call log API to notify user here"
+      zylogger -s 21 -p 1 -f 21 $PRODUCT_SERIES_NAME can not find default configuration file. System can not be configured correctly.
+   fi
+}
+
+echo 3 > /proc/sys/vm/drop_caches
+echo 5 > /proc/sys/vm/dirty_background_ratio
+echo 4096 > /proc/sys/vm/min_free_kbytes
+
+echo "Applying system configuration file, please wait..." > /dev/console
+RecordBootStatus 6 # in progress
+
+#Jimmy Added that Prevent Link up to turn off SYS LED
+touch /var/run/zysh-configuring
+
+#if defined(ZLDCONFIG_GREENPAK_HW_WDT_SUPPORT)
+#turn off E-HWDT (also clear wd_flag) then turn on by zysh if necessary.
+echo 0 > /proc/support/wd_en
+#toggle E-HWDT
+/sbin/wdtd &
+#endif
+
+#if defined(ZLDCONFIG_UBUS_SUPPORT)
+#turn off I-HWDT then turn on by zysh if necessary.
+ubus call system watchdog '{"magicclose": true}'
+ubus call system watchdog '{ "stop": true }'
+#endif
+
+# cli change notify
+if [ -e $SYSCONF_PATH/startup-config.conf ]; then
+	if [ ! -e /etc/zyxel/ftp/keep/firmware-upgraded-cli-change ]; then
+		touch /etc/zyxel/ftp/keep/firmware-upgraded-cli-change
+		touch /etc/zyxel/ftp/keep/firmware-upgraded-cli-change-stage1
+		echo "CLI converting stage1 for startup-config.conf ..." > /dev/console
+		zysh -a notify-cli-change-stage1 $SYSCONF_PATH/startup-config.conf
+#if defined(ZLDCONFIG_MD5_SUPPORT)
+		CheckConfigdSize startup-config.conf; JOB_RET=$?
+		if [ $JOB_RET = 0 ]; then
+			echo "CLI converting stage1: update startup-config.conf.md5" >> $LOG_FILE
+			md5sum $SYSCONF_PATH/startup-config.conf > $SYSCONF_PATH/startup-config.conf.md5
+			sync
+		fi
+#endif
+	fi
+fi
+
+#if defined(ZLDCONFIG_MD5_SUPPORT)
+# backup if-mgnt.xml to /tmp/if-test.backup.prepare
+PrepareBackupInterface() {
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+	NEBULA_AP_START_CFG_DIR=ZLDSYSPARM_NEBULA_NC_RUNNING_CFG_BACKUP_DIR
+	if [ -e $NEBULA_AP_START_CFG_DIR/if-mgnt.xml ]; then
+		cp -r $NEBULA_AP_START_CFG_DIR/if-mgnt.xml  /tmp/if-test.backup.prepare
+		sync
+	fi
+#endif
+}
+
+RemovePrepareBackupInterface() {
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+	if [ -e /tmp/if-test.backup.prepare ]; then
+		rm /tmp/if-test.backup.prepare
+		sync
+	fi
+#endif
+}
+
+# The /tmp/if-test.backup will trigger netopeer if-mgnt callback function to recover backup interface.
+ApplyBackupInterface() {
+	echo "ApplyBackupInterface" >> $LOG_FILE
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+	if [ -e /tmp/if-test.backup.prepare ]; then
+		mv -f /tmp/if-test.backup.prepare  /tmp/if-test.backup
+		sync
+		echo "Interface configuration is fallen back." > /dev/console
+	fi
+#endif
+}
+
+state="START_UP"
+if [ -e /tmp/firmware-upgraded ]; then
+	FirstMD5Generation
+fi
+
+UpdateStartupBad () {
+	echo "UpdateStartupBad" >> $LOG_FILE
+	cp $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/startup-config-bad.conf
+	sync
+}
+
+echo $state >> $LOG_FILE
+
+ConfigZLDtoStartup() {
+	if [ -e $SYSCONF_PATH/startup-config.conf ]; then
+		CheckConfigdSizeAndMD5 startup-config.conf; JOB_RET=$?
+		if [ $JOB_RET = 0 ]; then
+			if [ -e /tmp/firmware-upgraded ]; then
+				zysh -a notify-config-upgrade -i -p 110 --dot $SYSCONF_PATH/startup-config.conf \
+					& JOB_PID=$!; wait $!; JOB_RET=$?
+				if [ -e /tmp/zysh${JOB_PID}.neglect ]; then
+					rm -f /tmp/zysh${JOB_PID}.neglect
+					RecordBootStatus 2 # problematic
+					echo -e "\nProblematic startup-config.conf after firmware update. Errors are ignored." > /dev/console
+					zylogger -s 21 -p 6 -f 21 "Problematic startup configuration file after firmware update. Errors are ignored."
+				else
+					RecordBootStatus 1 # firmware upgrade OK
+				fi
+			else
+				zysh -p 110 --dot $SYSCONF_PATH/startup-config.conf; JOB_RET=$?
+				RecordBootStatus 0 # normal OK
+			fi
+			if [ $JOB_RET = 0 ]; then
+				echo "$PRODUCT_SERIES_NAME system is configured successfully with startup-config.conf" > /dev/console
+				zylogger -s 21 -p 6 -f 21 $PRODUCT_SERIES_NAME is configured successfully with startup configuration file.
+				SaveConfig
+				UpdateLastgood
+				state="DONE"
+			else
+				zylogger -s 21 -p 3 -f 21 $PRODUCT_SERIES_NAME apply startup configuration file failed.
+				echo "Failed to apply startup-config.conf. Try to apply lastgood.conf or system-default.conf" > /dev/console
+				echo "Save current startup-config.conf to start-config-bad.conf" > /dev/console
+				UpdateStartupBad
+				/bin/reset_zyshd
+				state="LAST_GOOD"
+			fi
+		else
+			echo "CheckConfigdSizeAndMD5: The startup-config.conf failed" > /dev/console
+			zylogger -s 21 -p 6 -f 21 $PRODUCT_SERIES_NAME startup-config.conf size or checksum failed.
+			state="LAST_GOOD"
+		fi
+	else
+		echo "startup-config.conf not exist" > /dev/console
+		echo "no startup-config.conf file, Applying lastgood.conf" > /dev/console
+		state="LAST_GOOD"
+	fi
+}
+
+ConfigZLDtoLastgood() {
+	if [ -e $SYSCONF_PATH/lastgood.conf ]; then
+		echo "Applying lastgood.conf" > /dev/console
+		CheckConfigdSizeAndMD5 lastgood.conf; JOB_RET=$?
+		if [ $JOB_RET = 0 ]; then
+			zysh -p 110 $SYSCONF_PATH/lastgood.conf; JOB_RET=$?
+			if [ $JOB_RET = 0 ]; then
+				RecordBootStatus 4 # fallback to lastgood
+				echo "$PRODUCT_SERIES_NAME system is configured successfully with lastgood.conf" > /dev/console
+				zylogger -s 21 -p 3 -f 21 $PRODUCT_SERIES_NAME apply lastgood configuration file successfully.
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+				# Always remove backup running config when applying lastgood.conf
+				NEBULA_AP_START_CFG_DIR=ZLDSYSPARM_NEBULA_NC_RUNNING_CFG_BACKUP_DIR
+				NEBULA_RESET_FLAG_PATH=ZLDSYSPARM_ETC_WRITABLE_ZYXEL_CFG_DIR
+				rm -rf $NEBULA_AP_START_CFG_DIR 2>/dev/null
+				# If lastgood.conf is cloud mode, set device is reset flag let CC resend setting
+				LASTGOOD_CLOUD_MODE=`sed -n p $SYSCONF_PATH/lastgood.conf | grep "hybrid-mode cloud"`
+				if [ ! -z "$LASTGOOD_CLOUD_MODE" ]; then
+					touch $NEBULA_RESET_FLAG_PATH/nebula-reset-status
+				fi
+#endif
+				SaveConfig
+				UpdateLastgood
+				state="DONE"
+			else
+				RecordBootStatus 5 # fallback to system-default
+				echo "Failed to apply lastgood.conf, Applying system-default.conf" > /dev/console
+				zylogger -s 21 -p 3 -f 21 $PRODUCT_SERIES_NAME apply lastgood configuration file failed.
+				/bin/reset_zyshd
+				state="LASTGOOD_DEFAULT"
+			fi
+		else
+			echo "CheckConfigdSizeAndMD5: The lastgood.conf failed" > /dev/console
+			zylogger -s 21 -p 6 -f 21 $PRODUCT_SERIES_NAME lastgood.conf size or checksum failed.
+			state="SYSTEM_DEFAULT"
+		fi
+	else
+		RecordBootStatus 3 # system-default
+		echo "no lastgood.conf existed. Applying system-default.conf" > /dev/console
+		state="SYSTEM_DEFAULT"
+	fi
+}
+
+# if-mgnt.xml will be deleted when reset_zyshd is executed. Therefore, we first
+# back up this file, and then use it for the backup interface.
+PrepareBackupInterface
+
+while true; do
+	case "$state" in
+	"START_UP")
+		echo "START_UP" >> $LOG_FILE
+		ConfigZLDtoStartup
+		;;
+
+	"LAST_GOOD")
+		echo "LAST_GOOD" >> $LOG_FILE
+		ConfigZLDtoLastgood
+		;;
+
+	"SYSTEM_DEFAULT")
+		echo "SYSTEM_DEFAULT" >> $LOG_FILE
+		ConfigZLDtoDefault 0
+		ApplyBackupInterface
+		state="DONE"
+		;;
+
+	"LASTGOOD_DEFAULT")
+		echo "LASTGOOD_DEFAULT" >> $LOG_FILE
+		ConfigZLDtoDefault
+		ApplyBackupInterface
+		state="DONE"
+		;;
+
+	"DONE")
+		echo "DONE" >> $LOG_FILE
+		RemovePrepareBackupInterface
+		if [ -e /tmp/firmware-upgraded ]; then
+			rm -f /tmp/firmware-upgraded
+		fi
+		break
+		;;
+
+	*)
+		echo "ZLDconfig: invalid state \"$state\"" >> $LOG_FILE
+		state="SYSTEM_DEFAULT"
+		;;
+	esac
+done
+
+#else
+# check running_config.conf exist?
+if [ -e $SYSCONF_PATH/startup-config.conf ]; then
+    if [ -e /tmp/firmware-upgraded ]; then # firmware updated
+        rm -f /tmp/firmware-upgraded
+    	zysh -a notify-config-upgrade -i -p 110 --dot $SYSCONF_PATH/startup-config.conf & JOB_PID=$!; wait $!; JOB_RET=$?
+	if [ -e /tmp/zysh${JOB_PID}.neglect ]; then
+	  rm -f /tmp/zysh${JOB_PID}.neglect
+	  RecordBootStatus 2 # problematic
+	  echo -e "\nProblematic startup-config.conf after firmware update. Errors are ignored." > /dev/console
+	  zylogger -s 21 -p 6 -f 21 "Problematic startup configuration file after firmware update. Errors are ignored."
+	else
+	  RecordBootStatus 1 # firmware upgrade OK
+	fi
+	SaveConfig
+	UpdateLastgood
+
+    else # normal boot
+	zysh -p 110 --dot $SYSCONF_PATH/startup-config.conf; JOB_RET=$?
+	if [ $JOB_RET = 0 ]; then
+	  RecordBootStatus 0 # normal OK
+	fi
+    fi
+    if [ $JOB_RET = 0 ]; then
+       echo "$PRODUCT_SERIES_NAME system is configured successfully with startup-config.conf" > /dev/console 
+       SaveConfig
+       UpdateLastgood
+       zylogger -s 21 -p 6 -f 21 $PRODUCT_SERIES_NAME is configured successfully with startup configuration file.
+    else
+       zylogger -s 21 -p 3 -f 21 $PRODUCT_SERIES_NAME apply startup configuration file failed.
+       echo "Failed to apply startup-config.conf. Try to apply lastgood.conf or system-default.conf" > /dev/console
+       echo "Save current startup-config.conf to start-config-bad.conf" > /dev/console 
+       cp $SYSCONF_PATH/startup-config.conf $SYSCONF_PATH/startup-config-bad.conf
+       /bin/reset_zyshd
+       # Apply startup-config.conf failed, try lastgood.conf & system-default.conf
+       # backup failed startup config
+       # First, try lastgood.conf
+       if [ -e $SYSCONF_PATH/lastgood.conf ]; then
+          echo "Applying lastgood.conf" > /dev/console
+          zysh -p 110 $SYSCONF_PATH/lastgood.conf
+          if [ $? != 0 ]; then
+            # Try to use system-default.conf
+	    RecordBootStatus 5 # fallback to system-default
+            echo "Failed to apply lastgood.conf, Applying system-default.conf" > /dev/console
+	    /bin/reset_zyshd
+            ConfigZLDtoDefault
+          else
+	    RecordBootStatus 4 # fallback to lastgood
+            echo "$PRODUCT_SERIES_NAME system is configured successfully with lastgood.conf" > /dev/console
+            # echo "Call log API to notify user here"
+            zylogger -s 21 -p 3 -f 21 $PRODUCT_SERIES_NAME apply lastgood configuration file successfully.
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+		# Always remove backup running config when applying lastgood.conf
+		NEBULA_AP_START_CFG_DIR=ZLDSYSPARM_NEBULA_NC_RUNNING_CFG_BACKUP_DIR
+		NEBULA_RESET_FLAG_PATH=ZLDSYSPARM_ETC_WRITABLE_ZYXEL_CFG_DIR
+		rm -rf $NEBULA_AP_START_CFG_DIR 2>/dev/null
+		# If lastgood.conf is cloud mode, set device is reset flag let CC resend setting
+		LASTGOOD_CLOUD_MODE=`sed -n p $SYSCONF_PATH/lastgood.conf | grep "hybrid-mode cloud"`
+		if [ ! -z "$LASTGOOD_CLOUD_MODE" ]; then
+			touch $NEBULA_RESET_FLAG_PATH/nebula-reset-status
+		fi
+#endif
+            SaveConfig
+	    UpdateLastgood
+          fi
+       else
+	  RecordBootStatus 5 # fallback to system-default
+          echo "no lastgood.conf existed. Applying system-default.conf" > /dev/console
+          # Secnod, Try default.conf
+          ConfigZLDtoDefault
+       fi
+    fi
+else
+    RecordBootStatus 3 # system-default
+    echo "no startup-config.conf file, Applying system-default.conf" > /dev/console
+#if defined(ZLDCONFIG_FB_WIFI)
+    rm -f /etc/zyxel/ftp/captive-portal/.fbwifi_reg_*
+#endif
+    #cp $SYSCONF_PATH/system-default.conf $SYSCONF_PATH/startup-config.conf
+    ConfigZLDtoDefault 0
+fi
+#endif
+
+# cli change notify
+if [ -e $SYSCONF_PATH/startup-config.conf ]; then
+	if [ -e /etc/zyxel/ftp/keep/firmware-upgraded-cli-change-stage1 ]; then
+		rm -f /etc/zyxel/ftp/keep/firmware-upgraded-cli-change-stage1
+		echo "CLI converting stage2 for startup-config.conf ..." > /dev/console
+		zysh -a notify-cli-change-stage2 $SYSCONF_PATH/startup-config.conf
+#if defined(ZLDCONFIG_MD5_SUPPORT)
+		SaveConfig
+#endif
+		if [ -e /tmp/cli_convert ]; then
+			echo "Applying system configuration file again, please wait..." > /dev/console
+			RecordBootStatus 6 # in progress
+
+			zysh -i -p 110 --dot $SYSCONF_PATH/startup-config.conf & JOB_PID=$!; wait $!; JOB_RET=$?
+			if [ $JOB_RET = 0 ]; then
+				RecordBootStatus 0 # normal OK
+				SaveConfig
+				UpdateLastgood
+			else
+				RecordBootStatus 5 # fallback to system-default
+				echo -e "\nFailed to apply convert file. Applying system-default.conf" > /dev/console
+				ConfigZLDtoDefault
+			fi
+		fi
+	fi
+fi
+
+#if defined(ZLDCONFIG_FIRMWARE_UNIFY)
+MANAGED_MODE=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "hybrid-mode managed"`
+if [ ! -z "$MANAGED_MODE" ]; then
+	zysh -p 110 -e "configure terminal no ip http server"
+	SaveConfig
+fi
+#endif
+
+#Jimmy Added that Prevent Link up to turn off SYS LED
+rm -f /var/run/zysh-configuring
+
+# after this stage we can change led status, unlock the led status and revert it.
+echo 0 > /proc/support/lock_led_behavior
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+touch /tmp/boot_stage_finished
+#endif
+
+
+#Check packet-trace directory existed
+PACKET_TRACE_PATH=/etc/zyxel/ftp/packet_trace
+if [ ! -d "$PACKET_TRACE_PATH" ]; then
+   echo "Directory packet_trace not existed!" > /dev/console
+   zylogger -s 21 -p 1 -f 21 "Directory packet_trace not existed. Create it automatically."
+   mkdir -p $PACKET_TRACE_PATH
+fi
+
+#if defined(ZLDCONFIG_CAPWAP_WTP_SUPPORT)
+/usr/local/bin/cw_sys_notify
+#endif
+
+#if defined(ZLDCONFIG_WLAN_FRAME_CAPTURE_SERVER_SUPPORT)
+#Check frame-capture file directory existed
+CAPTURE_PATH=/etc/zyxel/ftp/tmp/monitor
+if [ ! -d "$CAPTURE_PATH" ]; then
+   mkdir -p $CAPTURE_PATH
+fi
+/usr/sbin/fcap &
+#endif
+
+zysh -p 100 -e "debug hardware show-reboot-reason _log"
+
+#if defined(ZLDCONFIG_PWLAN_SYSTEM_WORKAROUND_SUPPORT)
+# zysh -p 100 -e "debug workaround set zymeshdhcp enable"
+# zysh -p 100 -e "debug workaround set staRateZero enable"
+zysh -p 100 -e "debug workaround set chkDefRoute enable"
+#endif
+
+sync;sync;sync
+
+zysh -p 110 -e "configure terminal _ledbh boot_success"
+
+#managed ip
+#if defined(ZLDCONFIG_FIRMWARE_UNIFY)
+ if [ ! -z "$STANDALONE" ]; then
+	MANAGED_IP=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "managed-ip"`
+	if [ -z "$MANAGED_IP" ]; then
+		zysh -p 110 -e "configure terminal manager ap vlan managed-ip address 192.168.1.2 255.255.255.0"
+	fi
+ fi
+#endif
+
+#if defined(ZLDCONFIG_CLOUD_MODE_SUPPORT)
+#if defined(ZLDCONFIG_CAPWAP_WTP_SUPPORT)
+HYBRID_MODE=`sed -n p /etc/zyxel/ftp/conf/startup-config.conf | grep "hybrid-mode"`
+MANAGED_MODE=$(echo "$HYBRID_MODE" | grep "managed")
+if [ -z "$MANAGED_MODE" ]; then
+#endif
+	MTD_DEV=ZLDSYSPARM_CERT_DEV
+	/usr/bin/cert_util -d /var/netopeer/netopeer/cfgnetopeer/datastore.xml -m $MTD_DEV 2>/dev/null
+
+	#start up netopeer-server
+	etc_writable_zyxel_conf_dir=ZLDSYSPARM_NEBULA_NC_RUNNING_CFG_BACKUP_DIR
+	if [ ! -d $etc_writable_zyxel_conf_dir ]; then
+		mkdir -p $etc_writable_zyxel_conf_dir
+		echo "create folder $etc_writable_zyxel_conf_dir" >/dev/console
+	fi
+
+	rm /etc/zyxel/ftp/netopeer/captive-portal-profile.xml 2>/dev/null
+	#if defined(ZLDCONFIG_NEBULA_NTP_PROTECT)
+	rm /etc/zyxel/ftp/netopeer/nebula-clock.xml 2>/dev/null
+	#endif
+
+	#start netopeer server watchdog
+	zysh -p 100 -e "show netconf status" > /tmp/netconf_status
+	NETCONF_STATUS=`cat /tmp/netconf_status | grep "yes"`
+	if [ "$NETCONF_STATUS" != "" ] ; then
+		nice -n -1 nc-wd >/dev/null 2>dev/console &
+		echo "netopeer-server start">/dev/console
+	fi
+	rm /tmp/netconf_status 2>/dev/null
+
+	touch /tmp/device_reboot
+#if defined(ZLDCONFIG_CAPWAP_WTP_SUPPORT)
+fi
+#endif
+#endif
+
+if [ -e /etc/zyxel/ftp/keep/warm_start ]; then
+	rm /etc/zyxel/ftp/keep/warm_start
+	zylogger -s 21 -p 6 -f 21 The AP has warm started successfully.
+else
+	zylogger -s 21 -p 6 -f 21 The AP has successfully booted.
+fi
+
+#if defined(ZLDCONFIG_MEMCHECK_SUPPORT)
+echo "0 3 * * * root /usr/sbin/memcheck -c 0 &" >> /var/zyxel/crontab
+echo "3 3 * * * root /usr/sbin/memcheck -d &" >> /var/zyxel/crontab
+/usr/sbin/memcheck -b &
+#endif
+
+#ifdef ZLDCONFIG_WEB_PORTAL_REDIRECT_FROM_AP
+echo "*/15 * * * * root /usr/local/bin/external_portal_url_lookup.sh > /dev/null 2>&1" >> /var/zyxel/crontab
+#endif
+
+#if defined(ZLDCONFIG_WLAN_THERMAL_CONTROL)
+/usr/bin/thermald 1>/dev/null 2>/dev/null &
+#endif
+
+/usr/local/bin/del_old_corecump.sh > /dev/null 2>&1 &
+

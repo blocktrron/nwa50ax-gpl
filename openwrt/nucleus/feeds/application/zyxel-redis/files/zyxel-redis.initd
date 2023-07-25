@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+
+START=89
+
+USE_PROCD=1
+
+PROG=/usr/local/bin/redis-server
+CONF=/var/redis.conf
+
+start_service() {
+	[ -e "$CONF" ] && {
+		procd_open_instance
+		procd_set_param command "$PROG"
+		procd_append_param command "$CONF"
+		procd_set_param respawn ${respawn_threshold:-300} ${respawn_timeout:-5} ${respawn_retry:-5}
+		procd_close_instance
+	}
+}
+
+stop_service() {
+	service_stop "$PROG"
+}

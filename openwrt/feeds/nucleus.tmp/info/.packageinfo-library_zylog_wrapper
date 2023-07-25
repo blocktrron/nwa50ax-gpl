@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/zylog_wrapper/Makefile
+Package: zylog_wrapper
+Submenu: library
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zwd
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylog_wrapper package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylog_wrapper package
+https://www.zyxel.com/
+
+@@
+
+

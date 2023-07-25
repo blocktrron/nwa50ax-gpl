@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/pure-ftpd/Makefile
+Package: pure-ftpd
+Submenu: application
+Version: 1.0.49
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +zylog +zykit +libuam +libpam +file_manage
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Pure-FTPd
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Pure-FTPd
+https://www.pureftpd.org/project/pure-ftpd/
+
+@@
+
+

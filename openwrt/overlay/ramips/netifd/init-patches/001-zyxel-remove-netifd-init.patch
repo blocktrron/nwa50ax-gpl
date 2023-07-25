@@ -1,0 +1,11 @@
+--- a/files/etc/init.d/network
++++ b/files/etc/init.d/network
+@@ -1,8 +1,5 @@
+ #!/bin/sh /etc/rc.common
+ 
+-START=20
+-STOP=90
+-
+ USE_PROCD=1
+ 
+ init_switch() {

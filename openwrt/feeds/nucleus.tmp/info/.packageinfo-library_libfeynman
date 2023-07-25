@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libfeynman/Makefile
+Package: libfeynman
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: libfeynman
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: libfeynman
+https://www.zyxel.com/
+
+@@
+
+

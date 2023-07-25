@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/ubus_test/Makefile
+Package: ubus_test
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libnl-tiny +libpthread +libubus +libubox +zyUMAC +wifimgr +libevent14
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: wifi ubus test client application
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: wifi ubus test client application
+https://www.zyxel.com/
+
+@@
+
+

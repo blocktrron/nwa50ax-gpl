@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/libtalloc/Makefile
+Package: libtalloc
+Submenu: library
+Version: 2.1.14
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: talloc Library
+Maintainer: 
+Source: 
+License: LGPL-3.0+
+Type: ipkg
+Description: talloc Library
+https://talloc.samba.org/talloc/doc/html/index.html
+
+@@
+
+

@@ -1,0 +1,23 @@
+Source-Makefile: feeds/nucleus/library/libtirpc/Makefile
+Package: libtirpc
+Submenu: library
+Version: 1.1.4
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Types: host
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Library TI RPC for RPC bindings
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Library TI RPC for RPC bindings
+http://libtirpc.sourceforge.net/
+
+@@
+
+

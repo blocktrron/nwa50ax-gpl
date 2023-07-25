@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/update-fw-lite/Makefile
+Package: update-fw-lite
+Submenu: application
+Version: 0.1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libbmm +libgpio_control +libzyDualImage
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Firmware Update Utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Utility for updating firmware into Flash
+https://www.zyxel.com/
+
+@@
+
+

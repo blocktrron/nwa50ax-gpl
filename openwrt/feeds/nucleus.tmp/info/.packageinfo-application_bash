@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/bash/Makefile
+Package: bash
+Submenu: application
+Version: 4.4.18
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libncurses
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The GNU Bourne Again SHell
+Maintainer: 
+Source: 
+License: GPL-3.0+
+Type: ipkg
+Description: The GNU Bourne Again SHell
+http://www.gnu.org/software/bash/
+
+@@
+
+

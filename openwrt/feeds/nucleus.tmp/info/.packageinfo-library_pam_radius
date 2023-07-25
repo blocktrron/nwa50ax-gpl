@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/library/pam_radius/Makefile
+Package: pam_radius
+Submenu: library
+Version: 1.3.16
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libuam libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: PAM module for RADIUS authentication
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: PAM module for RADIUS authentication
+http://www.freeradius.org/
+
+@@
+
+

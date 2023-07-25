@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/netopeer/Makefile
+Package: netopeer
+Submenu: application
+Version: 0.8.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +wtp_module +zylog +zykit +zlib +libnetconf +libfeynman +netopeer-watchdog +@OPENSSL_WITH_COMPRESSION +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula netopeer
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: ProWLAN nebula netopeer
+https://github.com/cesnet/netopeer
+
+@@
+
+

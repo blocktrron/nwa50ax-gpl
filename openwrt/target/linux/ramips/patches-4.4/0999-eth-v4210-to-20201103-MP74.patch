@@ -1,0 +1,620 @@
+diff -urN a/drivers/net/ethernet/mediatek/mtk_eth_dbg.c b/drivers/net/ethernet/mediatek/mtk_eth_dbg.c
+--- a/drivers/net/ethernet/mediatek/mtk_eth_dbg.c	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_eth_dbg.c	2020-11-02 19:15:48.932233355 +0800
+@@ -32,19 +32,27 @@
+ 
+ void mt7530_mdio_w32(struct mtk_eth *eth, u32 reg, u32 val)
+ {
++	mutex_lock(&eth->mii_bus->mdio_lock);
++
+ 	_mtk_mdio_write(eth, 0x1f, 0x1f, (reg >> 6) & 0x3ff);
+ 	_mtk_mdio_write(eth, 0x1f, (reg >> 2) & 0xf,  val & 0xffff);
+ 	_mtk_mdio_write(eth, 0x1f, 0x10, val >> 16);
++
++	mutex_unlock(&eth->mii_bus->mdio_lock);
+ }
+ 
+ u32 mt7530_mdio_r32(struct mtk_eth *eth, u32 reg)
+ {
+ 	u16 high, low;
+ 
++	mutex_lock(&eth->mii_bus->mdio_lock);
++
+ 	_mtk_mdio_write(eth, 0x1f, 0x1f, (reg >> 6) & 0x3ff);
+ 	low = _mtk_mdio_read(eth, 0x1f, (reg >> 2) & 0xf);
+ 	high = _mtk_mdio_read(eth, 0x1f, 0x10);
+ 
++	mutex_unlock(&eth->mii_bus->mdio_lock);
++
+ 	return (high << 16) | (low & 0xffff);
+ }
+ 
+@@ -356,7 +364,8 @@
+ 		*read_data = mt7530_mdio_r32(eth, phy_register);
+ 
+ 	else
+-		*read_data = _mtk_mdio_read(eth, phy_addr, phy_register);
++		*read_data = mdiobus_read_nested(eth->mii_bus, phy_addr,
++						 phy_register);
+ }
+ 
+ void mii_mgr_write_combine(struct mtk_eth *eth, u32 phy_addr, u32 phy_register,
+@@ -366,7 +375,8 @@
+ 		mt7530_mdio_w32(eth, phy_register, write_data);
+ 
+ 	else
+-		_mtk_mdio_write(eth, phy_addr, phy_register, write_data);
++		mdiobus_write_nested(eth->mii_bus, phy_addr, phy_register,
++				     write_data);
+ }
+ 
+ static void mii_mgr_read_cl45(struct mtk_eth *eth, u32 port, u32 devad, u32 reg, u32 *data)
+diff -urN a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c	2020-11-02 19:15:48.932233355 +0800
+@@ -748,6 +748,10 @@
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 		txd4 |= TX_DMA_CHKSUM;
+ 
++	/* VLAN header offload */
++	if (skb_vlan_tag_present(skb))
++		txd4 |= TX_DMA_INS_VLAN | skb_vlan_tag_get(skb);
++
+ #if defined(CONFIG_NET_MEDIATEK_HW_QOS)
+ 	qid = skb->mark & (MTK_QDMA_TX_MASK);
+ #endif
+@@ -1028,12 +1032,9 @@
+ 			break;
+ 
+ 		/* find out which mac the packet come from. values start at 1 */
+-#if defined(CONFIG_NET_DSA)
+-		mac = (trxd.rxd4 >> 22) & 0x1;
+-		mac = (mac + 1) % 2;
+-#else
+ 		mac = (trxd.rxd4 >> RX_DMA_FPORT_SHIFT) &
+ 			RX_DMA_FPORT_MASK;
++
+ 		/* From QDMA(5). This is a external interface case of HWNAT.
+ 		 * When the incoming frame comes from an external interface
+ 		 * rather than GMAC1/GMAC2, HWNAT driver sends the original
+@@ -1041,11 +1042,19 @@
+ 		 * frame learning. After learning, PPE transmit the
+ 		 * original frame back to PPD again to run SW NAT path.
+ 		 */
++#if defined(CONFIG_NET_DSA_MT7530)
++		/* In dsa case, when PSE(before mt7622) receives frame with
++		 * switch special tag, rxd4[22] will be set to 1, and FPORT
++		 * will be set to switch ingress port. The real PSE ingress
++		 * port of this kind of traffic is GMAC1 actually.
++		 */
++		if (mac == 5 || (trxd.rxd4 & BIT(22)))
++#else
+ 		if (mac == 5)
++#endif
+ 			mac = 0;
+ 		else
+ 			mac--;
+-#endif
+ 		if (unlikely(mac < 0 || mac >= MTK_MAC_COUNT ||
+ 			     !eth->netdev[mac]))
+ 			goto release_desc;
+@@ -1092,9 +1101,20 @@
+ 		skb->protocol = eth_type_trans(skb, netdev);
+ 
+ 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
+-		    RX_DMA_VID(trxd.rxd3))
+-			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
+-					       RX_DMA_VID(trxd.rxd3));
++		    (trxd.rxd2 & RX_DMA_VTAG)) {
++			__vlan_hwaccel_put_tag(skb,
++					       htons(RX_DMA_VPID(trxd.rxd3)),
++					       RX_DMA_TCI(trxd.rxd3));
++
++			/* If netdev is attached to dsa switch with special
++			 * tag protocol on VLAN field, the special tag can
++			 * be offload by RX HW VLAN offload. Disable
++			 * VLAN_TAG_PRESENT to avoid unexpected 8021d
++			 * handler before packet enter dsa framework.
++			 */
++			if (netdev_uses_dsa(netdev))
++				skb->vlan_tci &= ~VLAN_TAG_PRESENT;
++		}
+ 
+ #if defined(CONFIG_NET_MEDIATEK_HNAT) || defined(CONFIG_NET_MEDIATEK_HNAT_MODULE)
+ 		*(u32 *)(skb->head) = trxd.rxd4;
+@@ -1801,6 +1821,7 @@
+ 	}
+ 
+ 	kfree(eth->scratch_head);
++	eth->scratch_head = NULL;
+ }
+ 
+ static void mtk_tx_timeout(struct net_device *dev)
+@@ -1847,8 +1868,8 @@
+ 	struct mtk_eth *eth = _eth;
+ 
+ 	if (likely(napi_schedule_prep(&eth->rx_napi))) {
+-		__napi_schedule(&eth->rx_napi);
+ 		mtk_rx_irq_disable(eth, MTK_RX_DONE_INT);
++		__napi_schedule(&eth->rx_napi);
+ 	}
+ 
+ 	return IRQ_HANDLED;
+@@ -1859,8 +1880,8 @@
+ 	struct mtk_eth *eth = _eth;
+ 
+ 	if (likely(napi_schedule_prep(&eth->tx_napi))) {
+-		__napi_schedule(&eth->tx_napi);
+ 		mtk_tx_irq_disable(eth, MTK_TX_DONE_INT);
++		__napi_schedule(&eth->tx_napi);
+ 	}
+ 
+ 	return IRQ_HANDLED;
+@@ -1905,20 +1926,24 @@
+ 	return 0;
+ }
+ 
+-static void mtk_gdma_config(struct mtk_eth *eth, u32 config)
++static void mtk_gdma_igr_ctrl(struct mtk_eth *eth, u32 gdma, u32 action)
+ {
+-	int i;
++	u32 val = mtk_r32(eth, MTK_GDMA_FWD_CFG(gdma));
+ 
+-	for (i = 0; i < 2; i++) {
+-		u32 val = mtk_r32(eth, MTK_GDMA_FWD_CFG(i));
++	/* default setup the forward port to send frame to PDMA */
++	val &= ~0xffff;
++	val |= action;
++
++	mtk_w32(eth, val, MTK_GDMA_FWD_CFG(gdma));
++}
+ 
+-		/* default setup the forward port to send frame to PDMA */
+-		val &= ~0xffff;
++static void mtk_gdma_config(struct mtk_eth *eth, u32 config)
++{
++	int i;
+ 
+-		val |= config;
++	for (i = 0; i < 2; i++)
++		mtk_gdma_igr_ctrl(eth, i, config);
+ 
+-		mtk_w32(eth, val, MTK_GDMA_FWD_CFG(i));
+-	}
+ 	/*Reset and enable PSE*/
+ 	mtk_w32(eth, RST_GL_PSE, MTK_RST_GL);
+ 	mtk_w32(eth, 0, MTK_RST_GL);
+@@ -1936,7 +1961,6 @@
+ 		if (err)
+ 			return err;
+ 
+-		mtk_gdma_config(eth, MTK_GDMA_ICS_EN | MTK_GDMA_TCS_EN | MTK_GDMA_UCS_EN);
+ 
+ 		napi_enable(&eth->tx_napi);
+ 		napi_enable(&eth->rx_napi);
+@@ -1945,9 +1969,25 @@
+ 	}
+ 	atomic_inc(&eth->dma_refcnt);
+ 
++	if (dev == eth->netdev[0] && netdev_uses_dsa(dev)) {
++		u32 val;
++
++		/* Indicates CDM to parse the MTK special tag from CPU
++		 * which only works for packets tagged with DSA_TAG_PROTO_MTK.
++		 */
++		val = mtk_r32(eth, MTK_GDMA_FWD_CFG(0));
++		mtk_w32(eth, val | MTK_GDMA_SPEC_TAG, MTK_GDMA_FWD_CFG(0));
++		val = mtk_r32(eth, MTK_CDMP_IG_CTRL);
++		mtk_w32(eth, val | MTK_CDMP_STAG_EN, MTK_CDMP_IG_CTRL);
++		val = mtk_r32(eth, MTK_CDMQ_IG_CTRL);
++		mtk_w32(eth, val | MTK_CDMQ_STAG_EN, MTK_CDMQ_IG_CTRL);
++	}
++
+ 	phy_start(dev->phydev);
+ 	netif_start_queue(dev);
+ 
++	mtk_gdma_igr_ctrl(eth, mac->id, MTK_GDMA_PDMA_ALL);
++
+ 	return 0;
+ }
+ 
+@@ -1979,6 +2019,8 @@
+ 	struct mtk_mac *mac = netdev_priv(dev);
+ 	struct mtk_eth *eth = mac->hw;
+ 
++	mtk_gdma_igr_ctrl(eth, mac->id, MTK_GDMA_DROP_ALL);
++
+ 	netif_tx_disable(dev);
+ 	phy_stop(dev->phydev);
+ 
+@@ -1986,7 +2028,6 @@
+ 	if (!atomic_dec_and_test(&eth->dma_refcnt))
+ 		return 0;
+ 
+-	mtk_gdma_config(eth, MTK_GDMA_DROP_ALL);
+ 
+ 	mtk_tx_irq_disable(eth, MTK_TX_DONE_INT);
+ 	mtk_rx_irq_disable(eth, MTK_RX_DONE_INT);
+@@ -2055,6 +2096,7 @@
+ 	if (ret)
+ 		goto err_disable_pm;
+ 
++	ethsys_reset(eth, RSTCTRL_ETH);
+ 	ethsys_reset(eth, RSTCTRL_FE);
+ 	ethsys_reset(eth, RSTCTRL_PPE);
+ 
+@@ -2085,18 +2127,8 @@
+ 	for (i = 0; i < MTK_MAC_COUNT; i++)
+ 		mtk_w32(eth, 0, MTK_MAC_MCR(i));
+ 
+-	/* Indicates CDM to parse the MTK special tag from CPU
+-	 * which also is working out for untag packets.
+-	 */
+-	val = mtk_r32(eth, MTK_CDMQ_IG_CTRL);
+-	mtk_w32(eth, val | MTK_CDMQ_STAG_EN, MTK_CDMQ_IG_CTRL);
+-
+-	/* Disable RX VLan Offloading */
+-	mtk_w32(eth, 0, MTK_CDMP_EG_CTRL);
+-
+-#if defined(CONFIG_NET_DSA)
+-	mtk_w32(eth, 0x81000001, MTK_CDMP_IG_CTRL);
+-#endif
++	/* Enable RX VLAN Offloading */
++	mtk_w32(eth, 1, MTK_CDMP_EG_CTRL);
+ 
+ 	mtk_w32(eth, 0x8f0f8f0f, MTK_PDMA_DELAY_INT);
+ 	mtk_w32(eth, 0x8f0f8f0f, MTK_QDMA_DELAY_INT);
+@@ -2150,6 +2182,7 @@
+ 			dev->dev_addr);
+ 	}
+ 
++	mtk_gdma_config(eth, MTK_GDMA_ICS_EN | MTK_GDMA_TCS_EN | MTK_GDMA_UCS_EN);
+ 	return mtk_phy_connect(dev);
+ }
+ 
+@@ -2163,6 +2196,7 @@
+ 		of_phy_deregister_fixed_link(mac->of_node);
+ 	mtk_tx_irq_disable(eth, ~0);
+ 	mtk_rx_irq_disable(eth, ~0);
++	mtk_gdma_config(eth, MTK_GDMA_DROP_ALL);
+ }
+ 
+ static int mtk_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+@@ -2213,6 +2247,7 @@
+ 		pinctrl_select_state(eth->dev->pins->p,
+ 				     eth->dev->pins->default_state);
+ 	mtk_hw_init(eth);
++	mtk_gdma_config(eth, MTK_GDMA_ICS_EN | MTK_GDMA_TCS_EN | MTK_GDMA_UCS_EN);
+ 
+ 	for (i = 0; i < MTK_MAC_COUNT; i++) {
+ 		if (!eth->mac[i] ||
+diff -urN a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h	2020-11-02 19:15:48.932233355 +0800
+@@ -39,6 +39,8 @@
+ 				 NETIF_MSG_TX_ERR)
+ #define MTK_HW_FEATURES		(NETIF_F_IP_CSUM | \
+ 				 NETIF_F_RXCSUM | \
++				 NETIF_F_HW_VLAN_CTAG_TX | \
++				 NETIF_F_HW_VLAN_CTAG_RX | \
+ 				 NETIF_F_SG | NETIF_F_TSO | \
+ 				 NETIF_F_TSO6 | \
+ 				 NETIF_F_IPV6_CSUM)
+@@ -79,16 +81,19 @@
+ 
+ /* CDMP Ingress Control Register */
+ #define MTK_CDMP_IG_CTRL       0x400
++#define MTK_CDMP_STAG_EN	BIT(0)
+ 
+ /* CDMP Exgress Control Register */
+ #define MTK_CDMP_EG_CTRL	0x404
+ 
+ /* GDM Exgress Control Register */
+ #define MTK_GDMA_FWD_CFG(x)	(0x500 + (x * 0x1000))
++#define MTK_GDMA_SPEC_TAG	BIT(24)
+ #define MTK_GDMA_ICS_EN		BIT(22)
+ #define MTK_GDMA_TCS_EN		BIT(21)
+ #define MTK_GDMA_UCS_EN		BIT(20)
+ #define MTK_GDMA_DROP_ALL       0x7777
++#define MTK_GDMA_PDMA_ALL       0x0
+ 
+ /* Unicast Filter MAC Address Register - Low */
+ #define MTK_GDMA_MAC_ADRL(x)	(0x508 + (x * 0x1000))
+@@ -297,9 +302,12 @@
+ #define RX_DMA_DONE		BIT(31)
+ #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
+ #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
++#define RX_DMA_VTAG             BIT(15)
+ 
+ /* QDMA descriptor rxd3 */
+-#define RX_DMA_VID(_x)		((_x) & 0xfff)
++#define RX_DMA_VID(_x)		((_x) & VLAN_VID_MASK)
++#define RX_DMA_TCI(_x)		((_x) & (VLAN_PRIO_MASK | VLAN_VID_MASK))
++#define RX_DMA_VPID(_x)		(((_x) >> 16) & 0xffff)
+ 
+ /* QDMA descriptor rxd4 */
+ #define RX_DMA_L4_VALID		BIT(24)
+@@ -403,6 +411,7 @@
+ #define ETHSYS_RSTCTRL		0x34
+ #define RSTCTRL_FE		BIT(6)
+ #define RSTCTRL_PPE		BIT(31)
++#define RSTCTRL_ETH		BIT(23)
+ 
+ /* SGMII subsystem config registers */
+ /* Register to auto-negotiation restart */
+diff -urN a/drivers/net/ethernet/mediatek/mtk_hnat/hnat.c b/drivers/net/ethernet/mediatek/mtk_hnat/hnat.c
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat.c	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat.c	2020-11-02 19:15:48.932233355 +0800
+@@ -233,7 +233,7 @@
+ 	cr_set_field(hnat_priv->ppe_base + PPE_GLO_CFG, PPE_EN, 1);
+ 	writel(0, hnat_priv->ppe_base + PPE_DFT_CPORT); /* pdma */
+ 	/* writel(0x55555555, hnat_priv->ppe_base + PPE_DFT_CPORT); */ /* qdma */
+-	cr_set_field(hnat_priv->ppe_base + PPE_GLO_CFG, TTL0_DRP, 1);
++	cr_set_field(hnat_priv->ppe_base + PPE_GLO_CFG, TTL0_DRP, 0);
+ 
+ 	/*enable ppe mib counter*/
+ 	if (hnat_priv->data->per_flow_accounting) {
+diff -urN a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_debugfs.c b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_debugfs.c
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_debugfs.c	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_debugfs.c	2020-11-02 19:15:48.932233355 +0800
+@@ -590,8 +590,8 @@
+ 		return NULL;
+ 
+ 	writel(index | (1 << 16), h->ppe_base + PPE_MIB_SER_CR);
+-	ret = readx_poll_timeout(readl, h->ppe_base + PPE_MIB_SER_CR, val,
+-				 !(val & BIT_MIB_BUSY), 20, 10000);
++	ret = readx_poll_timeout_atomic(readl, h->ppe_base + PPE_MIB_SER_CR, val,
++					!(val & BIT_MIB_BUSY), 20, 10000);
+ 	if (ret < 0) {
+ 		pr_notice("mib busy,please check later\n");
+ 		return NULL;
+diff -urN a/drivers/net/ethernet/mediatek/mtk_hnat/hnat.h b/drivers/net/ethernet/mediatek/mtk_hnat/hnat.h
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat.h	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat.h	2020-11-02 19:15:48.932233355 +0800
+@@ -666,12 +666,14 @@
+ 	(skb_hnat_entry(skb) != 0x3fff && skb_hnat_entry(skb) < hnat_priv->foe_etry_num)
+ #define FROM_GE_LAN(skb) (skb_hnat_iface(skb) == FOE_MAGIC_GE_LAN)
+ #define FROM_GE_WAN(skb) (skb_hnat_iface(skb) == FOE_MAGIC_GE_WAN)
++#define FROM_GE_PPD(skb) (skb_hnat_iface(skb) == FOE_MAGIC_GE_PPD)
+ #define FROM_GE_VIRTUAL(skb) (skb_hnat_iface(skb) == FOE_MAGIC_GE_VIRTUAL)
+ #define FROM_EXT(skb) (skb_hnat_iface(skb) == FOE_MAGIC_EXT)
+ #define FOE_MAGIC_GE_LAN 0x1
+ #define FOE_MAGIC_GE_WAN 0x2
+ #define FOE_MAGIC_EXT 0x3
+ #define FOE_MAGIC_GE_VIRTUAL 0x4
++#define FOE_MAGIC_GE_PPD 0x5
+ #define FOE_INVALID 0xf
+ #define index6b(i) (0x3fU - i)
+ 
+@@ -689,13 +691,10 @@
+ #define NR_PPE_PORT 4
+ #define NR_QDMA_PORT 5
+ #define NR_DISCARD 7
+-#if defined(CONFIG_NET_DSA)
+-#define LAN_DEV_NAME "lan"
+-#else
+ #define LAN_DEV_NAME hnat_priv->lan
+-#endif
++#define IS_WAN(dev)                                                            \
++	(!strncmp((dev)->name, hnat_priv->wan, strlen(hnat_priv->wan)))
+ #define IS_LAN(dev) (!strncmp(dev->name, LAN_DEV_NAME, strlen(LAN_DEV_NAME)))
+-#define IS_WAN(dev) (!strcmp(dev->name, hnat_priv->wan))
+ #define IS_BR(dev) (!strncmp(dev->name, "br", 2))
+ #define IS_WHNAT(dev)							       \
+ 	((hnat_priv->data->version == MTK_HNAT_V2 &&			       \
+@@ -753,6 +752,30 @@
+ extern const struct of_device_id of_hnat_match[];
+ extern struct mtk_hnat *hnat_priv;
+ 
++#if defined(CONFIG_NET_DSA_MT7530)
++void hnat_dsa_fill_stag(const struct net_device *netdev,
++			struct foe_entry *entry,
++			struct hnat_hw_path *hw_path,
++			u16 eth_proto, int mape);
++
++static inline bool hnat_dsa_is_enable(struct mtk_hnat *priv)
++{
++	return (priv->wan_dsa_port != NONE_DSA_PORT);
++}
++#else
++static inline void hnat_dsa_fill_stag(const struct net_device *netdev,
++				      struct foe_entry *entry,
++				      struct hnat_hw_path *hw_path,
++				      u16 eth_proto, int mape)
++{
++}
++
++static inline bool hnat_dsa_is_enable(struct mtk_hnat *priv)
++{
++	return false;
++}
++#endif
++
+ void hnat_deinit_debugfs(struct mtk_hnat *h);
+ int __init hnat_init_debugfs(struct mtk_hnat *h);
+ int hnat_register_nf_hooks(void);
+diff -urN a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_nf_hook.c	2020-11-02 19:15:48.932233355 +0800
+@@ -29,7 +29,8 @@
+ #include "../mtk_eth_soc.h"
+ 
+ #define do_ge2ext_fast(dev, skb)                                               \
+-	((IS_LAN(dev) || IS_WAN(dev)) && skb_hnat_is_hashed(skb) &&            \
++	((IS_LAN(dev) || IS_WAN(dev) || IS_PPD(dev)) && \
++	 skb_hnat_is_hashed(skb) && \
+ 	 skb_hnat_reason(skb) == HIT_BIND_FORCE_TO_CPU)
+ #define do_ext2ge_fast_learn(dev, skb)                                         \
+ 	(IS_PPD(dev) &&                                                        \
+@@ -146,7 +147,7 @@
+ 			dev_put(dev);
+ 			pr_info("%s(%s)\n", __func__, dev->name);
+ 
+-			return ext_entry->dev->ifindex;
++			return 0;
+ 		}
+ 	}
+ 
+@@ -522,6 +523,8 @@
+ {
+ 	if (IS_LAN(state->in)) {
+ 		skb_hnat_iface(skb) = FOE_MAGIC_GE_LAN;
++	} else if (IS_PPD(state->in)) {
++		skb_hnat_iface(skb) = FOE_MAGIC_GE_PPD;
+ 	} else if (IS_EXT(state->in)) {
+ 		skb_hnat_iface(skb) = FOE_MAGIC_EXT;
+ 	} else if (IS_WAN(state->in)) {
+@@ -1060,42 +1063,6 @@
+ 		case IPPROTO_TCP:
+ 			entry.ipv4_hnapt.etype = htons(ETH_P_IP);
+ 
+-#if defined(CONFIG_NET_DSA)
+-			if (IS_DSA_LAN(dev)) {
+-				entry.bfib1.vlan_layer = 1;
+-				entry.ipv4_hnapt.vlan1 = 0x00;
+-
+-				/* etype is the destination port_map for special tag */
+-				if ((hnat_priv->wan_dsa_port != NONE_DSA_PORT) &&
+-				    (hnat_priv->wan_dsa_port == 0)) {
+-					/* wllll : wan at port0 , lan0 at port1 */
+-					entry.ipv4_hnapt.etype = htons(
+-						BIT((dev->name[3] - '0') + 1));
+-				} else {
+-					/* llllw : lan0 at port0 , wan/eth1(gphy) at port4 */
+-					entry.ipv4_hnapt.etype =
+-						htons(BIT(dev->name[3] - '0'));
+-				}
+-
+-			} else if (IS_DSA_WAN(dev)) {
+-				entry.bfib1.vlan_layer = 1;
+-				entry.ipv4_hnapt.vlan1 = 0x00;
+-
+-				entry.ipv4_hnapt.etype =
+-					htons(BIT(hnat_priv->wan_dsa_port));
+-			}
+-
+-			if (dev->priv_flags & IFF_802_1Q_VLAN) {
+-				struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
+-
+-				entry.ipv4_hnapt.etype = htons(ETH_P_8021Q);
+-				entry.bfib1.vlan_layer = 1;
+-				if (IS_LAN(dev))
+-					entry.ipv4_hnapt.vlan2 = vlan->vlan_id;
+-				else
+-					entry.ipv4_hnapt.vlan1 = vlan->vlan_id;
+-			}
+-#endif
+ 			/* DS-Lite WAN->LAN */
+ 			if (entry.ipv4_hnapt.bfib1.pkt_type == IPV4_DSLITE) {
+ 				entry.ipv4_dslite.sip = foe->ipv4_dslite.sip;
+@@ -1361,8 +1328,14 @@
+ 	entry = ppe_fill_info_blk(eth, entry, hw_path);
+ 
+ 	if (IS_LAN(dev)) {
++		if (IS_DSA_LAN(dev))
++			hnat_dsa_fill_stag(dev, &entry, hw_path,
++					   ntohs(eth->h_proto), mape);
+ 		gmac = NR_GMAC1_PORT;
+ 	} else if (IS_WAN(dev)) {
++		if (IS_DSA_WAN(dev))
++			hnat_dsa_fill_stag(dev, &entry, hw_path,
++					   ntohs(eth->h_proto), mape);
+ 		if (mape_toggle && mape == 1) {
+ 			gmac = NR_PDMA_PORT;
+ 			/* Set act_dp = wan_dev */
+@@ -1370,7 +1343,18 @@
+ 		} else {
+ 			gmac = (IS_GMAC1_MODE) ? NR_GMAC1_PORT : NR_GMAC2_PORT;
+ 		}
+-	} else if (IS_EXT(dev) && (FROM_GE_LAN(skb) || FROM_GE_WAN(skb) || FROM_GE_VIRTUAL(skb))) {
++	} else if (IS_EXT(dev) && (FROM_GE_PPD(skb) || FROM_GE_LAN(skb) ||
++		   FROM_GE_WAN(skb) || FROM_GE_VIRTUAL(skb))) {
++		if ((hnat_priv->data->version != MTK_HNAT_V2) && IS_GMAC1_MODE) {
++			entry.bfib1.vpm = 1;
++			entry.bfib1.vlan_layer = 1;
++
++			if (FROM_GE_LAN(skb))
++				entry.ipv4_hnapt.vlan1 = 1;
++			else if (FROM_GE_WAN(skb) || FROM_GE_VIRTUAL(skb))
++				entry.ipv4_hnapt.vlan1 = 2;
++		}
++
+ 		trace_printk("learn of lan or wan(iif=%x) --> %s(ext)\n",
+ 			     skb_hnat_iface(skb), dev->name);
+ 		/* To CPU then stolen by pre-routing hant hook of LAN/WAN
+@@ -1519,7 +1503,7 @@
+ 		entry->ipv4_hnapt.winfo.wcid = skb_hnat_wc_id(skb);
+ 		entry->ipv4_hnapt.winfo.rxid = skb_hnat_rx_id(skb);
+ 	} else {
+-		if (IS_GMAC1_MODE) {
++		if (IS_GMAC1_MODE && !hnat_dsa_is_enable(hnat_priv)) {
+ 			entry->bfib1.vpm = 1;
+ 			entry->bfib1.vlan_layer = 1;
+ 
+diff -urN a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_stag.c b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_stag.c
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_stag.c	1970-01-01 08:00:00.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_stag.c	2020-11-02 19:15:48.932233355 +0800
+@@ -0,0 +1,55 @@
++/* SPDX-License-Identifier: GPL-2.0
++ *
++ * Copyright (c) 2020 MediaTek Inc.
++ * Author: Landen Chao <landen.chao@mediatek.com>
++ */
++
++#include "hnat.h"
++
++void hnat_dsa_fill_stag(const struct net_device *netdev,
++			struct foe_entry *entry,
++			struct hnat_hw_path *hw_path,
++			u16 eth_proto,
++			int mape)
++{
++	const struct net_device *ndev;
++	const unsigned int *port_reg;
++	int port_index;
++	u16 sp_tag;
++
++	if (hw_path->flags & HNAT_PATH_VLAN)
++		ndev = hw_path->real_dev;
++	else
++		ndev = netdev;
++
++	port_reg = of_get_property(ndev->dev.of_node, "reg", NULL);
++	port_index = be32_to_cpup(port_reg);
++	sp_tag = BIT(port_index);
++
++	if (!entry->bfib1.vlan_layer)
++		entry->bfib1.vlan_layer = 1;
++	else
++		/* VLAN existence indicator */
++		sp_tag |= BIT(8);
++	entry->bfib1.vpm = 0;
++
++	switch (eth_proto) {
++	case ETH_P_IP:
++		if (entry->ipv4_hnapt.bfib1.pkt_type == IPV4_DSLITE)
++			entry->ipv4_dslite.etype = sp_tag;
++		else
++			entry->ipv4_hnapt.etype = sp_tag;
++		break;
++	case ETH_P_IPV6:
++		/* In the case MAPE LAN --> WAN, binding entry is to CPU.
++		 * Do not add special tag.
++		 */
++		if (!mape)
++			/* etype offset of ipv6 entries are the same. */
++			entry->ipv6_5t_route.etype = sp_tag;
++
++		break;
++	default:
++		pr_info("DSA + HNAT unsupport protocol\n");
++	}
++}
+diff -urN a/drivers/net/ethernet/mediatek/mtk_hnat/Makefile b/drivers/net/ethernet/mediatek/mtk_hnat/Makefile
+--- a/drivers/net/ethernet/mediatek/mtk_hnat/Makefile	2020-06-04 10:45:18.000000000 +0800
++++ b/drivers/net/ethernet/mediatek/mtk_hnat/Makefile	2020-11-02 19:15:48.932233355 +0800
+@@ -2,3 +2,4 @@
+ 
+ obj-$(CONFIG_NET_MEDIATEK_HNAT)         += mtkhnat.o
+ mtkhnat-objs := hnat.o hnat_nf_hook.o hnat_debugfs.o hnat_mcast.o
++mtkhnat-$(CONFIG_NET_DSA_MT7530)	+= hnat_stag.o

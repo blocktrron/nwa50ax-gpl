@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/kernel/zyUMAC/Makefile
+Package: zyUMAC
+Submenu: kernel
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Micro UMAC
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   This Package is for Zyxel Micro MAC (zyUMAC)
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,3555 @@
+Source-Makefile: feeds/nucleus/application/aaa_event_handle/Makefile
+Package: aaa_event_handle
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zld-files +wtp_module +zykit +libubus +libubox +wifimgr
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN AAA event handler
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN AAA event handler
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/accounting-daemon/Makefile
+Package: accounting-daemon
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zld-files +zykit +wtp_module +libuam +zylog +wpa3lib +libubus +libubox +wifimgr
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Accounting Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Accounting Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/app_wd/Makefile
+Package: app_wd
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +libzld-sysinfo +diag_info +memcheck
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN App Watchdog daemon
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN App Watchdog daemon
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/application/bandselect_v2/Makefile
+Package: bandselect_v2
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libwifi_common +zylog +zyUMAC +libevent14 +zysh +zykit +TARGET_ipq:qca-wifi +wifimgr +libidn
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel BandSelect Application
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel BandSelect Application
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/bash/Makefile
+Package: bash
+Submenu: application
+Version: 4.4.18
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libncurses
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The GNU Bourne Again SHell
+Maintainer: 
+Source: 
+License: GPL-3.0+
+Type: ipkg
+Description: The GNU Bourne Again SHell
+http://www.gnu.org/software/bash/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/ccd/Makefile
+Package: ccd
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libzld-sysinfo
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Counter Collection Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Counter Collection Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/cert-tool/Makefile
+Package: cert-tool
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +libxml2 +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula cert tool
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula cert tool
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/cloud-auth/Makefile
+Package: cloud-auth
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libjson-c +libcurl +zld-files +zylog +libuam +zykit +libuser_profile +zyxel-redis +@LIBCURL_OPENSSL +LIBCURL_OPENSSL:libopenssl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Nebula Cloud Auth Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Nebula Cloud Auth Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/coredump-store-lite/Makefile
+Package: coredump-store-lite
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zlib +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Coredump Store Utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Utility for Store Coredump file into Flash
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/cron/Makefile
+Package: cron
+Submenu: application
+Version: 3.0pl1-128
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: process scheduling daemon
+Maintainer: 
+Source: 
+License: Paul-Vixie's-license
+Type: ipkg
+Description: process scheduling daemon
+https://salsa.debian.org/debian/cron
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/dhcp-sniffer/Makefile
+Package: dhcp-sniffer
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libubus +libubox +wifimgr +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula dhcp sniffer
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula dhcp sniffer
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/diag_info/Makefile
+Package: diag_info
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +wtp_module +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Prowlan , Diagnostic collection.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Prowlan , Diagnostic collection.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/email-daily-report/Makefile
+Package: email-daily-report
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libxml2 +libpng +libuser_profile +zylog +zykit +libuam +libgd
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN email daily report
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN email daily report
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/encrypt/Makefile
+Package: encrypt
+Submenu: application
+Version: 0.1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Prowlan , Encrypt tools.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Prowlan , Encrypt tools.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/fauthd/Makefile
+Package: fauthd
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +zld-files +zylog +libuam +zykit +wtp_module +zyio_library +kmod-captive_portal +wpa3lib +libubus +libubox +wifimgr
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Force Auth Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Force Auth Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/file_export/Makefile
+Package: file_export
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN file export CGI
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN file export CGI
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/file_manage/Makefile
+Package: file_manage
+Submenu: application
+Version: 0.1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +libfirmware +libbmm
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN file manage daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Daemon handle firmware file management for upgrade.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/file_upload-cgi/Makefile
+Package: file_upload-cgi
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +libbmm +libfirmware +zyio_library
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN file upload CGI
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN file upload CGI
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/gdb/Makefile
+Package: gdb
+Version: 8.3.1-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +!USE_MUSL:libthread-db +PACKAGE_zlib:zlib @!arc +libreadline +libncurses +zlib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Repository: base
+Title: GNU Debugger
+Maintainer: 
+Source: gdb-8.3.1.tar.xz
+License: GPL-3.0+
+Type: ipkg
+Description: GDB, the GNU Project debugger, allows you to see what is going on `inside'
+another program while it executes -- or what another program was doing at the
+moment it crashed.
+http://www.gnu.org/software/gdb/
+
+@@
+
+Package: gdbserver
+Version: 8.3.1-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +!USE_MUSL:libthread-db +PACKAGE_zlib:zlib @!arc
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Repository: base
+Title: Remote server for GNU Debugger
+Maintainer: 
+Source: gdb-8.3.1.tar.xz
+License: GPL-3.0+
+Type: ipkg
+Description: GDBSERVER is a program that allows you to run GDB on a different machine than the
+one which is running the program being debugged.
+http://www.gnu.org/software/gdb/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/generic_timer/Makefile
+Package: generic_timer
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +email-daily-report +zykit +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Generic Timer Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Daemon to collect device information (interface statistics, cpu, memery, sessions, uptime, hostname, firmware version, model name)
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/hy_fwdd/Makefile
+Package: hy_fwdd
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +kmod-hy_fwd +zylog +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: User Daemon for Hybrid Forwarding Module
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   User Daemon for Hybrid Forwarding Module
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/application/info_transfer/Makefile
+Package: info_transfer
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +wtp_module +libjson-c +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The Information transferation Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Tool to transfer information to Controller
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/ip_change_notifier/Makefile
+Package: ip_change_notifier
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +zld-files +libevent14 +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN IP Change Notify Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN IP Change Notify Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/l2isolation/Makefile
+Package: l2isolation
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Layer2 isolation script
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Layer2 isolation script
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/link_updown/Makefile
+Package: link_updown
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +zylog +libuam +libiface_generic +kmod-link_updown-module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Ethernet link up down notify daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   Handle Ethernet link up down event and notify related daemon to launch service
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/live-tool-daemon/Makefile
+Package: live-tool-daemon
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula live tool daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula live tool daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/lldp-rcd/Makefile
+Package: lldp-rcd
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libuam +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN lldp-rcd
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN lldp-rcd
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/load-balancing/Makefile
+Package: load-balancing
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zylog +zykit +libuam +libevent14 +zyUMAC +zld-files +librt +zysh +libwifi_common +wpa3lib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel load-balancing package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel load-balancing package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/logfwd-helper/Makefile
+Package: logfwd-helper
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +zykit +wtp_module +libiface_generic +kmod-switchdev
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Log forward Helper Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Tool that used to send log to Controller via CAPWAP
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/magic-seed/Makefile
+Package: magic-seed
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel magic-seed package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel magic-seed package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/memcheck/Makefile
+Package: memcheck
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Memory Check daemon
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Memory Check daemon
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/application/mlogin/Makefile
+Package: mlogin
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +libpam +libuam +zylog +zykit +libuser_profile +zld-files +wireless-hal +wpa3lib +wtp_module +libcurl +@LIBCURL_OPENSSL +LIBCURL_OPENSSL:libopenssl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel mlogin package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel mlogin package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/multibootd/Makefile
+Package: multibootd
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libgpio_control +libbmm +libfirmware +libzyDualImage
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The multiboot daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A daemon listen for handle system firmware upgrade
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/nebula-firmware-upgrade-cert/Makefile
+Package: nebula-firmware-upgrade-cert
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula firmware upgrade cert
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula firmware upgrade cert
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/nebula-led-ctrl/Makefile
+Package: nebula-led-ctrl
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Nebula LED Control Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Nebula LED Control Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/neighbor_collector/Makefile
+Package: neighbor_collector
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +wtp_module +libevent14 +libjson-c +zykit +libidn
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Neighbor Collector Application
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel Neighbor Collector Application
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/net-tools/Makefile
+Package: net-tools
+Submenu: application
+Version: 2.10-alpha
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The net-tools package
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: The net-tools package
+https://sourceforge.net/projects/net-tools/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/netopeer/Makefile
+Package: netopeer
+Submenu: application
+Version: 0.8.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +wtp_module +zylog +zykit +zlib +libnetconf +libfeynman +netopeer-watchdog +@OPENSSL_WITH_COMPRESSION +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula netopeer
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: ProWLAN nebula netopeer
+https://github.com/cesnet/netopeer
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/netopeer-callbacks/Makefile
+Package: netopeer-callbacks
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +libnetconf +epoch +wtp_module +zylog +netopeer +zld-files +libuser_profile +fauthd +live-tool-daemon +diag_info
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula netopeer callbacks
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula netopeer callbacks
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/netopeer-remote-debug/Makefile
+Package: netopeer-remote-debug
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula remote debug
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula remote debug
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/netopeer-update-fw/Makefile
+Package: netopeer-update-fw
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libfirmware +wtp_module +zylog +libcurl +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula update fw
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula update fw
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/netopeer-watchdog/Makefile
+Package: netopeer-watchdog
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +wtp_module +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula watchdog
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula watchdog
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/paping/Makefile
+Package: paping
+Submenu: application
+Version: 1.5.5
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libstdcpp
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel paping package
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: Zyxel paping package
+https://code.google.com/archive/p/paping/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/pcap_monitor/Makefile
+Package: pcap_monitor
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Prowlan , pcap monitor.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Prowlan , pcap monitor.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/peripheral-detect/Makefile
+Package: peripheral-detect
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Peripheral detection daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   Handle peripheral event and do some actions
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/pki/Makefile
+Package: pki
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +uam +zylog +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN common pki
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN common pki
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/power_source_detect/Makefile
+Package: power_source_detect
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Power Source Detect and Method Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Utility for Detecting Power Source and Do Action
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/proWireless_snmptrap/Makefile
+Package: proWireless_snmptrap
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libxml2 +zyio_library
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWireless snmp trap
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWireless snmp trap
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/pure-ftpd/Makefile
+Package: pure-ftpd
+Submenu: application
+Version: 1.0.49
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +zylog +zykit +libuam +libpam +file_manage
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Pure-FTPd
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Pure-FTPd
+https://www.pureftpd.org/project/pure-ftpd/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/radio_resource_measurement/Makefile
+Package: radio_resource_measurement
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zykit +wtp_module +libevent14 +zyUMAC +wifimgr
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel radio_resource_measurement package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel radio_resource_measurement package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/rate-limit/Makefile
+Package: rate-limit
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zld-files +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Rate Limit Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Rate Limit Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/rum/Makefile
+Package: rum
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zld-files +libuser_profile +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel rum package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel rum package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/scan_agent/Makefile
+Package: scan_agent
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libscan +libjson-c +libpthread +libwifi_common
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Scan Agent Application
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel Scan Agent Application
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/schedule_ssid/Makefile
+Package: schedule_ssid
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel schedule_ssid utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   schedule_ssid application.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/showstat/Makefile
+Package: showstat
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: show wifi statistics info
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: show wifi statistics info
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/smart_mesh/Makefile
+Package: smart_mesh
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +wtp_module +zlib +zykit +libiface_generic +uam +zld-files +wireless-hal +libubus +libubox
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Smart Mesh Utility
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel Smart Mesh Utility
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/application/sp-oops-extract/Makefile
+Package: sp-oops-extract
+Submenu: application
+Version: 0.0.7
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel sp-oops-extract package
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: Zyxel sp-oops-extract package
+http://maemo.org/packages/view/sp-oops-extract/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/ssid_manager/Makefile
+Package: ssid_manager
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libevent14 +zykit +libuam +zylog +libjson-c
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel ssidmgr utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel ssidmgr utility
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/sta_info_update/Makefile
+Package: sta_info_update
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula sta info update
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula sta info update
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/syslog-ng/Makefile
+Package: syslog-ng
+Submenu: application
+Version: 1.6.12-6
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libol +librt
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: A powerful syslog daemon
+Maintainer: 
+Source: syslog-ng-1.6.12.tar.gz
+License: GPL-2.0
+Type: ipkg
+Description: 	syslog-ng reads and logs messages to the system console, log
+	files, other machines and/or users as specified by its
+	configuration file.
+http://www.balabit.hu/products/syslog-ng/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/uam/Makefile
+Package: uam
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +libxml2 +zld-files +zylog +zykit +libuam +libpam +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN User Aware Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN User Aware Module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/ubus_test/Makefile
+Package: ubus_test
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libnl-tiny +libpthread +libubus +libubox +zyUMAC +wifimgr +libevent14
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: wifi ubus test client application
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: wifi ubus test client application
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/update-fw-lite/Makefile
+Package: update-fw-lite
+Submenu: application
+Version: 0.1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libbmm +libgpio_control +libzyDualImage
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Firmware Update Utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Utility for updating firmware into Flash
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/walled_garden/Makefile
+Package: walled_garden
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +wtp_module +kmod-captive_portal
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Nebula Walled Garden Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Nebula Walled Garden Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/wifimgr/Makefile
+Package: wifimgr
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libnl-tiny +libpthread +libubus +libubox +zyUMAC +zylog +zylog_wrapper +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: wifi netlink event manager
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: wifi netlink event manager
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/wireless-hal/Makefile
+Package: wireless-hal
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zylog +zykit +libiface_generic +libuam +zyUMAC +zld-files +wifimgr +zylog_wrapper +proWireless_snmptrap +libwifi_common +libstats +TARGET_ipq:qca-wifi +wtp_module +wpa3lib +link_updown +libubus +libubox
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wireless-hal package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wireless-hal package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/wireless_health/Makefile
+Package: wireless_health
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zylog_wrapper +wlan_dcs_3 +wtp_module +libevent14 +libstats +libwifi_common +libstainfo
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wireless_health package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wireless_health package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/wlan_apmode_rapd/Makefile
+Package: wlan_apmode_rapd
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +scan_agent +wtp_module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wlan_apmode_rapd package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wlan_apmode_rapd package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/wlan_dcs_3/Makefile
+Package: wlan_dcs_3
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +scan_agent +libwifi_common +libevent14 +TARGET_ipq:qca-wifi
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel wlan_dcs_3 package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel wlan_dcs_3 package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/workAround/Makefile
+Package: workAround
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Prowlan , System protect.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Prowlan , System protect.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/wtp_module/Makefile
+Package: wtp_module
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +zylog +libevent14 +libzld-sysinfo +libfirmware +libopenssl +zyxel-redis +kmod-switchdev +@OPENSSL_WITH_DTLS +libiface_generic +libubus +libubox +wifimgr +wpa3lib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN wtp module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN wtp module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zon/Makefile
+Package: zon
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libfeynman +libuam +zylog +libbmm +libfirmware
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN zon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN zon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zwd/Makefile
+Package: zwd
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +zylog +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN ZLD Wrapper Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN ZLD Wrapper Daemon
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zwdfs/Makefile
+Package: zwdfs
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libubus
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zero-Wait DFS manager
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   It is intended to provide zero-wait DFS
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyled/Makefile
+Package: zyled
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgpio_control
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zyled package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zyled package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zylog/Makefile
+Package: zylog
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libuam +zykit +kmod-zyklog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylog package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylog package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zylogger-handler/Makefile
+Package: zylogger-handler
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +zylog_wrapper
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylogger-handler package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylogger-handler package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zylogin/Makefile
+Package: zylogin
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylogin package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylogin package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zymesh_app/Makefile
+Package: zymesh_app
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +zykit +zlib +libuam +libiface_generic +link_updown +wireless-hal
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZyMesh
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZyMesh
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zymesh_info_collector/Makefile
+Package: zymesh_info_collector
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +libpthread +zymesh_info_collector-library
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZyMesh Info Collector
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZyMesh Info Collector
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zysh/Makefile
+Package: zysh
+Submenu: application
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +libidn +libpam +libtecla +libopenssl +app_wd +link_updown +wlan_dcs_3 +accounting-daemon +kmod-zyklog +kmod-captive_portal +fauthd +nebula-led-ctrl +pki +email-daily-report +zld-files +wireless-hal +zylog +libbmm +libfirmware +wtp_module +libuam +walled_garden +wpa3lib +libiface_generic +libuser_profile +zykit +zylog_wrapper +zyio_library +libzld-sysinfo +generic_timer +kmod-switchdev +libzyDualImage +wlan_apmode_rapd +scan_agent +radio_resource_measurement +ssid_manager +neighbor_collector +info_transfer +libgpio_control +diag_info +pcap_monitor +smart_mesh +kmod-hy_fwd
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel ZySH package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel ZySH package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zysh-cgi/Makefile
+Package: zysh-cgi
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libgcgi +zykit +libuam +libuser_profile
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zysh-cgi package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zysh-cgi package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-bind/Makefile
+Package: zyxel-bind
+Submenu: application
+Version: 9.2.3
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN zyxel-bind no change
+Maintainer: 
+Source: 
+License: ISC
+Type: ipkg
+Description: ProWLAN zyxel-bind no change
+https://www.isc.org/bind/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-dhcpcd/Makefile
+Package: zyxel-dhcpcd
+Submenu: application
+Version: 1.3.22-pl4
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel dhcpcd
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: Zyxel dhcpcd
+http://www.phystech.com/ftp/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-dnsmasq/Makefile
+Package: zyxel-dnsmasq
+Submenu: application
+Version: 2.85
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +ipset +zylog +zld-files +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: A DNS and DHCP server
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: A DNS and DHCP server
+http://www.thekelleys.org.uk/dnsmasq/doc.html
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-freeradius3/Makefile
+Package: zyxel-freeradius3
+Submenu: application
+Version: 3.0.20
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +libtalloc +libatomic +zld-files +kmod-captive_portal +libcap +libpcap +libncurses +libreadline
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: FreeRADIUS Server v3.x
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: FreeRADIUS Server v3.x
+https://freeradius.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-iputils/Makefile
+Package: zyxel-iputils
+Submenu: application
+Version: 20180629
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel iputils package
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel iputils package
+http://www.skbuff.net/iputils/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-lighttpd/Makefile
+Package: zyxel-lighttpd
+Submenu: application
+Version: 1.4.45
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libuser_profile +libopenssl +libpcre +zlib +libpthread +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: A flexible and lightweight web server
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: A flexible and lightweight web server
+https://www.lighttpd.net/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-lldpd/Makefile
+Package: zyxel-lldpd
+Submenu: application
+Version: 0.7.8
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libiface_generic
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN zyxel-lldpd
+Maintainer: 
+Source: 
+License: ISC
+Type: ipkg
+Description: ProWLAN zyxel-lldpd
+https://lldpd.github.io/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-net-snmp/Makefile
+Package: zyxel-net-snmp
+Submenu: application
+Version: 5.4.3
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zyio_library +zykit +libxml2 +libopenssl +wireless-hal
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel net-snmp package
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel net-snmp package
+http://net-snmp.sourceforge.net/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-ntp/Makefile
+Package: zyxel-ntp
+Submenu: application
+Version: 4.2.8p12
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libcap +zld-files +libuam +zylog +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The ntpdate utility from ISC NTP & ProWLAN ntpdate agent
+Maintainer: 
+Source: 
+License: NTP License
+Type: ipkg
+Description: The ntpdate utility from ISC NTP & ProWLAN ntpdate agent
+http://www.ntp.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-openssh/Makefile
+Package: zyxel-openssh
+Submenu: application
+Version: 8.6p1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +zlib +libpthread +libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Depends: libopenssl
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel OpenSSH Package
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel OpenSSH Package
+http://www.openssh.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-redis/Makefile
+Package: zyxel-redis
+Submenu: application
+Version: 3.0.3
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The redis for database
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: The redis for database
+https://redis.io
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-suexec/Makefile
+Package: zyxel-suexec
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN suexec tool
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN suexec tool
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-switch_disable/Makefile
+Package: zyxel-switch_disable
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +kmod-switchdev
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN switch_disable tool
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN switch_disable tool
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-wide-dhcpv6/Makefile
+Package: zyxel-wide-dhcpv6
+Submenu: application
+Version: 20080615
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel DHCP client application for IPv6
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Zyxel DHCP client application for IPv6
+https://sourceforge.net/projects/wide-dhcpv6/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/application/zyxel-wlan_disable/Makefile
+Package: zyxel-wlan_disable
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN wlan_disable tool
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN wlan_disable tool
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/boot/dumpimage-mips-mt7621/Makefile
+Package: dumpimage-mips-mt7621
+Submenu: Applications
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread @TARGET_mt7621||TARGET_ramips +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: MTK Properties
+Category: MTK Properties
+Repository: base
+Title: dumpimage for MT7621 based platforms
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: dumpimage for MT7621 based platforms
+http://www.denx.de/wiki/U-Boot
+
+@@
+
+
+Source-Makefile: feeds/nucleus/boot/uboot-ramips/Makefile
+Package: u-boot-mips-mt7621
+Submenu: Boot Loaders
+Version: 2018.09-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread @TARGET_ramips||TARGET_mt7621
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Variant: mt7621
+Section: MTK Properties
+Category: MTK Properties
+Repository: base
+Title: U-Boot for MT7621 based platforms
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: U-Boot for MT7621 based platforms
+http://www.denx.de/wiki/U-Boot
+
+@@
+
+
+Source-Makefile: feeds/nucleus/example/hello_world/Makefile
+Package: hello_world
+Submenu: example
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel hello_world package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel hello_world package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/br-ct/Makefile
+Package: kmod-br-ct
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +kmod-nf-conntrack +kmod-nf-conntrack6
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Bridge Netfilter Conntrack
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Bridge Netfilter Conntrack
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/captive_portal/Makefile
+Package: kmod-captive_portal
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN Captive Portal Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Captive Portal Module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/daas/Makefile
+Package: kmod-daas
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN DAAS Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN DAAS Module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/dp/Makefile
+Package: kmod-dp
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Kernel driver for Data Plane Fastpath
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Kernel-Config: CONFIG_NF_CONNTRACK_EVENTS=y
+Description: Kernel driver for Data Plane Fastpath
+https://www.zyxel.com/
+
+@@
+
+Package: kmod-dp-cm
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +kmod-ipt-conntrack +kmod-dp +kmod-br-ct
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Kernel driver for Data plane Fastpath connection manager
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Kernel-Config: CONFIG_NF_CONNTRACK_CHAIN_EVENTS=y
+Description: Kernel driver for Data plane Fastpath connection manager
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/hy_fwd/Makefile
+Package: kmod-hy_fwd
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: hybrid forwarding module
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: hybrid forwarding module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/l2upframe/Makefile
+Package: kmod-l2upframe
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zyUMAC
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: l2upframe
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Kernel Module to peek l2 update frames to update AP station info.
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/link_updown-module/Makefile
+Package: kmod-link_updown-module
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel Ethernet link up down module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   Kernel module for link up down event send
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/magic_seed-module/Makefile
+Package: kmod-magic_seed-module
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +magic-seed
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN Magic Seed Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Magic Seed Module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/platform_support-module/Makefile
+Package: kmod-platform_support-module
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files +kmod-switchdev +kmod-zyklog +zyUMAC
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel platform_support-module package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: 	A Kernel Module for accessing HW information by /proc (led / board info. / slide switch / reset button / led button)
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/rclog/Makefile
+Package: kmod-rclog
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: reboot cause logs
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: reboot cause logs
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/sshcon/Makefile
+Package: kmod-sshcon
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN SSHcon Module
+Maintainer: ZYXEL Networkings, Inc.
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN SSHcon Module
+http://www.zyxel.com
+ZYXEL Networkings, Inc.
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/sw_mt76xx/Makefile
+Package: kmod-sw_mt76xx
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files +kmod-switchdev +kmod-zyklog +kmod-platform_support-module
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel switchdev callback for MT76xx
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   kernel module for mt76xx switchdev callback
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/switchdev/Makefile
+Package: kmod-switchdev
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel switchdev package
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: 	A middleware between switch driver and Zysh configuration
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/zld_conntrack_data/Makefile
+Package: kmod-zld_conntrack_data
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +kmod-zyklog +kmod-nf-conntrack
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ZLD Conntrack Data Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZLD Conntrack Data Module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/zld_mrd-module/Makefile
+Package: kmod-zld_mrd-module
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Zyxel zld_mrd-module package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Kernel Module for Accessing Zyxel MRD
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/zyUMAC/Makefile
+Package: zyUMAC
+Submenu: kernel
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel Micro UMAC
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   This Package is for Zyxel Micro MAC (zyUMAC)
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/kernel/zyklog/Makefile
+Package: kmod-zyklog
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: ProWLAN Zylog Kernel Module
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Zylog Kernel Module
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/epoch/Makefile
+Package: epoch
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula epoch library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula epoch library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libbmm/Makefile
+Package: libbmm
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN BMM(BM MRD MYZYXEL) Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN BMM(BM MRD MYZYXEL) Library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libevent14/Makefile
+Package: libevent14
+Submenu: library
+Version: 1.4.15
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: libevent (v1.4)
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: libevent (v1.4)
+http://libevent.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libfeynman/Makefile
+Package: libfeynman
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: libfeynman
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: libfeynman
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libfirmware/Makefile
+Package: libfirmware
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libbmm
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Firmware Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Firmware Library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libgcgi/Makefile
+Package: libgcgi
+Submenu: library
+Version: 0.9.5
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: GNU CGI Library in C
+Maintainer: 
+Source: 
+License: LGPL
+Type: ipkg
+Description: GNU CGI Library in C
+http://catchen.org/gcgi/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libgpio_control/Makefile
+Package: libgpio_control
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel libgpio_control package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Library that used for controlling LED
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libidn/Makefile
+Package: libidn
+Submenu: library
+Version: 1.35
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Stringprep, Punycode and IDNA implementation
+Maintainer: 
+Source: 
+License: GPL-2.0+
+Type: ipkg
+Description: Stringprep, Punycode and IDNA implementation
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libiface_generic/Makefile
+Package: libiface_generic
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +kmod-switchdev
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel libiface_generic package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   library that used for obtaining ethernet port related information
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libnetconf/Makefile
+Package: libnetconf
+Submenu: library
+Version: 0.10.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zykit +libcurl +libxml2 +libxslt +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula library
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: ProWLAN nebula library
+https://github.com/CESNET/libnetconf
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libol/Makefile
+Package: libol
+Submenu: library
+Version: 0.3.18-2
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Support library for syslog-ng
+Maintainer: 
+Source: libol-0.3.18.tar.gz
+License: GPL-2.0
+Type: ipkg
+Description: Support library for syslog-ng
+http://www.balabit.com/products/syslog_ng/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libpam/Makefile
+Package: libpam
+Submenu: library
+Version: 1.3.1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +libuser_profile +libuam +libfeynman +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Linux PAM Library and Modules
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Linux PAM Library and Modules
+http://www.linux-pam.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libpcap/Makefile
+Package: libpcap
+Submenu: library
+Version: 1.9.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Low-level packet capture library
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Low-level packet capture library
+http://www.tcpdump.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libscan/Makefile
+Package: libscan
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zyUMAC
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The common library to scan function
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: The common library to scan function
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libstainfo/Makefile
+Package: libstainfo
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The common library to retrive sta information from driver
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: The common library to retrive sta information from driver
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libstats/Makefile
+Package: libstats
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zyUMAC
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The common library to retrive status from driver
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: The common library to retrive status from driver
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libtalloc/Makefile
+Package: libtalloc
+Submenu: library
+Version: 2.1.14
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: talloc Library
+Maintainer: 
+Source: 
+License: LGPL-3.0+
+Type: ipkg
+Description: talloc Library
+https://talloc.samba.org/talloc/doc/html/index.html
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libtecla/Makefile
+Package: libtecla
+Submenu: library
+Version: 1.6.1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libncurses
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The Tecla command-line editing library
+Maintainer: 
+Source: 
+License: X11
+Type: ipkg
+Description: The Tecla command-line editing library
+https://sites.astro.caltech.edu/~mcs/tecla/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libtirpc/Makefile
+Package: libtirpc
+Submenu: library
+Version: 1.1.4
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Types: host
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Library TI RPC for RPC bindings
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: Library TI RPC for RPC bindings
+http://libtirpc.sourceforge.net/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libuam/Makefile
+Package: libuam
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN User Aware Module Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN User Aware Module Library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libuser_profile/Makefile
+Package: libuser_profile
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zylog +zykit +libuam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN User Profile Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN User Profile Library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libwifi_common/Makefile
+Package: libwifi_common
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zyUMAC +libstainfo
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: The common library to wifi function
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: The common library to wifi function
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libxml2/Makefile
+Package: libxml2
+Submenu: library
+Version: 2.9.8
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libpthread +zlib
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Types: host
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Gnome XML library
+Maintainer: 
+Source: 
+License: MIT
+Type: ipkg
+Description: Gnome XML library
+http://xmlsoft.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libzld-sysinfo/Makefile
+Package: libzld-sysinfo
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel libzld-sysinfo package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel libzld-sysinfo package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/libzyDualImage/Makefile
+Package: libzyDualImage
+Submenu: library
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libbmm +zylog
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Library and tool for dual image related operations
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Library and tool for dual image related operations
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/openssl/Makefile
+Package: libopenssl
+Menu: 1
+Submenu: SSL
+Version: 1.1.1n-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +OPENSSL_WITH_COMPRESSION:zlib +OPENSSL_ENGINE_BUILTIN_AFALG:kmod-crypto-user +OPENSSL_ENGINE_BUILTIN_DEVCRYPTO:kmod-cryptodev +OPENSSL_ENGINE_BUILTIN_PADLOCK:kmod-crypto-hw-padlock
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Repository: base
+Title: Open source SSL toolkit (libraries)
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Source: openssl-1.1.1n.tar.gz
+License: OpenSSL
+LicenseFiles: LICENSE
+Type: ipkg
+Description: The OpenSSL Project is a collaborative effort to develop a robust,
+commercial-grade, full-featured, and Open Source toolkit implementing the
+Transport Layer Security (TLS) protocol as well as a full-strength
+general-purpose cryptography library.
+This package contains the OpenSSL shared libraries, needed by other programs.
+http://www.openssl.org/
+Eneas U de Queiroz <cotequeiroz@gmail.com>
+@@
+Config:
+source "nucleus/feeds/library/openssl/Config.in"
+@@
+
+Package: libopenssl-conf
+Submenu: SSL
+Version: 1.1.1n-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread libopenssl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Repository: base
+Title: /etc/ssl/openssl.cnf config file
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Source: openssl-1.1.1n.tar.gz
+License: OpenSSL
+LicenseFiles: LICENSE
+Type: ipkg
+Description: The OpenSSL Project is a collaborative effort to develop a robust,
+commercial-grade, full-featured, and Open Source toolkit implementing the
+Transport Layer Security (TLS) protocol as well as a full-strength
+general-purpose cryptography library.
+This package installs the OpenSSL configuration file /etc/ssl/openssl.cnf.
+http://www.openssl.org/
+Eneas U de Queiroz <cotequeiroz@gmail.com>
+@@
+
+Package: libopenssl-afalg
+Submenu: SSL
+Version: 1.1.1n-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread libopenssl @OPENSSL_ENGINE @KERNEL_AIO +PACKAGE_libopenssl-afalg:kmod-crypto-user +libopenssl-conf @!OPENSSL_ENGINE_BUILTIN
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Repository: base
+Title: AFALG hardware acceleration engine
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Source: openssl-1.1.1n.tar.gz
+License: OpenSSL
+LicenseFiles: LICENSE
+Type: ipkg
+Description: This package adds an engine that enables hardware acceleration
+through the AF_ALG kernel interface.
+To use it, you need to configure the engine in /etc/ssl/openssl.cnf
+See https://www.openssl.org/docs/man1.1.1/man5/config.html#Engine-Configuration-Module
+and https://openwrt.org/docs/techref/hardware/cryptographic.hardware.accelerators
+The engine_id is "afalg"
+http://www.openssl.org/
+Eneas U de Queiroz <cotequeiroz@gmail.com>
+@@
+
+Package: libopenssl-devcrypto
+Submenu: SSL
+Version: 1.1.1n-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread libopenssl @OPENSSL_ENGINE +PACKAGE_libopenssl-devcrypto:kmod-cryptodev +libopenssl-conf @!OPENSSL_ENGINE_BUILTIN
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Repository: base
+Title: /dev/crypto hardware acceleration engine
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Source: openssl-1.1.1n.tar.gz
+License: OpenSSL
+LicenseFiles: LICENSE
+Type: ipkg
+Description: This package adds an engine that enables hardware acceleration
+through the /dev/crypto kernel interface.
+To use it, you need to configure the engine in /etc/ssl/openssl.cnf
+See https://www.openssl.org/docs/man1.1.1/man5/config.html#Engine-Configuration-Module
+and https://openwrt.org/docs/techref/hardware/cryptographic.hardware.accelerators
+The engine_id is "devcrypto"
+http://www.openssl.org/
+Eneas U de Queiroz <cotequeiroz@gmail.com>
+@@
+
+Package: libopenssl-padlock
+Submenu: SSL
+Version: 1.1.1n-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread libopenssl @OPENSSL_ENGINE @TARGET_x86 +PACKAGE_libopenssl-padlock:kmod-crypto-hw-padlock +libopenssl-conf @!OPENSSL_ENGINE_BUILTIN
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Repository: base
+Title: VIA Padlock hardware acceleration engine
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Source: openssl-1.1.1n.tar.gz
+License: OpenSSL
+LicenseFiles: LICENSE
+Type: ipkg
+Description: This package adds an engine that enables VIA Padlock hardware acceleration.
+To use it, you need to configure it in /etc/ssl/openssl.cnf.
+See https://www.openssl.org/docs/man1.1.1/man5/config.html#Engine-Configuration-Module
+and https://openwrt.org/docs/techref/hardware/cryptographic.hardware.accelerators
+The engine_id is "padlock"
+http://www.openssl.org/
+Eneas U de Queiroz <cotequeiroz@gmail.com>
+@@
+
+Package: openssl-util
+Version: 1.1.1n-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl +libopenssl-conf
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Repository: base
+Title: Open source SSL toolkit (utility)
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Source: openssl-1.1.1n.tar.gz
+License: OpenSSL
+LicenseFiles: LICENSE
+Type: ipkg
+Description: The OpenSSL Project is a collaborative effort to develop a robust,
+commercial-grade, full-featured, and Open Source toolkit implementing the
+Transport Layer Security (TLS) protocol as well as a full-strength
+general-purpose cryptography library.
+This package contains the OpenSSL command-line utility.
+http://www.openssl.org/
+Eneas U de Queiroz <cotequeiroz@gmail.com>
+@@
+
+
+Source-Makefile: feeds/nucleus/library/pam_auth_admin/Makefile
+Package: pam_auth_admin
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libtirpc +zld-files +libfeynman libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: PAM module for Admin authentication
+Maintainer: 
+Source: 
+License: BSD
+Type: ipkg
+Description: PAM module for Admin authentication
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/pam_debugauth/Makefile
+Package: pam_debugauth
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libopenssl libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: PAM module for Debug authentication
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: PAM module for Debug authentication
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/pam_radius/Makefile
+Package: pam_radius
+Submenu: library
+Version: 1.3.16
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +libuam libpam
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: PAM module for RADIUS authentication
+Maintainer: 
+Source: 
+License: GPL-2.0
+Type: ipkg
+Description: PAM module for RADIUS authentication
+http://www.freeradius.org/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/wpa3lib/Makefile
+Package: wpa3lib
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN WPA3 library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN WPA3 library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/zyio_library/Makefile
+Package: zyio_library
+Submenu: library
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +libtecla +libevent14 +link_updown
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zyio_library package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zyio_library package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/zykit/Makefile
+Package: zykit
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libbmm +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Zykit Library and Utility
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Zykit Library and Utility
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/zylog_wrapper/Makefile
+Package: zylog_wrapper
+Submenu: library
+Version: 1.0.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zwd
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Zyxel zylog_wrapper package
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Zyxel zylog_wrapper package
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/library/zymesh_info_collector-library/Makefile
+Package: zymesh_info_collector-library
+Submenu: library
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +libpthread
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZyMesh Info Collector Library
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZyMesh Info Collector Library
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/zld-common-files/zld-files/Makefile
+Package: zld-files
+Submenu: zld-common-files
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZLD essential files.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZLD essential files.
+https://www.zyxel.com/
+
+@@
+Config:
+	source "nucleus/feeds/zld-common-files/zld-files/apps_list.in"
+@@
+
+
+Source-Makefile: feeds/nucleus/zld-common-files/zld-gui-hybrid/Makefile
+Package: zld-gui-hybrid
+Submenu: zld-common-files
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN AP GUI
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN AP GUI
+https://www.zyxel.com/
+
+@@
+
+
+Source-Makefile: feeds/nucleus/zld-common-files/zld-init-scripts/Makefile
+Package: zld-init-scripts
+Submenu: zld-common-files
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZLD init scripts.
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZLD init scripts.
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/zymesh_info_collector/Makefile
+Package: zymesh_info_collector
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zykit +libpthread +zymesh_info_collector-library
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ZyMesh Info Collector
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ZyMesh Info Collector
+https://www.zyxel.com/
+
+@@
+
+

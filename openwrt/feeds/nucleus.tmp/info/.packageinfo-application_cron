@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/cron/Makefile
+Package: cron
+Submenu: application
+Version: 3.0pl1-128
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread 
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: process scheduling daemon
+Maintainer: 
+Source: 
+License: Paul-Vixie's-license
+Type: ipkg
+Description: process scheduling daemon
+https://salsa.debian.org/debian/cron
+
+@@
+
+

@@ -1,0 +1,10 @@
+# <file system> <mount point> <type> <options> <dump> <pass>
+# First layer
+mtd:conf	/etc/zyxel/ftp		jffs2	defaults	0	0
+mtd:reserved	/etc/zyxel/pikachu	jffs2	defaults	0	0
+# Second layer
+mtd:diaglog	/etc/zyxel/ftp/diaglog	jffs2	defaults	0	0
+mtd:misc	/etc/zyxel/ftp/tmp	jffs2	defaults	0	0
+mtd:coredump	/etc/zyxel/ftp/coredump	jffs2	defaults	0	0
+mtd:cert	/etc/zyxel/ftp/cert	jffs2	defaults	0	0
+tmpfs		/etc/zyxel/ftp/.tmp	tmpfs	defaults	0	0

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/l2isolation/Makefile
+Package: l2isolation
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN Layer2 isolation script
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN Layer2 isolation script
+https://www.zyxel.com/
+
+@@
+
+

@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/power_source_detect/Makefile
+Package: power_source_detect
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zld-files +zylog +zykit
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: Power Source Detect and Method Daemon
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description:   A Utility for Detecting Power Source and Do Action
+https://www.zyxel.com/
+
+@@
+
+

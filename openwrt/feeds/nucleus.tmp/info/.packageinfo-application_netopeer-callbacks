@@ -1,0 +1,22 @@
+Source-Makefile: feeds/nucleus/application/netopeer-callbacks/Makefile
+Package: netopeer-callbacks
+Submenu: application
+Version: 1.0
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +libxml2 +libnetconf +epoch +wtp_module +zylog +netopeer +zld-files +libuser_profile +fauthd +live-tool-daemon +diag_info
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: opt
+Category: Zyxel Galaxy Nucleus Software Components
+Repository: base
+Title: ProWLAN nebula netopeer callbacks
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: ProWLAN nebula netopeer callbacks
+https://www.zyxel.com/
+
+@@
+
+

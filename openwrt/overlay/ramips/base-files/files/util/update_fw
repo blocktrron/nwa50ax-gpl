@@ -1,0 +1,42 @@
+#!/bin/sh
+
+FW_LOG=/etc/zyxel/ftp/diaglog/.update-fw.log
+HELP=0
+FW_LOG_MAX_NUM=10
+export MULTIBOOT=0
+
+# parse options
+while [ -n "$1" ]; do
+	case "$1" in
+		-l) export MULTIBOOT=1;;
+		-h|--help) export HELP=1; break;;
+		-*)
+			echo "Invalid option: $1"
+			exit 1
+		;;
+		*) break;;
+	esac
+	shift;
+done
+
+ARGV="$*"
+
+[ -z "$ARGV" -o $HELP -gt 0 ] && {
+	cat <<EOF
+Usage: $0 [<option>...] <image>
+
+upgrade-option:
+	-l <img> multiboot mode
+	-h | --help display this help
+EOF
+	exit 1
+}
+
+update_num=$(cat "${FW_LOG}"|grep "Upgrade started"|wc -l)
+
+if [ ${update_num} -ge ${FW_LOG_MAX_NUM} ]; then
+	sed -i -e '1,/Upgrade started/{/Upgrade started/d;}' -e '/Upgrade started/,$!d' ${FW_LOG}
+fi
+
+/sbin/sysupgrade "$1" 2>&1 | tee -a /dev/console ${FW_LOG}
+[ $MULTIBOOT -eq 1 ] && exit "$(cat /tmp/multiboot_status)"

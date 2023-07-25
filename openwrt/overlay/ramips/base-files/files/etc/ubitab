@@ -1,0 +1,6 @@
+# /etc/ubitab: static ubinize information.
+#
+# <dev path>	<devn>
+/dev/char/mtd/by-name/rootfs_data	0
+/dev/char/mtd/by-name/logs		1
+/dev/char/mtd/by-name/myzyxel		2

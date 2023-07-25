@@ -1,0 +1,21 @@
+Source-Makefile: feeds/nucleus/kernel/br-ct/Makefile
+Package: kmod-br-ct
+Submenu: kernel
+Version: <LINUX_VERSION>+1.0-
+Depends: +kmod-nf-conntrack +kmod-nf-conntrack6
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Zyxel Galaxy Nucleus Software Components
+Title: Bridge Netfilter Conntrack
+Maintainer: 
+Source: 
+License: Zyxel Proprietary
+Type: ipkg
+Description: Bridge Netfilter Conntrack
+https://www.zyxel.com/
+
+@@
+
+

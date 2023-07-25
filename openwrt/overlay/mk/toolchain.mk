@@ -1,0 +1,2 @@
+export STRIP:=:
+export RSTRIP:=:
